@@ -13,6 +13,7 @@ corresponding to `ecdsa` package.
 As you can see, this package in this case is ~50x faster.
 
 # Supported Curves
+* P192
 * P256
 
 #Installing
@@ -25,12 +26,10 @@ your system as the underlying C code in this package includes the `gmp.h` header
 Some kinks are still being worked out, so far limited usage is as follows:
 
 ```python
-import fastecdsa
+from fastecdsa import Point
 
-x, y = (..., ...)  # whatever curve coords you want
+point = Point.Point(..., ...)  # whatever curve coords you want
 d = ...  # some scalar
-rx, ry = fastecdsa.mul(map(str, (x, y, d)))
+result = point * d
+print result.x, result.y  # printing resulting coordinates
 ```
-
-Note that `rx` and `ry` are returned as strings. You can cast them to ints if
-need be e.g. `map(int, (rx, ry))`.

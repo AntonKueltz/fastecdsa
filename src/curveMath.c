@@ -1,4 +1,5 @@
 #include "curveMath.h"
+#include <string.h>
 
 
 int pointEqual(const Point * pointA, const Point * pointB) {
@@ -128,16 +129,21 @@ PyMODINIT_FUNC initcurvemath(void) {
 
 
 static PyObject * curvemath_mul(PyObject *self, PyObject *args) {
-    char * x, * y, * d;
-    Point result;
-    mpz_t scalar;
+    char * x, * y, * d, * curveName;
 
-    if (!PyArg_ParseTuple(args, "sss", &x, &y, &d)) {
+    if (!PyArg_ParseTuple(args, "ssss", &x, &y, &d, &curveName)) {
         return NULL;
     }
 
     Point * point = buildPoint(x, y, 10);
-    Curve * curve = buildP256();
+    Curve * curve;
+    Point result;
+    mpz_t scalar;
+
+    if(strcmp(curveName, "P192") == 0) { curve = buildP192(); }
+    else if(strcmp(curveName, "P256") == 0) { curve = buildP256(); }
+    else { return NULL; }
+
     mpz_init_set_str(scalar, d, 10);
 
     pointMul(point, &result, scalar, curve);

@@ -1,4 +1,5 @@
 #include "curveMath.h"
+#include "_ecdsa.h"
 
 
 void timeTest() {
@@ -22,6 +23,21 @@ void timeTest() {
 }
 
 
+void ecdsaTest() {
+    mpz_t d;
+    mpz_init_set_str(d, "70a12c2db16845ed56ff68cfc21a472b3f04d7d6851bf6349f2d7d5b3452b38a", 16);
+    char * msg = "7c3e883ddc8bd688f96eac5e9324222c8f30f9d6bb59e9c5f020bd39ba2b8377";
+    Curve * curve = buildP256();
+
+    Sig sig;
+    sign(&sig, msg, d, curve);
+    gmp_printf("r: %Zx\ns: %Zx\n", sig.r, sig.s);
+
+    destroyCurve(curve);
+    mpz_clears(sig.r, sig.s, d, NULL);
+}
+
+
 void pythonTest() {
     char * x, * y, * d;
     Point result;
@@ -32,13 +48,7 @@ void pythonTest() {
     d = "89159128863034313675150798691418246016730671603224848136445263738857221457661";
 
     Point * point = buildPoint(x, y, 10);
-    Curve * curve = buildCurve(  // Only support P256 for now
-        "115792089210356248762697446949407573530086143415290314195533631308867097853951",
-        "-3",
-        "41058363725152142129326129780047268409114441015993725554835256314039467401291",
-        "115792089210356248762697446949407573529996955224135760342422259061068512044369",
-        10
-    );
+    Curve * curve = buildP256();
     mpz_init_set_str(scalar, d, 10);
 
     pointMul(point, &result, scalar, curve);
@@ -57,13 +67,7 @@ void p256Test() {
     mpz_t d, e;
 
     // https://www.nsa.gov/ia/_files/nist-routines.pdf
-    Curve * c = buildCurve(
-        "115792089210356248762697446949407573530086143415290314195533631308867097853951",
-        "-3",
-        "41058363725152142129326129780047268409114441015993725554835256314039467401291",
-        "115792089210356248762697446949407573529996955224135760342422259061068512044369",
-        10
-    );
+    Curve * c = buildP256();
     Point * p = buildPoint(
         "100477533340815411662634551128749658785907042636435106397366501380429417453513",
         "87104997799923409786648856004022766656120419079854375215656946413621911659094",
@@ -102,5 +106,5 @@ void p256Test() {
 
 
 int main(int argc, char * argv[]) {
-    pythonTest();
+    ecdsaTest();
 }

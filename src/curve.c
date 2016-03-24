@@ -1,18 +1,32 @@
 #include "curve.h"
 #include <stdlib.h>
 
-Curve * buildCurve(char * p, char * a, char * b, char * q, int base) {
+Curve * buildCurve(char * p, char * a, char * b, char * q, char * gx, char * gy, int base) {
     Curve * curve = (Curve *)malloc(sizeof(Curve));
     mpz_init_set_str(curve->p, p, base);
     mpz_init_set_str(curve->a, a, base);
     mpz_init_set_str(curve->b, b, base);
     mpz_init_set_str(curve->q, q, base);
+    curve->g = buildPoint(gx, gy, base);
     return curve;
 }
 
 void destroyCurve(Curve * curve) {
     mpz_clears(curve->p, curve->a, curve->b, curve->q, NULL);
+    destroyPoint(curve->g);
     free(curve);
+}
+
+Curve * buildP192() {
+    return buildCurve(
+        "6277101735386680763835789423207666416083908700390324961279",
+        "-3",
+        "2455155546008943817740293915197451784769108058161191238065",
+        "6277101735386680763835789423176059013767194773182842284081",
+        "602046282375688656758213480587526111916698976636884684818",
+        "174050332293622031404857552280219410364023488927386650641",
+        10
+    );
 }
 
 Curve * buildP256() {
@@ -21,6 +35,8 @@ Curve * buildP256() {
         "-3",
         "41058363725152142129326129780047268409114441015993725554835256314039467401291",
         "115792089210356248762697446949407573529996955224135760342422259061068512044369",
+        "48439561293906451759052585252797914202762949526041747995844080717082404635286",
+        "36134250956749795798585127919587881956611106672985015071877198253568414405109",
         10
     );
 }

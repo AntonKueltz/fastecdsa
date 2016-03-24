@@ -1,3 +1,6 @@
+#ifndef CURVEMATH_H
+#define CURVEMATH_H
+
 #include <Python/Python.h>
 #include <gmp.h>
 #include "curve.h"
@@ -9,3 +12,5 @@ void pointAdd(const Point * pointP, const Point * pointQ, Point * pointR, Curve 
 void pointMul(const Point * pointP, Point * pointR, const mpz_t d, Curve * curve);
 
 static PyObject * curvemath_mul(PyObject *self, PyObject *args);
+
+#endif
