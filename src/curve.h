@@ -6,3 +6,4 @@ typedef struct Curve {
 
 Curve * buildCurve(char * p, char * a, char * b, char * q, int base);
 void destroyCurve(Curve * curve);
+Curve * buildP256();

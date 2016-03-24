@@ -1,11 +1,12 @@
 from distutils.core import setup, Extension
 
-module1 = Extension('fastecdsa',
-                    sources=['fastecdsamodule.c', 'curveMath.c', 'curve.c', 'point.c'],
-                    extra_compile_args=['-std=c99', '-O2'],
-                    extra_link_args=['-lgmp'])
+curvemath = Extension("fastecdsa.curvemath",
+                      include_dirs=['src/'],
+                      libraries=['gmp'],
+                      sources=['src/curveMath.c', 'src/curve.c', 'src/point.c'])
 
 setup(name='fastecdsa',
       version='0.1',
       description='Fast elliptic curve arithmetic',
-      ext_modules=[module1])
+      packages=['fastecdsa'],
+      ext_modules=[curvemath])

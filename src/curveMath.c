@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "curveMath.h"
 
 
@@ -110,4 +109,44 @@ void pointMul(const Point * pointP, Point * pointR, const mpz_t d, Curve * curve
     }
 
     mpz_clears(p.x, p.y, tmp.x, tmp.y, NULL);
+}
+
+
+/******************************************************************************
+ PYTHON BINDINGS
+ ******************************************************************************/
+static PyMethodDef curvemath__methods__[] = {
+    {"mul",  curvemath_mul, METH_VARARGS,
+     "Multiply a curve point by an integer scalar."},
+    {NULL, NULL, 0, NULL}        /* Sentinel */
+};
+
+
+PyMODINIT_FUNC initcurvemath(void) {
+    (void) Py_InitModule("curvemath", curvemath__methods__);
+}
+
+
+static PyObject * curvemath_mul(PyObject *self, PyObject *args) {
+    char * x, * y, * d;
+    Point result;
+    mpz_t scalar;
+
+    if (!PyArg_ParseTuple(args, "sss", &x, &y, &d)) {
+        return NULL;
+    }
+
+    Point * point = buildPoint(x, y, 10);
+    Curve * curve = buildP256();
+    mpz_init_set_str(scalar, d, 10);
+
+    pointMul(point, &result, scalar, curve);
+    char * resultX = mpz_get_str(NULL, 10, result.x);
+    char * resultY = mpz_get_str(NULL, 10, result.y);
+
+    destroyPoint(point);
+    destroyCurve(curve);
+    mpz_clears(result.x, result.y, scalar, NULL);
+
+    return Py_BuildValue("ss", resultX, resultY);
 }
