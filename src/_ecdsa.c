@@ -14,7 +14,6 @@ void sign(Sig * sig, char * msg, mpz_t d, Curve * curve) {
 
     // convert digest to integer (digest is computed as hex in ecdsa.py)
     mpz_init_set_str(e, msg, 16);
-    gmp_printf("e: %Zd\n", e);
 
     // s = (k^-1 * (e + d * r)) mod n
     mpz_inits(kinv, sig->s, NULL);
