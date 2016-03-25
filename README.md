@@ -25,11 +25,23 @@ your system as the underlying C code in this package includes the `gmp.h` header
 #Usage
 Some kinks are still being worked out, so far limited usage is as follows:
 
+#### elliptic curve point scalar multiplication
 ```python
-from fastecdsa import Point
+from fastecdsa import point
 
-point = Point.Point(..., ...)  # whatever curve coords you want
+point = point.Point(..., ..., ['P256'|'P192'])  # whatever curve coords you want on a supported curve
 d = ...  # some scalar
 result = point * d
 print result.x, result.y  # printing resulting coordinates
+```
+
+#### signing via ECDSA
+*Currently only works with P256*
+```python
+from fastecdsa import ecdsa
+
+d = ...  # some scalar
+m = "..."  # some message
+
+(r, s) = ecdsa.sign(m, d)  # standard signature, returns two integers
 ```
