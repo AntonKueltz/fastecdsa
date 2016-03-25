@@ -10,8 +10,9 @@ typedef struct {
 } Sig;
 
 void sign(Sig * sig, char * msg, mpz_t d, Curve * curve);
-int verify(Sig * sig, char * msg);
+int verify(Sig * sig, char * msg, Point * Q, Curve * curve);
 
 static PyObject * _ecdsa_sign(PyObject *self, PyObject *args);
+static PyObject * _ecdsa_verify(PyObject *self, PyObject *args);
 
 #endif

@@ -10,4 +10,6 @@ def sign(msg, d):
 
 
 def verify(sig, msg, Q):
+    r, s = sig
     hashed = sha256(msg).hexdigest()
+    return _ecdsa.verify(str(r), str(s), hashed, str(Q.x), str(Q.y), 'P256')

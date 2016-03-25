@@ -33,8 +33,19 @@ void ecdsaTest() {
     sign(&sig, msg, d, curve);
     gmp_printf("r: %Zx\ns: %Zx\n", sig.r, sig.s);
 
-    destroyCurve(curve);
+    mpz_init_set_str(sig.r, "7214bc9647160bbd39ff2f80533f5dc6ddd70ddf86bb815661e805d5d4e6f27c", 16);
+    mpz_init_set_str(sig.s, "7d1ff961980f961bdaa3233b6209f4013317d3e3f9e1493592dbeaa1af2bc367", 16);
+    Point * Q = buildPoint(
+        "8101ece47464a6ead70cf69a6e2bd3d88691a3262d22cba4f7635eaff26680a8",
+        "d8a12ba61d599235f67d9cb4d58f1783d3ca43e78f0a5abaa624079936c0c3a9",
+        16
+    );
+    int equal = verify(&sig, msg, Q, curve);
+    printf("%s\n", equal ? "True" : "False");
+
     mpz_clears(sig.r, sig.s, d, NULL);
+    destroyCurve(curve);
+    destroyPoint(Q);
 }
 
 
