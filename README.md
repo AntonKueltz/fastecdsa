@@ -35,13 +35,15 @@ result = point * d
 print result.x, result.y  # printing resulting coordinates
 ```
 
-#### signing via ECDSA
+#### signing and verifying signatures via ECDSA
 *Currently only works with P256*
 ```python
 from fastecdsa import ecdsa
 
-d = ...  # some scalar
+d = ...  # some scalar (private key)
+Q = G * d  # G is the curves generator point, Q is the public key
 m = "..."  # some message
 
 (r, s) = ecdsa.sign(m, d)  # standard signature, returns two integers
+valid = ecdsa.verify((r, s), m, Q)  # should return True as the signature we just generated is valid.
 ```
