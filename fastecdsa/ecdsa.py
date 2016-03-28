@@ -15,12 +15,12 @@ class KeyPair:
         self.curve = curve
 
     def sign(self, msg):
-        hashed = sha256(msg).hexdigest()[-64:]
-        r, s = _ecdsa.sign(hashed, str(self.d), 'P256')
+        hashed = sha256(msg).hexdigest()
+        r, s = _ecdsa.sign(hashed, str(self.d), self.curve.name)
         return int(r), int(s)
 
     def verify(self, sig, msg):
         r, s = sig
         qx, qy = self.Q
         hashed = sha256(msg).hexdigest()
-        return _ecdsa.verify(str(r), str(s), hashed, str(qx), str(qy), 'P256')
+        return _ecdsa.verify(str(r), str(s), hashed, str(qx), str(qy), self.curve.name)
