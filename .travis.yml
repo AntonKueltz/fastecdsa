@@ -2,7 +2,7 @@ language: python
 python:
   - 2.7
 before_install:
-  - sudo apt-get install python-dev
+  - sudo apt-get install python-dev libgmp3-dev
 install:
   - pip install pep8
 before_script:
