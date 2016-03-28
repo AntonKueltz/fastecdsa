@@ -25,25 +25,13 @@ your system as the underlying C code in this package includes the `gmp.h` header
 #Usage
 Some kinks are still being worked out, so far limited usage is as follows:
 
-#### elliptic curve point scalar multiplication
-```python
-from fastecdsa import point
-
-point = point.Point(..., ..., ['P256'|'P192'])  # whatever curve coords you want on a supported curve
-d = ...  # some scalar
-result = point * d
-print result.x, result.y  # printing resulting coordinates
-```
-
 #### signing and verifying signatures via ECDSA
-*Currently only works with P256*
 ```python
-from fastecdsa import ecdsa
+from fastecdsa import curve, ecdsa
 
-d = ...  # some scalar (private key)
-Q = G * d  # G is the curves generator point, Q is the public key
+keys = ecdsa.KeyPair(curve=curve.P256)  # use NOST curve P256
 m = "..."  # some message
 
-(r, s) = ecdsa.sign(m, d)  # standard signature, returns two integers
-valid = ecdsa.verify((r, s), m, Q)  # should return True as the signature we just generated is valid.
+(r, s) = keys.sign(m)  # standard signature, returns two integers
+valid = keys.verify((r, s), m)  # should return True as the signature we just generated is valid.
 ```
