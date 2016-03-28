@@ -1,7 +1,12 @@
 #ifndef _ECDSA_H
 #define _ECDSA_H
 
+#ifdef __APPLE__
 #include <Python/Python.h>
+#else
+#include <Python.h>
+#endif
+
 #include <gmp.h>
 #include "curveMath.h"
 
