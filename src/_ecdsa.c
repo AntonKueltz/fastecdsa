@@ -80,7 +80,10 @@ static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
     Sig sig;
 
     if(strcmp(curveName, "P192") == 0) { curve = buildP192(); }
+    else if(strcmp(curveName, "P224") == 0) { curve = buildP224(); }
     else if(strcmp(curveName, "P256") == 0) { curve = buildP256(); }
+    else if(strcmp(curveName, "P384") == 0) { curve = buildP384(); }
+    else if(strcmp(curveName, "P521") == 0) { curve = buildP521(); }
     else { return NULL; }
 
     mpz_init_set_str(privKey, d, 10);
@@ -108,7 +111,10 @@ static PyObject * _ecdsa_verify(PyObject *self, PyObject *args) {
     Sig sig;
 
     if(strcmp(curveName, "P192") == 0) { curve = buildP192(); }
+    else if(strcmp(curveName, "P224") == 0) { curve = buildP224(); }
     else if(strcmp(curveName, "P256") == 0) { curve = buildP256(); }
+    else if(strcmp(curveName, "P384") == 0) { curve = buildP384(); }
+    else if(strcmp(curveName, "P521") == 0) { curve = buildP521(); }
     else { return NULL; }
 
     mpz_init_set_str(sig.r, r, 10);

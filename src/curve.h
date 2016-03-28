@@ -13,6 +13,9 @@ Curve * buildCurve(char * p, char * a, char * b, char * q, char * gx, char * gy,
 void destroyCurve(Curve * curve);
 
 Curve * buildP192();
+Curve * buildP224();
 Curve * buildP256();
+Curve * buildP384();
+Curve * buildP521();
 
 #endif
