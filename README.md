@@ -14,7 +14,10 @@ As you can see, this package in this case is ~50x faster.
 
 # Supported Curves
 * P192
+* P224
 * P256
+* P384
+* P521
 
 #Installing
 Run `python setup.py install`. Note that you need to have C compiler that
