@@ -1,4 +1,5 @@
 #fastecdsa
+[![Build Status](https://travis-ci.org/AntonKueltz/fastecdsa.svg?branch=master)](https://travis-ci.org/AntonKueltz/fastecdsa)
 
 **DO NOT USE THIS PACKAGE FOR PROD, I HAVE NOT MITIGATED SIDE CHANNELS YET**
 
