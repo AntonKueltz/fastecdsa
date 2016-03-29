@@ -83,7 +83,7 @@ class TestECDSA(unittest.TestCase):
         keys = KeyPair(P256)
         msg = 'Some test message to be signed via ECDSA'
         sig = keys.sign(msg)
-        keys.verify(sig, msg)
+        self.assertTrue(keys.verify(sig, msg))
 
     ''' case taken from https://www.nsa.gov/ia/_files/ecdsa.pdf '''
     def test_ecdsa_P256_verify(self):
