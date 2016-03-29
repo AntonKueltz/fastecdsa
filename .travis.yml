@@ -4,7 +4,7 @@ python:
 before_install:
   - sudo apt-get install python-dev libgmp3-dev
 install:
-  - pip install pep8
+  - pip install pep8 pycrypto
 before_script:
   - pep8 --max-line-length=1000 --ignore=E402 */*.py
   - python setup.py install

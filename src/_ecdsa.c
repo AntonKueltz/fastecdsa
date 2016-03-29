@@ -2,10 +2,9 @@
 #include <string.h>
 
 
-void sign(Sig * sig, char * msg, mpz_t d, Curve * curve) {
+void sign(Sig * sig, char * msg, mpz_t d, mpz_t k, Curve * curve) {
     // TODO - hardcoded for now to test NIST vectors. DON'T USE IN PROD OR BE LIKE SONY
-    mpz_t k, e, kinv;
-    mpz_init_set_str(k, "580ec00d856434334cef3f71ecaed4965b12ae37fa47055b1965c7b134ee45d0", 16);
+    mpz_t e, kinv;
 
     // R = k * G, r = R[x]
     Point R;
@@ -23,7 +22,7 @@ void sign(Sig * sig, char * msg, mpz_t d, Curve * curve) {
     mpz_mul(sig->s, sig->s, kinv);
     mpz_mod(sig->s, sig->s, curve->q);
 
-    mpz_clears(k, e, kinv, NULL);
+    mpz_clears(e, kinv, NULL);
 }
 
 // TODO Shamir's trick for two mults and add
@@ -69,13 +68,13 @@ PyMODINIT_FUNC init_ecdsa(void) {
 
 
 static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
-    char * msg, * d, * curveName;
+    char * msg, * d, * k, * curveName;
 
-    if (!PyArg_ParseTuple(args, "sss", &msg, &d, &curveName)) {
+    if (!PyArg_ParseTuple(args, "ssss", &msg, &d, &k, &curveName)) {
         return NULL;
     }
 
-    mpz_t privKey;
+    mpz_t privKey, nonce;
     Curve * curve;
     Sig sig;
 
@@ -87,8 +86,9 @@ static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
     else { return NULL; }
 
     mpz_init_set_str(privKey, d, 10);
+    mpz_init_set_str(nonce, k, 10);
 
-    sign(&sig, msg, privKey, curve);
+    sign(&sig, msg, privKey, nonce, curve);
     char * resultR = mpz_get_str(NULL, 10, sig.r);
     char * resultS = mpz_get_str(NULL, 10, sig.s);
 

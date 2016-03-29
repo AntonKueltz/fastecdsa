@@ -24,13 +24,15 @@ void timeTest() {
 
 
 void ecdsaTest() {
-    mpz_t d;
+    mpz_t d, k;
     mpz_init_set_str(d, "70a12c2db16845ed56ff68cfc21a472b3f04d7d6851bf6349f2d7d5b3452b38a", 16);
+    mpz_init_set_str(k, "580ec00d856434334cef3f71ecaed4965b12ae37fa47055b1965c7b134ee45d0", 16);
+
     char * msg = "7c3e883ddc8bd688f96eac5e9324222c8f30f9d6bb59e9c5f020bd39ba2b8377";
     Curve * curve = buildP256();
 
     Sig sig;
-    sign(&sig, msg, d, curve);
+    sign(&sig, msg, d, k, curve);
     gmp_printf("r: %Zx\ns: %Zx\n", sig.r, sig.s);
 
     mpz_init_set_str(sig.r, "7214bc9647160bbd39ff2f80533f5dc6ddd70ddf86bb815661e805d5d4e6f27c", 16);
