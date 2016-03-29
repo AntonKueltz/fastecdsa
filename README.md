@@ -3,7 +3,7 @@
 
 **DO NOT USE THIS PACKAGE FOR PROD, I HAVE NOT MITIGATED SIDE CHANNELS YET**
 
-# About
+## About
 This is a python package for doing fast elliptic curve cryptography, specifically
 digital signatures.
 

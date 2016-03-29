@@ -2,3 +2,5 @@ build/
 ecdsa
 *.o
 *.pyc
+*.so
+*.egg-info
