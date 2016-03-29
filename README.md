@@ -53,7 +53,6 @@ valid = keys.verify((r, s), m)  # should return True as the signature we just ge
 Current issues are:
 
 * Branching on secret data i.e. non-constant time point multiplication
-* Hard coded nonce in the signing algorithm (THIS WILL PWN YOU)
 
 As such *DO NOT USE THIS PACKAGE IN PROD FOR ANYTHING REQUIRING ANY CRYPTOGRAPHIC
 GUARANTEES / SECURITY CRITICAL APPLICATIONS*.
