@@ -9,14 +9,15 @@ from Crypto.Random.random import randint  # Use python secure random for now
 
 
 class KeyPair:
-    def __init__(self, curve):
+    def __init__(self, curve, hashfunc=sha256):
         self.d = randint(2, curve.q - 1)
         self.Q = curve.pointMul(curve.G, self.d)
         self.curve = curve
+        self.hashfunc = hashfunc
 
     def sign(self, msg):
-        hashed = sha256(msg).digest()
-        rfc6979 = RFC6979(self.d, self.curve.q, msg)
+        hashed = self.hashfunc(msg).digest()
+        rfc6979 = RFC6979(msg, self.d, self.curve.q, self.hashfunc)
         k = rfc6979.gen_nonce()
         r, s = _ecdsa.sign(hashed.encode('hex'), str(self.d), str(k), self.curve.name)
         return int(r), int(s)
@@ -30,7 +31,7 @@ class KeyPair:
             raise EcdsaError('Invalid Signature: r is not a positive integer smaller than the curve order')
 
         qx, qy = self.Q
-        hashed = sha256(msg).hexdigest()
+        hashed = self.hashfunc(msg).hexdigest()
         return _ecdsa.verify(str(r), str(s), hashed, str(qx), str(qy), self.curve.name)
 
 

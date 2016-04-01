@@ -45,9 +45,19 @@ void ecdsaTest() {
     int equal = verify(&sig, msg, Q, curve);
     printf("%s\n", equal ? "True" : "False");
 
-    mpz_clears(sig.r, sig.s, d, NULL);
+    mpz_set_str(d, "C9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721", 16);
+    mpz_set_str(k, "5FA81C63109BADB88C1F367B47DA606DA28CAD69AA22C4FE6AD7DF73A7173AA5", 16);
+
+    char * msg2 = "39a5e04aaff7455d9850c605364f514c11324ce64016960d23d5dc57d3ffd8f49a739468ab8049bf18eef820cdb1ad6c9015f838556bc7fad4138b23fdf986c7";
+
+    sign(&sig, msg2, d, k, curve);
+    gmp_printf("r: %Zx\ns: %Zx\n", sig.r, sig.s);
+
+    mpz_clears(sig.r, sig.s, d, k, NULL);
     destroyCurve(curve);
     destroyPoint(Q);
+
+
 }
 
 

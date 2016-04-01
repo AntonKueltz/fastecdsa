@@ -3,7 +3,6 @@
 
 
 void sign(Sig * sig, char * msg, mpz_t d, mpz_t k, Curve * curve) {
-    // TODO - hardcoded for now to test NIST vectors. DON'T USE IN PROD OR BE LIKE SONY
     mpz_t e, kinv;
 
     // R = k * G, r = R[x]
@@ -13,6 +12,12 @@ void sign(Sig * sig, char * msg, mpz_t d, mpz_t k, Curve * curve) {
 
     // convert digest to integer (digest is computed as hex in ecdsa.py)
     mpz_init_set_str(e, msg, 16);
+    int orderBits = mpz_sizeinbase(curve->q, 2);
+    int digestBits = ((mpz_sizeinbase(e, 2) + 3) / 4) * 4;
+
+    if(digestBits > orderBits) {
+        mpz_fdiv_q_2exp(e, e, digestBits - orderBits);
+    }
 
     // s = (k^-1 * (e + d * r)) mod n
     mpz_inits(kinv, sig->s, NULL);
@@ -24,6 +29,7 @@ void sign(Sig * sig, char * msg, mpz_t d, mpz_t k, Curve * curve) {
 
     mpz_clears(e, kinv, NULL);
 }
+
 
 // TODO Shamir's trick for two mults and add
 // TODO validate Q, r, s
@@ -49,6 +55,7 @@ int verify(Sig * sig, char * msg, Point * Q, Curve * curve) {
     mpz_clears(e, w, u1, u2, tmp1.x, tmp1.y, tmp2.x, tmp2.y, tmp3.x, tmp3.y, NULL);
     return equal;
 }
+
 
 /******************************************************************************
  PYTHON BINDINGS
