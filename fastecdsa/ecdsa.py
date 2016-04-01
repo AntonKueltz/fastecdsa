@@ -1,7 +1,9 @@
 from hashlib import sha256  # Python standard lib SHA2 is already in C
+import hmac
 from os import urandom
 
 from fastecdsa import _ecdsa
+from util import RFC6979
 
 from Crypto.Random.random import randint  # Use python secure random for now
 
@@ -13,9 +15,10 @@ class KeyPair:
         self.curve = curve
 
     def sign(self, msg):
-        hashed = sha256(msg).hexdigest()
-        k = randint(1, self.curve.q - 1)
-        r, s = _ecdsa.sign(hashed, str(self.d), str(k), self.curve.name)
+        hashed = sha256(msg).digest()
+        rfc6979 = RFC6979(self.d, self.curve.q, msg)
+        k = rfc6979.gen_nonce()
+        r, s = _ecdsa.sign(hashed.encode('hex'), str(self.d), str(k), self.curve.name)
         return int(r), int(s)
 
     def verify(self, sig, msg):

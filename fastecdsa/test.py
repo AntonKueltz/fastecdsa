@@ -79,11 +79,16 @@ class TestCurve(unittest.TestCase):
 
 
 class TestECDSA(unittest.TestCase):
+    ''' case taken from http://tools.ietf.org/html/rfc6979#section-A.2.5 '''
     def test_ecdsa_P256_sign(self):
         keys = KeyPair(P256)
-        msg = 'Some test message to be signed via ECDSA'
-        sig = keys.sign(msg)
-        self.assertTrue(keys.verify(sig, msg))
+        keys.d = 0xC9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721
+        expected = (
+            0xEFD48B2AACB6A8FD1140DD9CD45E81D69D2C877B56AAF991C34D0EA84EAF3716,
+            0xF7CB1C942D657C41D436C7A1B6E29F65F3E900DBB9AFF4064DC4AB2F843ACDA8
+        )
+        sig = keys.sign("sample")
+        self.assertTrue(sig == expected)
 
     ''' case taken from https://www.nsa.gov/ia/_files/ecdsa.pdf '''
     def test_ecdsa_P256_verify(self):
