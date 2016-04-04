@@ -11,7 +11,7 @@ from Crypto.Random.random import randint  # Use python secure random for now
 class KeyPair:
     def __init__(self, curve, hashfunc=sha256):
         self.d = randint(2, curve.q - 1)
-        self.Q = curve.pointMul(curve.G, self.d)
+        self.Q = curve.point_mul(curve.G, self.d)
         self.curve = curve
         self.hashfunc = hashfunc
 

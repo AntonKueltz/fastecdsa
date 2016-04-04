@@ -14,6 +14,7 @@ digital signatures.
 * P256
 * P384
 * P521
+* secp256k1 (bitcoin curve)
 
 #### Hash Functions
 * SHA1

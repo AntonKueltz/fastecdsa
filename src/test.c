@@ -127,7 +127,29 @@ void p256Test() {
     mpz_clears(r.x, r.y, s.x, s.y, t.x, t.y, d, e, NULL);
 }
 
+void secp256k1Test() {
+    Point r;
+    mpz_t d;
+
+    Point * g = buildPoint(
+        "79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798",
+        "483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8",
+        16
+    );
+    Curve * c = buildSecp256k1();
+    // param from http://crypto.stackexchange.com/a/787/17884
+    mpz_init_set_str(d, "AA5E28D6A97A2479A65527F7290311A3624D4CC0FA1578598EE3C2613BF99522", 16);
+    mpz_inits(r.x, r.y, NULL);
+
+    pointMul(g, &r, d, c);
+    gmp_printf("(%ZX,\n %ZX)\n", r.x, r.y);
+
+    destroyCurve(c);
+    destroyPoint(g);
+    mpz_clears(d, r.x, r.y, NULL);
+}
+
 
 int main(int argc, char * argv[]) {
-    ecdsaTest();
+    secp256k1Test();
 }

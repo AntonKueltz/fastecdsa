@@ -1,7 +1,7 @@
 from hashlib import sha1, sha224, sha384, sha512
 import unittest
 
-from curve import P192, P224, P256, P384, P521
+from curve import P192, P224, P256, P384, P521, secp256k1
 from ecdsa import KeyPair
 
 
@@ -18,7 +18,7 @@ class TestCurve(unittest.TestCase):
             0x1faee4205a4f669d2d0a8f25e3bcec9a62a6952965bf6d31,
             0x5ff2cdfa508a2581892367087c696f179e7a4d7e8260fb06
         )
-        R = P192.pointMul(S, d)
+        R = P192.point_mul(S, d)
         self.assertTrue(R[0] == expected[0])
         self.assertTrue(R[1] == expected[1])
 
@@ -32,7 +32,7 @@ class TestCurve(unittest.TestCase):
             0x96a7625e92a8d72bff1113abdb95777e736a14c6fdaacc392702bca4,
             0x0f8e5702942a3c5e13cd2fd5801915258b43dfadc70d15dbada3ed10
         )
-        R = P224.pointMul(S, d)
+        R = P224.point_mul(S, d)
         self.assertTrue(R[0] == expected[0])
         self.assertTrue(R[1] == expected[1])
 
@@ -46,7 +46,7 @@ class TestCurve(unittest.TestCase):
             0x51d08d5f2d4278882946d88d83c97d11e62becc3cfc18bedacc89ba34eeca03f,
             0x75ee68eb8bf626aa5b673ab51f6e744e06f8fcf8a6c0cf3035beca956a7b41d5
         )
-        R = P256.pointMul(S, d)
+        R = P256.point_mul(S, d)
         self.assertTrue(R[0] == expected[0])
         self.assertTrue(R[1] == expected[1])
 
@@ -60,7 +60,7 @@ class TestCurve(unittest.TestCase):
             0xe4f77e7ffeb7f0958910e3a680d677a477191df166160ff7ef6bb5261f791aa7b45e3e653d151b95dad3d93ca0290ef2,
             0xac7dee41d8c5f4a7d5836960a773cfc1376289d3373f8cf7417b0c6207ac32e913856612fc9ff2e357eb2ee05cf9667f
         )
-        R = P384.pointMul(S, d)
+        R = P384.point_mul(S, d)
         self.assertTrue(R[0] == expected[0])
         self.assertTrue(R[1] == expected[1])
 
@@ -74,9 +74,56 @@ class TestCurve(unittest.TestCase):
             0x00000091b15d09d0ca0353f8f96b93cdb13497b0a4bb582ae9ebefa35eee61bf7b7d041b8ec34c6c00c0c0671c4ae063318fb75be87af4fe859608c95f0ab4774f8c95bb,
             0x00000130f8f8b5e1abb4dd94f6baaf654a2d5810411e77b7423965e0c7fd79ec1ae563c207bd255ee9828eb7a03fed565240d2cc80ddd2cecbb2eb50f0951f75ad87977f
         )
-        R = P521.pointMul(S, d)
+        R = P521.point_mul(S, d)
         self.assertTrue(R[0] == expected[0])
         self.assertTrue(R[1] == expected[1])
+
+    def test_secp256k1_arith(self):
+        # http://crypto.stackexchange.com/a/787/17884
+        m = 0xAA5E28D6A97A2479A65527F7290311A3624D4CC0FA1578598EE3C2613BF99522
+        expected = (
+            0x34F9460F0E4F08393D192B3C5133A6BA099AA0AD9FD54EBCCFACDFA239FF49C6,
+            0x0B71EA9BD730FD8923F6D25A7A91E7DD7728A960686CB5A901BB419E0F2CA232
+        )
+        (X, Y) = secp256k1.point_mul(secp256k1.G, m)
+        self.assertTrue(X == expected[0])
+        self.assertTrue(Y == expected[1])
+
+        m = 0x7E2B897B8CEBC6361663AD410835639826D590F393D90A9538881735256DFAE3
+        expected = (
+            0xD74BF844B0862475103D96A611CF2D898447E288D34B360BC885CB8CE7C00575,
+            0x131C670D414C4546B88AC3FF664611B1C38CEB1C21D76369D7A7A0969D61D97D
+        )
+        (X, Y) = secp256k1.point_mul(secp256k1.G, m)
+        self.assertTrue(X == expected[0])
+        self.assertTrue(Y == expected[1])
+
+        m = 0x6461E6DF0FE7DFD05329F41BF771B86578143D4DD1F7866FB4CA7E97C5FA945D
+        expected = (
+            0xE8AECC370AEDD953483719A116711963CE201AC3EB21D3F3257BB48668C6A72F,
+            0xC25CAF2F0EBA1DDB2F0F3F47866299EF907867B7D27E95B3873BF98397B24EE1
+        )
+        (X, Y) = secp256k1.point_mul(secp256k1.G, m)
+        self.assertTrue(X == expected[0])
+        self.assertTrue(Y == expected[1])
+
+        m = 0x376A3A2CDCD12581EFFF13EE4AD44C4044B8A0524C42422A7E1E181E4DEECCEC
+        expected = (
+            0x14890E61FCD4B0BD92E5B36C81372CA6FED471EF3AA60A3E415EE4FE987DABA1,
+            0x297B858D9F752AB42D3BCA67EE0EB6DCD1C2B7B0DBE23397E66ADC272263F982
+        )
+        (X, Y) = secp256k1.point_mul(secp256k1.G, m)
+        self.assertTrue(X == expected[0])
+        self.assertTrue(Y == expected[1])
+
+        m = 0x1B22644A7BE026548810C378D0B2994EEFA6D2B9881803CB02CEFF865287D1B9
+        expected = (
+            0xF73C65EAD01C5126F28F442D087689BFA08E12763E0CEC1D35B01751FD735ED3,
+            0xF449A8376906482A84ED01479BD18882B919C140D638307F0C0934BA12590BDE
+        )
+        (X, Y) = secp256k1.point_mul(secp256k1.G, m)
+        self.assertTrue(X == expected[0])
+        self.assertTrue(Y == expected[1])
 
 
 class TestECDSA(unittest.TestCase):

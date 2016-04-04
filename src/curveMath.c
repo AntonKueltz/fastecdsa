@@ -145,6 +145,7 @@ static PyObject * curvemath_mul(PyObject *self, PyObject *args) {
     else if(strcmp(curveName, "P256") == 0) { curve = buildP256(); }
     else if(strcmp(curveName, "P384") == 0) { curve = buildP384(); }
     else if(strcmp(curveName, "P521") == 0) { curve = buildP521(); }
+    else if(strcmp(curveName, "secp256k1") == 0) { curve = buildSecp256k1(); }
     else { return NULL; }
 
     mpz_init_set_str(scalar, d, 10);

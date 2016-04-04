@@ -10,16 +10,16 @@ class Curve:
         self.G = (gx, gy)
         self.q = q
 
-    def isPointOnCurve(self, P):
+    def is_point_on_curve(self, P):
         ''' check if a point P (int, int) is on the curve '''
         x, y, = P[0], P[1]
         left = y * y
         right = (x * x * x) + (self.a * x) + self.b
         return (left - right) % self.p == 0
 
-    def pointMul(self, P, d):
+    def point_mul(self, P, d):
         ''' Multiply a point P (int, int) with a scalar (d) '''
-        if self.isPointOnCurve(P):
+        if self.is_point_on_curve(P):
             return map(int, curvemath.mul(str(P[0]), str(P[1]), str(d), self.name))
         else:
             return (0, 0)
@@ -70,4 +70,15 @@ P521 = Curve(
     6864797660130609714981900799081393217269435300143305409394463459185543183397655394245057746333217197532963996371363321113864768612440380340372808892707005449,
     2661740802050217063228768716723360960729859168756973147706671368418802944996427808491545080627771902352094241225065558662157113545570916814161637315895999846,
     3757180025770020463545507224491183603594455134769762486694567779615544477440556316691234405012945539562144444537289428522585666729196580810124344277578376784
+)
+
+# see http://www.secg.org/sec2-v2.pdf for params
+secp256k1 = Curve(
+    'secp256k1',
+    0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F,
+    0x0,
+    0x7,
+    0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141,
+    0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798,
+    0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8
 )

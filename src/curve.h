@@ -17,5 +17,6 @@ Curve * buildP224();
 Curve * buildP256();
 Curve * buildP384();
 Curve * buildP521();
+Curve * buildSecp256k1();
 
 #endif
