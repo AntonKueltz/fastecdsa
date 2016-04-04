@@ -1,5 +1,19 @@
-from distutils.core import setup, Extension
+from distutils.core import setup, Extension, Command
 
+
+class TestCommand(Command):
+    user_options = []
+    description = "Run all tests"
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        from subprocess import call
+        call(['python', 'fastecdsa/test.py'])
 
 curvemath = Extension(
     'fastecdsa.curvemath',
@@ -23,5 +37,6 @@ setup(
     description='Fast elliptic curve digital signatures',
     url='https://github.com/AntonKueltz/fastecdsa',
     packages=['fastecdsa'],
-    ext_modules=[curvemath, _ecdsa]
+    ext_modules=[curvemath, _ecdsa],
+    cmdclass={'test': TestCommand}
 )

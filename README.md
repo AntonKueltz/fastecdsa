@@ -7,12 +7,20 @@
 This is a python package for doing fast elliptic curve cryptography, specifically
 digital signatures.
 
-## Supported Curves
+## Supported Primitives
+#### Curves
 * P192
 * P224
 * P256
 * P384
 * P521
+
+#### Hash Functions
+* SHA1
+* SHA224
+* SHA256 (SHA2)
+* SHA384
+* SHA512
 
 ## Performance
 Currently it does basic point multiplication significantly faster than the `ecdsa`
@@ -41,12 +49,18 @@ Some kinks are still being worked out, so far limited usage is as follows:
 #### signing and verifying signatures via ECDSA
 ```python
 from fastecdsa import curve, ecdsa
+from hashlib import sha384
 
 keys = ecdsa.KeyPair(curve=curve.P256)  # use NIST curve P256
 m = "a message to sign via ECDSA"  # some message
 
 (r, s) = keys.sign(m)  # standard signature, returns two integers
 valid = keys.verify((r, s), m)  # should return True as the signature we just generated is valid.
+
+''' specify a different hash function to use with ECDSA '''
+keys = ecdsa.KeyPair(curve=curve.P256, hashfunc=sha384)  # use NIST curve P256 with SHA384
+(r, s) = keys.sign(m)
+valid = keys.verify((r, s), m)
 ```
 
 ## Security
