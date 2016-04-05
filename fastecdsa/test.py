@@ -1,8 +1,8 @@
 from hashlib import sha1, sha224, sha384, sha512
 import unittest
 
-from curve import P192, P224, P256, P384, P521, secp256k1
-from ecdsa import KeyPair
+from .curve import P192, P224, P256, P384, P521, secp256k1
+from .ecdsa import KeyPair
 
 
 class TestCurve(unittest.TestCase):

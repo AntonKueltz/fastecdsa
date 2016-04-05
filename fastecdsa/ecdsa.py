@@ -3,9 +3,7 @@ import hmac
 from os import urandom
 
 from fastecdsa import _ecdsa
-from util import RFC6979
-
-from Crypto.Random.random import randint  # Use python secure random for now
+from .util import RFC6979
 
 
 class KeyPair:
@@ -28,7 +26,7 @@ class KeyPair:
         if r > self.curve.q or r < 1:
             raise EcdsaError('Invalid Signature: r is not a positive integer smaller than the curve order')
         elif s > self.curve.q or s < 1:
-            raise EcdsaError('Invalid Signature: r is not a positive integer smaller than the curve order')
+            raise EcdsaError('Invalid Signature: s is not a positive integer smaller than the curve order')
 
         qx, qy = self.Q
         hashed = self.hashfunc(msg).hexdigest()

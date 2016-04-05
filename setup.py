@@ -20,7 +20,7 @@ curvemath = Extension(
     include_dirs=['src/'],
     libraries=['gmp'],
     sources=['src/curveMath.c', 'src/curve.c', 'src/point.c'],
-    extra_compile_args=['-std=c99', '-O2']
+    extra_compile_args=['-O2']
 )
 
 _ecdsa = Extension(
@@ -28,12 +28,12 @@ _ecdsa = Extension(
     include_dirs=['src/'],
     libraries=['gmp'],
     sources=['src/_ecdsa.c', 'src/curveMath.c', 'src/curve.c', 'src/point.c'],
-    extra_compile_args=['-std=c99', '-O2']
+    extra_compile_args=['-O2']
 )
 
 setup(
     name='fastecdsa',
-    version='1.0.1',
+    version='1.0.2',
     author='Anton Kueltz',
     author_email='kueltz.anton@gmail.com',
     license='CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',

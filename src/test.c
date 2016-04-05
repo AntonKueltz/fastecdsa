@@ -2,27 +2,6 @@
 #include "_ecdsa.h"
 
 
-void timeTest(void) {
-    Point p, r;
-    Curve c;
-    mpz_t d;
-
-    mpz_init_set_str(p.x, "48439561293906451759052585252797914202762949526041747995844080717082404635286", 10);
-    mpz_init_set_str(p.y, "36134250956749795798585127919587881956611106672985015071877198253568414405109", 10);
-    mpz_init_set_str(c.p, "115792089210356248762697446949407573530086143415290314195533631308867097853951", 10);
-    mpz_init_set_si(c.a, -3);
-    mpz_inits(r.x, r.y, d, NULL);
-
-    for(unsigned int i = 2; i < 1000; i++) {
-        mpz_set_ui(d, i);
-        pointMul(&p, &r, d, &c);
-        gmp_printf("%Zx\n", r.x);
-    }
-
-    mpz_clears(d, r.y, r.x, c.a, c.p, p.y, p.x, NULL);
-}
-
-
 void ecdsaTest(void) {
     mpz_t d, k;
     mpz_init_set_str(d, "70a12c2db16845ed56ff68cfc21a472b3f04d7d6851bf6349f2d7d5b3452b38a", 16);
@@ -150,4 +129,5 @@ void secp256k1Test(void) {
 
 int main(int argc, char * argv[]) {
     ecdsaTest();
+    return 0;
 }
