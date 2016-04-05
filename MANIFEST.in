@@ -1,14 +1,4 @@
-setup.py
-fastecdsa/__init__.py
-fastecdsa/curve.py
-fastecdsa/ecdsa.py
-fastecdsa/test.py
-fastecdsa/util.py
-src/_ecdsa.c
-src/_ecdsa.h
-src/curve.c
-src/curve.h
-src/curveMath.c
-src/curveMath.h
-src/point.c
-src/point.h
+include src/_ecdsa.h
+include src/curve.h
+include src/curveMath.h
+include src/point.h
