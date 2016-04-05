@@ -76,8 +76,6 @@ void pythonTest() {
 
     pointMul(point, &result, scalar, curve);
     gmp_printf("(%Zx,\n %Zx)\n", result.x, result.y);
-    char * resultX = mpz_get_str(NULL, 10, result.x);
-    char * resultY = mpz_get_str(NULL, 10, result.y);
 
     destroyPoint(point);
     destroyCurve(curve);

@@ -60,20 +60,6 @@ int verify(Sig * sig, char * msg, Point * Q, Curve * curve) {
 /******************************************************************************
  PYTHON BINDINGS
  ******************************************************************************/
-static PyMethodDef _ecdsa__methods__[] = {
-    {"sign",  _ecdsa_sign, METH_VARARGS,
-     "Sign a message via ECDSA."},
-    {"verify",  _ecdsa_verify, METH_VARARGS,
-     "Verify a signature via ECDSA."},
-    {NULL, NULL, 0, NULL}        /* Sentinel */
-};
-
-
-PyMODINIT_FUNC init_ecdsa(void) {
-    (void) Py_InitModule("_ecdsa", _ecdsa__methods__);
-}
-
-
 static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
     char * msg, * d, * k, * curveName;
 
@@ -135,4 +121,18 @@ static PyObject * _ecdsa_verify(PyObject *self, PyObject *args) {
     mpz_clears(sig.r, sig.s, NULL);
 
     return Py_BuildValue("O", valid ? Py_True : Py_False);
+}
+
+
+static PyMethodDef _ecdsa__methods__[] = {
+    {"sign",  _ecdsa_sign, METH_VARARGS,
+     "Sign a message via ECDSA."},
+    {"verify",  _ecdsa_verify, METH_VARARGS,
+     "Verify a signature via ECDSA."},
+    {NULL, NULL, 0, NULL}        /* Sentinel */
+};
+
+
+PyMODINIT_FUNC init_ecdsa(void) {
+    (void) Py_InitModule("_ecdsa", _ecdsa__methods__);
 }

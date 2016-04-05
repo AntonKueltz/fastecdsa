@@ -116,18 +116,6 @@ void pointMul(const Point * P, Point * R, const mpz_t d, Curve * curve) {
 /******************************************************************************
  PYTHON BINDINGS
  ******************************************************************************/
-static PyMethodDef curvemath__methods__[] = {
-    {"mul",  curvemath_mul, METH_VARARGS,
-     "Multiply a curve point by an integer scalar."},
-    {NULL, NULL, 0, NULL}        /* Sentinel */
-};
-
-
-PyMODINIT_FUNC initcurvemath(void) {
-    (void) Py_InitModule("curvemath", curvemath__methods__);
-}
-
-
 static PyObject * curvemath_mul(PyObject *self, PyObject *args) {
     char * x, * y, * d, * curveName;
 
@@ -159,4 +147,16 @@ static PyObject * curvemath_mul(PyObject *self, PyObject *args) {
     mpz_clears(result.x, result.y, scalar, NULL);
 
     return Py_BuildValue("ss", resultX, resultY);
+}
+
+
+static PyMethodDef curvemath__methods__[] = {
+    {"mul",  curvemath_mul, METH_VARARGS,
+     "Multiply a curve point by an integer scalar."},
+    {NULL, NULL, 0, NULL}        /* Sentinel */
+};
+
+
+PyMODINIT_FUNC initcurvemath(void) {
+    (void) Py_InitModule("curvemath", curvemath__methods__);
 }
