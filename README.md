@@ -32,14 +32,14 @@ package. You can see the times for 1,000 signature and verification operations b
 As you can see, this package in this case is ~25x faster.
 
 ## Installing
-Run `python setup.py install` (or `pip install -e .`). Note that you need to have C compiler that
-supports the C99  standard. You also need to have [GMP](https://gmplib.org/) on
-your system as the underlying C code in this package includes the `gmp.h` header
-(and links against gmp via the `-lgmp` flag). On debian you can install all
-dependencies as follows:
+You can use pip: `$ pip install fastecdsa` or clone the repo and use `$ python setup.py 
+install`. Note that you need to have C compiler that supports the C99  standard. You 
+also need to have [GMP](https://gmplib.org/) on your system as the underlying C code 
+in this package includes the `gmp.h` header (and links against gmp via the `-lgmp` 
+flag). On debian you can install all dependencies as follows:
 
 ```
-sudo apt-get install python-dev libgmp3-dev
+$ sudo apt-get install python-dev libgmp3-dev
 ```
 
 ## Usage
