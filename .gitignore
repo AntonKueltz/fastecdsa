@@ -5,3 +5,4 @@ ecdsa
 *.pyc
 *.so
 *.egg-info
+MANIFEST
