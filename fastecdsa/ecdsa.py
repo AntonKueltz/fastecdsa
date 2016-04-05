@@ -1,5 +1,4 @@
 from hashlib import sha256  # Python standard lib SHA2 is already in C
-import hmac
 from os import urandom
 
 from fastecdsa import _ecdsa
@@ -8,10 +7,25 @@ from .util import RFC6979
 
 class KeyPair:
     def __init__(self, curve, hashfunc=sha256):
-        self.d = randint(2, curve.q - 1)
-        self.Q = curve.point_mul(curve.G, self.d)
         self.curve = curve
+        self.d = self._genkey(curve.q)
+        self.Q = curve.point_mul(curve.G, self.d)
         self.hashfunc = hashfunc
+
+    def _genkey(self, q):
+        qbits = len(bin(q)) - 2  # -2 for the leading 0b
+        key_bytes = ((qbits + 7) / 8) * 8
+        shift = (key_bytes * 8 - qbits)
+
+        key = int(urandom(key_bytes).encode('hex'), 16)
+        key >>= shift
+
+        # we can't just reduce mod q, introduces bias
+        while not (key >= 1 and key < q):
+            key = int(urandom(key_bytes).encode('hex'), 16)
+            key >>= shift
+
+        return key
 
     def sign(self, msg):
         hashed = self.hashfunc(msg).digest()

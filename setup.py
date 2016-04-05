@@ -13,7 +13,7 @@ class TestCommand(Command):
 
     def run(self):
         from subprocess import call
-        call(['python', 'fastecdsa/test.py'])
+        call(['python', '-m', 'fastecdsa.test'])
 
 curvemath = Extension(
     'fastecdsa.curvemath',
