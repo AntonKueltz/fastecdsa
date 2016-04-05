@@ -33,7 +33,7 @@ _ecdsa = Extension(
 
 setup(
     name='fastecdsa',
-    version='0.1.1',
+    version='1.0.0b1',
     author='Anton Kueltz',
     author_email='kueltz.anton@gmail.com',
     license='CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',
@@ -42,5 +42,14 @@ setup(
     url='https://github.com/AntonKueltz/fastecdsa',
     packages=['fastecdsa'],
     ext_modules=[curvemath, _ecdsa],
-    cmdclass={'test': TestCommand}
+    cmdclass={'test': TestCommand},
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Build Tools',
+        'License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+    ],
 )
