@@ -40,6 +40,12 @@ int verify(Sig * sig, char * msg, Point * Q, Curve * curve) {
 
     // convert digest to integer (digest is computed as hex in ecdsa.py)
     mpz_init_set_str(e, msg, 16);
+    int orderBits = mpz_sizeinbase(curve->q, 2);
+    int digestBits = ((mpz_sizeinbase(e, 2) + 3) / 4) * 4;
+
+    if(digestBits > orderBits) {
+        mpz_fdiv_q_2exp(e, e, digestBits - orderBits);
+    }
 
     mpz_invert(w, sig->s, curve->q);
     mpz_mul(u1, e, w);
