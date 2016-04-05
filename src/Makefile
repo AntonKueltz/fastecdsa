@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c99 -O2 -Wall
+CFLAGS = -std=c99 -O2 -Wall -Wstrict-prototypes
 IFLAGS = -I/usr/include/python2.7
 LFLAGS = -lgmp -lpython2.7
 MAIN = ecdsa

@@ -2,7 +2,7 @@
 #include "_ecdsa.h"
 
 
-void timeTest() {
+void timeTest(void) {
     Point p, r;
     Curve c;
     mpz_t d;
@@ -23,7 +23,7 @@ void timeTest() {
 }
 
 
-void ecdsaTest() {
+void ecdsaTest(void) {
     mpz_t d, k;
     mpz_init_set_str(d, "70a12c2db16845ed56ff68cfc21a472b3f04d7d6851bf6349f2d7d5b3452b38a", 16);
     mpz_init_set_str(k, "580ec00d856434334cef3f71ecaed4965b12ae37fa47055b1965c7b134ee45d0", 16);
@@ -61,7 +61,7 @@ void ecdsaTest() {
 }
 
 
-void pythonTest() {
+void pythonTest(void) {
     char * x, * y, * d;
     Point result;
     mpz_t scalar;
@@ -83,7 +83,7 @@ void pythonTest() {
 }
 
 
-void p256Test() {
+void p256Test(void) {
     Point r, s, t;
     mpz_t d, e;
 
@@ -125,7 +125,7 @@ void p256Test() {
     mpz_clears(r.x, r.y, s.x, s.y, t.x, t.y, d, e, NULL);
 }
 
-void secp256k1Test() {
+void secp256k1Test(void) {
     Point r;
     mpz_t d;
 

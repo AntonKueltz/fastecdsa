@@ -12,11 +12,11 @@ typedef struct {
 Curve * buildCurve(char * p, char * a, char * b, char * q, char * gx, char * gy, int base);
 void destroyCurve(Curve * curve);
 
-Curve * buildP192();
-Curve * buildP224();
-Curve * buildP256();
-Curve * buildP384();
-Curve * buildP521();
-Curve * buildSecp256k1();
+Curve * buildP192(void);
+Curve * buildP224(void);
+Curve * buildP256(void);
+Curve * buildP384(void);
+Curve * buildP521(void);
+Curve * buildSecp256k1(void);
 
 #endif
