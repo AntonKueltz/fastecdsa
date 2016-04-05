@@ -48,10 +48,6 @@ void pointDouble(const Point * pointP, Point * pointR, Curve * curve) {
 
 
 void pointAdd(const Point * pointP, const Point * pointQ, Point * pointR, Curve * curve) {
-    if(pointEqual(pointP, pointQ)) {
-        return pointDouble(pointP, pointR, curve);
-    }
-
     mpz_t xdiff, ydiff, lambda;
     mpz_inits(xdiff, ydiff, lambda, NULL);
 
@@ -80,36 +76,40 @@ void pointAdd(const Point * pointP, const Point * pointQ, Point * pointR, Curve 
 }
 
 
-// TODO - Montgomery ladder
-void pointMul(const Point * pointP, Point * pointR, const mpz_t d, Curve * curve) {
-    int isInf = 1;
+void pointMul(const Point * P, Point * R, const mpz_t d, Curve * curve) {
+    Point R0, R1, tmp;
+    mpz_inits(R1.x, R1.y, tmp.x, tmp.y, NULL);
+    mpz_init_set(R0.x, P->x);
+    mpz_init_set(R0.y, P->y);
+    pointDouble(P, &R1, curve);
+
     char * dbits = mpz_get_str(NULL, 2, d);
+    int i = 1;
 
-    Point p, tmp;
-    mpz_inits(tmp.x, tmp.y, pointR->x, pointR->y, NULL);
-    mpz_init_set(p.x, pointP->x);
-    mpz_init_set(p.y, pointP->y);
-
-    for(int i = mpz_sizeinbase(d, 2) - 1; i >= 0; i--) {
-        if(dbits[i] == '1') {
-            if(isInf == 1) {
-                mpz_set(pointR->x, p.x);
-                mpz_set(pointR->y, p.y);
-                isInf = 0;
-            }
-            else {
-                mpz_set(tmp.x, pointR->x);
-                mpz_set(tmp.y, pointR->y);
-                pointAdd(&p, &tmp, pointR, curve);
-            }
+    while(dbits[i] != '\0') {
+        if(dbits[i] == '0') {
+            mpz_set(tmp.x, R1.x);
+            mpz_set(tmp.y, R1.y);
+            pointAdd(&R0, &tmp, &R1, curve);
+            mpz_set(tmp.x, R0.x);
+            mpz_set(tmp.y, R0.y);
+            pointDouble(&tmp, &R0, curve);
+        }
+        else {
+            mpz_set(tmp.x, R0.x);
+            mpz_set(tmp.y, R0.y);
+            pointAdd(&R1, &tmp, &R0, curve);
+            mpz_set(tmp.x, R1.x);
+            mpz_set(tmp.y, R1.y);
+            pointDouble(&tmp, &R1, curve);
         }
 
-        mpz_set(tmp.x, p.x);
-        mpz_set(tmp.y, p.y);
-        pointDouble(&tmp, &p, curve);
+        i++;
     }
 
-    mpz_clears(p.x, p.y, tmp.x, tmp.y, NULL);
+    mpz_init_set(R->x, R0.x);
+    mpz_init_set(R->y, R0.y);
+    mpz_clears(R0.x, R0.y, R1.x, R1.y, tmp.x, tmp.y, NULL);
 }
 
 

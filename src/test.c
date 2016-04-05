@@ -151,5 +151,5 @@ void secp256k1Test() {
 
 
 int main(int argc, char * argv[]) {
-    secp256k1Test();
+    ecdsaTest();
 }

@@ -27,7 +27,7 @@ void sign(Sig * sig, char * msg, mpz_t d, mpz_t k, Curve * curve) {
     mpz_mul(sig->s, sig->s, kinv);
     mpz_mod(sig->s, sig->s, curve->q);
 
-    mpz_clears(e, kinv, NULL);
+    mpz_clears(R.x, R.y, e, kinv, NULL);
 }
 
 
