@@ -1,8 +1,6 @@
 #fastecdsa
 [![Build Status](https://travis-ci.org/AntonKueltz/fastecdsa.svg?branch=master)](https://travis-ci.org/AntonKueltz/fastecdsa)
 
-**DO NOT USE THIS PACKAGE FOR PROD, I HAVE NOT MITIGATED SIDE CHANNELS YET**
-
 ## About
 This is a python package for doing fast elliptic curve cryptography, specifically
 digital signatures.
@@ -34,7 +32,7 @@ package. You can see the times for 1,000 signature and verification operations b
 As you can see, this package in this case is ~25x faster.
 
 ## Installing
-Run `python setup.py install`. Note that you need to have C compiler that
+Run `python setup.py install` (or `pip install -e .`). Note that you need to have C compiler that
 supports the C99  standard. You also need to have [GMP](https://gmplib.org/) on
 your system as the underlying C code in this package includes the `gmp.h` header
 (and links against gmp via the `-lgmp` flag). On debian you can install all
@@ -45,8 +43,6 @@ sudo apt-get install python-dev libgmp3-dev
 ```
 
 ## Usage
-Some kinks are still being worked out, so far limited usage is as follows:
-
 #### signing and verifying signatures via ECDSA
 ```python
 from fastecdsa import curve, ecdsa
@@ -65,9 +61,4 @@ valid = keys.verify((r, s), m)
 ```
 
 ## Security
-Current issues are:
-
-* Branching on secret data i.e. non-constant time point multiplication
-
-As such *DO NOT USE THIS PACKAGE IN PROD FOR ANYTHING REQUIRING ANY CRYPTOGRAPHIC
-GUARANTEES / SECURITY CRITICAL APPLICATIONS*.
+No known current issues. Timing side challenges are prevented via Montgomery point multiplication. Nonces are generate per RFC6979.
