@@ -42,7 +42,7 @@ Installing
 ----------
 You can use pip: :code:`$ pip install fastecdsa` or clone the repo and use 
 :code:`$ python setup.py install`. Note that you need to have C compiler. 
-You  also need to have [GMP](https://gmplib.org/) on your system as the underlying 
+You  also need to have GMP_ on your system as the underlying 
 C code in this package includes the :code:`gmp.h` header (and links against gmp 
 via the :code:`-lgmp` flag). On debian you can install all dependencies as follows:
 
@@ -74,3 +74,6 @@ Security
 --------
 No known current issues. Timing side challenges are prevented via Montgomery
 point multiplication. Nonces are generate per RFC6979.
+
+
+.. _GMP: https://gmplib.org/
