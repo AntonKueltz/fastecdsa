@@ -12,20 +12,20 @@ Supported Primitives
 --------------------
 Curves
 ~~~~~~
-* P192
-* P224
-* P256
-* P384
-* P521
-* secp256k1 (bitcoin curve)
+* P192 (:code:`fastecdsa.curve.P192`)
+* P224 (:code:`fastecdsa.curve.P224`)
+* P256 (:code:`fastecdsa.curve.P256`)
+* P384 (:code:`fastecdsa.curve.P384`)
+* P521 (:code:`fastecdsa.curve.P521`)
+* secp256k1 (bitcoin curve) (:code:`fastecdsa.curve.secp256k1`)
 
 Hash Functions
 ~~~~~~~~~~~~~~
-* SHA1
-* SHA224
-* SHA256 (SHA2)
-* SHA384
-* SHA512
+* SHA1 (:code:`hashlib.sha1`)
+* SHA224 (:code:`hashlib.sha224`)
+* SHA256 (SHA2) (:code:`hashlib.sha256`)
+* SHA384 (:code:`hashlib.sha384`)
+* SHA512 (:code:`hashlib.sha512`)
 
 Performance
 -----------
