@@ -33,12 +33,13 @@ _ecdsa = Extension(
 
 setup(
     name='fastecdsa',
-    version='1.1.0',
+    version='1.1.1',
     author='Anton Kueltz',
     author_email='kueltz.anton@gmail.com',
     license='CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',
     keywords='elliptic curve cryptography ecdsa ecc',
     description='Fast elliptic curve digital signatures',
+    long_description=''.join(open('README.rst', 'r').readlines()),
     url='https://github.com/AntonKueltz/fastecdsa',
     packages=['fastecdsa'],
     ext_modules=[curvemath, _ecdsa],
