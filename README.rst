@@ -34,7 +34,7 @@ package. You can see the times for 1,000 signature and verification operations b
 :code:`fast.py` corresponding to this package and :code:`regular.py` corresponding
 to :code:`ecdsa` package.
 
-.. image:: http://i.imgur.com/ZH8Oodm.png
+.. image:: http://i.imgur.com/oNOfnG6.png?1
 
 As you can see, this package in this case is ~25x faster.
 
