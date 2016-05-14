@@ -52,17 +52,37 @@ via the :code:`-lgmp` flag). On debian you can install all dependencies as follo
 
 Usage
 -----
+Generating Keys
+~~~~~~~~~~~~~~~
+You can use this package to generate keys if you like. Recall that private keys on elliptic curves
+are integers, and public keys are points i.e. integer pairs.
+
+.. code:: python
+
+    from fastecdsa import keys, curve
+
+    # generate a private key for curve P256
+    priv_key = keys.gen_private_key(curve.P256)
+
+    # get the public key corresponding to the private key we just generated
+    pub_key = keys.get_public_key(priv_key, curve.P256)
+    (Qx, Qy) = pub_key  # recall that pub_key is simply an integer pair
+
+
+Signing and Verifying
+~~~~~~~~~~~~~~~~~~~~~
 Some basic usage is shown below:
 
 .. code:: python
 
-    from fastecdsa import curve, ecdsa
+    from fastecdsa import curve, ecdsa, keys
     from hashlib import sha384
 
     m = "a message to sign via ECDSA"  # some message
 
     ''' use default curve and hash function (P256 and SHA2) '''
-    private_key, public_key = ecdsa.gen_keypair()
+    private_key = keys.gen_private_key(curve.P256)
+    public_key = keys.get_public_key(private_key, curve.P256)
     # standard signature, returns two integers
     r, s = ecdsa.sign(m, private_key)
     # should return True as the signature we just generated is valid.

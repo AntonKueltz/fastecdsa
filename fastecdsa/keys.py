@@ -1,7 +1,7 @@
 from os import urandom
 
 
-def gen_secret_key(curve):
+def gen_private_key(curve):
     order_bits = 0
     order = curve.q
 
