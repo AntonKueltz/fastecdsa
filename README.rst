@@ -88,16 +88,15 @@ Some basic usage is shown below:
     # should return True as the signature we just generated is valid.
     valid = ecdsa.verify((r, s), m, public_key)
 
-
-    ''' specify a different curve to use with ECDSA '''
-    private_key, public_key = ecdsa.gen_keypair(curve=curve.P224)
-    r, s = ecdsa.sign(m, private_key, curve=curve.P224)
-    valid = ecdsa.verify((r, s), m, public_key, curve=curve.P224)
-
     ''' specify a different hash function to use with ECDSA '''
-    private_key, public_key = ecdsa.gen_keypair()
     r, s = ecdsa.sign(m, private_key, hashfunc=sha384)
     valid = ecdsa.verify((r, s), m, public_key, hashfunc=sha384)
+
+    ''' specify a different curve to use with ECDSA '''
+    private_key = keys.gen_private_key(curve.P224)
+    public_key = keys.get_public_key(private_key, curve.P224)
+    r, s = ecdsa.sign(m, private_key, curve=curve.P224)
+    valid = ecdsa.verify((r, s), m, public_key, curve=curve.P224)
 
 Security
 --------
