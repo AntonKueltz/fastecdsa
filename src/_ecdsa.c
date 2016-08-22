@@ -82,6 +82,7 @@ static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
     else if(strcmp(curveName, "P256") == 0) { curve = buildP256(); }
     else if(strcmp(curveName, "P384") == 0) { curve = buildP384(); }
     else if(strcmp(curveName, "P521") == 0) { curve = buildP521(); }
+    else if(strcmp(curveName, "secp256k1") == 0) { curve = buildSecp256k1(); }
     else { return NULL; }
 
     mpz_init_set_str(privKey, d, 10);
@@ -131,10 +132,8 @@ static PyObject * _ecdsa_verify(PyObject *self, PyObject *args) {
 
 
 static PyMethodDef _ecdsa__methods__[] = {
-    {"sign",  _ecdsa_sign, METH_VARARGS,
-     "Sign a message via ECDSA."},
-    {"verify",  _ecdsa_verify, METH_VARARGS,
-     "Verify a signature via ECDSA."},
+    {"sign", _ecdsa_sign, METH_VARARGS, "Sign a message via ECDSA."},
+    {"verify", _ecdsa_verify, METH_VARARGS, "Verify a signature via ECDSA."},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

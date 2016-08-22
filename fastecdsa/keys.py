@@ -1,7 +1,17 @@
 from os import urandom
 
 
+def gen_keypair(curve):
+    ''' Generate a tuple (private, public) where private is in integer and public is a tuple
+    (integer, integer)'''
+    private_key = gen_private_key(curve)
+    public_key = get_public_key(private_key, curve)
+    return private_key, public_key
+
+
 def gen_private_key(curve):
+    ''' Only generate a private key. This can be useful if you want to delay generating the public
+    key, which is a bit of an expensive operation'''
     order_bits = 0
     order = curve.q
 
@@ -24,4 +34,6 @@ def gen_private_key(curve):
 
 
 def get_public_key(d, curve):
+    ''' Get the curve point corresponding to the curves generator point multiplied by the private
+    key "d"'''
     return curve.point_mul(curve.G, d)

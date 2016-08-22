@@ -11,7 +11,7 @@ class Curve:
         self.q = q
 
     def is_point_on_curve(self, P):
-        ''' check if a point P (int, int) is on the curve '''
+        ''' Check if a point P (int, int) is on the curve '''
         x, y, = P[0], P[1]
         left = y * y
         right = (x * x * x) + (self.a * x) + self.b
@@ -21,6 +21,14 @@ class Curve:
         ''' Multiply a point P (int, int) with a scalar (d) '''
         if self.is_point_on_curve(P):
             return map(int, curvemath.mul(str(P[0]), str(P[1]), str(d), self.name))
+        else:
+            return (0, 0)
+
+    def point_add(self, P, Q):
+        ''' Add two points P (int, int) and Q (int, int) on the curve, resulting in point R (int,
+        int). If P = Q a point doubling algorithm is used. '''
+        if self.is_point_on_curve(P) and self.is_point_on_curve(Q):
+            return map(int, curvemath.add(str(P[0]), str(P[1]), str(Q[0]), str(Q[1]), self.name))
         else:
             return (0, 0)
 

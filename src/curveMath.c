@@ -149,10 +149,49 @@ static PyObject * curvemath_mul(PyObject *self, PyObject *args) {
     return Py_BuildValue("ss", resultX, resultY);
 }
 
+static PyObject * curvemath_add(PyObject *self, PyObject *args) {
+    char * px, * py, * qx, * qy, * curveName;
+
+    if (!PyArg_ParseTuple(args, "sssss", &px, &py, &qx, &qy, &curveName)) {
+        return NULL;
+    }
+
+    Point * p = buildPoint(px, py, 10);
+    Point * q = buildPoint(qx, qy, 10);
+    Curve * curve;
+    Point result;
+    mpz_inits(result.x, result.y, NULL);
+
+    if(strcmp(curveName, "P192") == 0) { curve = buildP192(); }
+    else if(strcmp(curveName, "P224") == 0) { curve = buildP224(); }
+    else if(strcmp(curveName, "P256") == 0) { curve = buildP256(); }
+    else if(strcmp(curveName, "P384") == 0) { curve = buildP384(); }
+    else if(strcmp(curveName, "P521") == 0) { curve = buildP521(); }
+    else if(strcmp(curveName, "secp256k1") == 0) { curve = buildSecp256k1(); }
+    else { return NULL; }
+
+    if(pointEqual(p, q)) {
+        pointDouble(p, &result, curve);
+    }
+    else {
+        pointAdd(p, q, &result, curve);
+    }
+
+    char * resultX = mpz_get_str(NULL, 10, result.x);
+    char * resultY = mpz_get_str(NULL, 10, result.y);
+
+    destroyPoint(p);
+    destroyPoint(q);
+    destroyCurve(curve);
+    mpz_clears(result.x, result.y, NULL);
+
+    return Py_BuildValue("ss", resultX, resultY);
+}
+
 
 static PyMethodDef curvemath__methods__[] = {
-    {"mul",  curvemath_mul, METH_VARARGS,
-     "Multiply a curve point by an integer scalar."},
+    {"mul", curvemath_mul, METH_VARARGS, "Multiply a curve point by an integer scalar."},
+    {"add", curvemath_add, METH_VARARGS, "Add two points on a curve."},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
