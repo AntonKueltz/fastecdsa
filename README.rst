@@ -2,6 +2,8 @@ fastecdsa
 =========
 .. image:: https://travis-ci.org/AntonKueltz/fastecdsa.svg?branch=master
     :target: https://travis-ci.org/AntonKueltz/fastecdsa
+.. image:: https://badge.fury.io/py/fastecdsa.svg
+    :target: https://badge.fury.io/py/fastecdsa
 
 About
 -----
