@@ -23,11 +23,7 @@ Curves
 
 Hash Functions
 ~~~~~~~~~~~~~~
-* SHA1 (:code:`hashlib.sha1`)
-* SHA224 (:code:`hashlib.sha224`)
-* SHA256 (SHA2) (:code:`hashlib.sha256`)
-* SHA384 (:code:`hashlib.sha384`)
-* SHA512 (:code:`hashlib.sha512`)
+Any hash function in the :code:`hashlib` module (:code:`md5, sha1, sha224, sha256, sha384, sha512`) will work, as will any hash function that implements the same interface / core functionality as the those in :code:`hashlib`. For instance, if you wish to use SHA3 as the hash function the :code:`pysha3` package will work with this library as long as it is at version >=1.0b1 (as previous versions didn't work with the :code:`hmac` module which is used in nonce generation). 
 
 Performance
 -----------
@@ -99,6 +95,13 @@ Some basic usage is shown below:
     public_key = keys.get_public_key(private_key, curve.P224)
     r, s = ecdsa.sign(m, private_key, curve=curve.P224)
     valid = ecdsa.verify((r, s), m, public_key, curve=curve.P224)
+    
+    ''' using SHA3 via pysha3>=1.0b1 package '''
+    import sha3  # pip install [--user] pysha3==1.0b1
+    from hashlib import sha3_256
+    private_key, public_key = keys.gen_keypair(curve.P256)
+    r, s = ecdsa.sign(m, private_key, hashfunc=sha3_256)
+    valid = ecdsa.verify((r, s), m, public_key, hashfunc=sha3_256)
 
 Security
 --------
