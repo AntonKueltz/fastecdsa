@@ -1,3 +1,4 @@
+from binascii import hexlify
 from os import urandom
 
 
@@ -19,15 +20,15 @@ def gen_private_key(curve):
         order >>= 1
         order_bits += 1
 
-    order_bytes = (order_bits + 7) / 8  # urandom only takes bytes
+    order_bytes = (order_bits + 7) // 8  # urandom only takes bytes
     extra_bits = order_bytes * 8 - order_bits  # bits to shave off after getting bytes
 
-    rand = int(urandom(order_bytes).encode('hex'), 16)
+    rand = int(hexlify(urandom(order_bytes)), 16)
     rand >>= extra_bits
 
     # no modding by group order or we'll introduce biases
     while rand >= curve.q:
-        rand = int(urandom(order_bytes).encode('hex'), 16)
+        rand = int(hexlify(urandom(order_bytes)), 16)
         rand >>= extra_bits
 
     return rand

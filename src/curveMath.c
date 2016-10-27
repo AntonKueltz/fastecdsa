@@ -1,7 +1,6 @@
 #include "curveMath.h"
 #include <string.h>
 
-
 int pointEqual(const Point * pointA, const Point * pointB) {
     // check x coords
     if(mpz_cmp(pointA->x, pointB->x) != 0) {
@@ -196,6 +195,28 @@ static PyMethodDef curvemath__methods__[] = {
 };
 
 
-PyMODINIT_FUNC initcurvemath(void) {
-    (void) Py_InitModule("curvemath", curvemath__methods__);
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "curvemath",            /* m_name */
+    NULL,                   /* m_doc */
+    -1,                     /* m_size */
+    curvemath__methods__,   /* m_methods */
+    NULL,                   /* m_reload */
+    NULL,                   /* m_traverse */
+    NULL,                   /* m_clear */
+    NULL,                   /* m_free */
+};
+
+
+PyMODINIT_FUNC PyInit_curvemath(void) {
+    PyObject * m = PyModule_Create(&moduledef);
+    return m;
 }
+
+
+#else
+PyMODINIT_FUNC initcurvemath(void) {
+    PyObject * m = Py_InitModule("curvemath", curvemath__methods__);
+}
+#endif

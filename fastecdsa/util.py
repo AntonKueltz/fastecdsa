@@ -1,4 +1,6 @@
+from binascii import hexlify
 import hmac
+from struct import pack
 
 
 class RFC6979:
@@ -8,12 +10,12 @@ class RFC6979:
         self.q = q
         self.msg = msg
         self.qlen = len(bin(q)) - 2  # -2 for the leading '0b'
-        self.rlen = ((self.qlen + 7) / 8) * 8
+        self.rlen = ((self.qlen + 7) // 8) * 8
         self.hashfunc = hashfunc
 
     def _bits2int(self, b):
         ''' http://tools.ietf.org/html/rfc6979#section-2.3.2 '''
-        i = int(b.encode('hex'), 16)
+        i = int(hexlify(b), 16)
         blen = len(b) * 8
 
         if blen > self.qlen:
@@ -23,13 +25,13 @@ class RFC6979:
 
     def _int2octets(self, x):
         ''' http://tools.ietf.org/html/rfc6979#section-2.3.3 '''
-        octets = ''
+        octets = b''
 
         while x > 0:
-            octets = chr(0xff & x) + octets
+            octets = pack('=B', (0xff & x)) + octets
             x >>= 8
 
-        padding = chr(0x00) * ((self.rlen / 8) - len(octets))
+        padding = b'\x00' * ((self.rlen // 8) - len(octets))
         return padding + octets
 
     def _bits2octets(self, b):
@@ -40,21 +42,21 @@ class RFC6979:
 
     def gen_nonce(self):
         ''' http://tools.ietf.org/html/rfc6979#section-3.2 '''
-        h1 = self.hashfunc(self.msg)
+        h1 = self.hashfunc(self.msg.encode())
         hash_size = h1.digest_size
         h1 = h1.digest()
         key_and_msg = self._int2octets(self.x) + self._bits2octets(h1)
 
-        v = ''.join([chr(0x01) for _ in range(hash_size)])
-        k = ''.join([chr(0x00) for _ in range(hash_size)])
+        v = b''.join([b'\x01' for _ in range(hash_size)])
+        k = b''.join([b'\x00' for _ in range(hash_size)])
 
-        k = hmac.new(k, v + chr(0x00) + key_and_msg, self.hashfunc).digest()
+        k = hmac.new(k, v + b'\x00' + key_and_msg, self.hashfunc).digest()
         v = hmac.new(k, v, self.hashfunc).digest()
-        k = hmac.new(k, v + chr(0x01) + key_and_msg, self.hashfunc).digest()
+        k = hmac.new(k, v + b'\x01' + key_and_msg, self.hashfunc).digest()
         v = hmac.new(k, v, self.hashfunc).digest()
 
         while True:
-            t = ''
+            t = b''
 
             while len(t) * 8 < self.qlen:
                 v = hmac.new(k, v, self.hashfunc).digest()
@@ -64,5 +66,5 @@ class RFC6979:
             if nonce >= 1 and nonce < self.q:
                 return nonce
 
-            k = hmac.new(k, v + chr(0x00), self.hashfunc).digest()
+            k = hmac.new(k, v + b'\x00', self.hashfunc).digest()
             v = hmac.new(k, v, self.hashfunc).digest()

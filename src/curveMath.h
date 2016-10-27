@@ -1,11 +1,7 @@
 #ifndef CURVEMATH_H
 #define CURVEMATH_H
 
-#ifdef __APPLE__
-#include <Python/Python.h>
-#else
 #include <Python.h>
-#endif
 
 #include <gmp.h>
 #include "curve.h"

@@ -138,6 +138,27 @@ static PyMethodDef _ecdsa__methods__[] = {
 };
 
 
-PyMODINIT_FUNC init_ecdsa(void) {
-    (void) Py_InitModule("_ecdsa", _ecdsa__methods__);
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "_ecdsa",            /* m_name */
+    NULL,                   /* m_doc */
+    -1,                     /* m_size */
+    _ecdsa__methods__,   /* m_methods */
+    NULL,                   /* m_reload */
+    NULL,                   /* m_traverse */
+    NULL,                   /* m_clear */
+    NULL,                   /* m_free */
+};
+
+PyMODINIT_FUNC PyInit__ecdsa(void) {
+    PyObject * m = PyModule_Create(&moduledef);
+    return m;
 }
+
+
+#else
+PyMODINIT_FUNC init_ecdsa(void) {
+    PyObject * m = Py_InitModule("_ecdsa", _ecdsa__methods__);
+}
+#endif
