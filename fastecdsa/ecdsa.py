@@ -1,3 +1,4 @@
+from binascii import hexlify
 from hashlib import sha256  # Python standard lib SHA2 is already in C
 
 from fastecdsa import _ecdsa
@@ -15,8 +16,8 @@ def sign(msg, d, curve=P256, hashfunc=sha256):
     rfc6979 = RFC6979(msg, d, curve.q, hashfunc)
     k = rfc6979.gen_nonce()
 
-    hashed = hashfunc(msg).digest()
-    r, s = _ecdsa.sign(hashed.encode('hex'), str(d), str(k), curve.name)
+    hashed = hashfunc(msg.encode()).hexdigest()
+    r, s = _ecdsa.sign(hashed, str(d), str(k), curve.name)
     return (int(r), int(s))
 
 
@@ -32,5 +33,5 @@ def verify(sig, msg, Q, curve=P256, hashfunc=sha256):
         raise EcdsaError('Invalid Signature: s is not a positive integer smaller than the curve order')
 
     qx, qy = Q
-    hashed = hashfunc(msg).hexdigest()
+    hashed = hashfunc(msg.encode()).hexdigest()
     return _ecdsa.verify(str(r), str(s), hashed, str(qx), str(qy), curve.name)

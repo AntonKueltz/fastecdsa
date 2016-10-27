@@ -3,6 +3,7 @@ import unittest
 
 from .curve import P192, P224, P256, P384, P521, secp256k1
 from .ecdsa import sign, verify
+from .util import RFC6979
 
 
 class TestCurve(unittest.TestCase):
@@ -124,6 +125,17 @@ class TestCurve(unittest.TestCase):
         (X, Y) = secp256k1.point_mul(secp256k1.G, m)
         self.assertTrue(X == expected[0])
         self.assertTrue(Y == expected[1])
+
+
+class TestNonceGeneration(unittest.TestCase):
+    def test_rfc_6979(self):
+        msg = 'sample'
+        x = 0x09A4D6792295A7F730FC3F2B49CBC0F62E862272F
+        q = 0x4000000000000000000020108A2E0CC0D99F8A5EF
+        expected = 0x23AF4074C90A02B3FE61D286D5C87F425E6BDD81B
+
+        nonce = RFC6979(msg, x, q, sha256).gen_nonce()
+        self.assertTrue(nonce == expected)
 
 
 class TestECDSA(unittest.TestCase):

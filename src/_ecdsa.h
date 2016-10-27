@@ -1,10 +1,10 @@
 #ifndef _ECDSA_H
 #define _ECDSA_H
 
-#ifdef __APPLE__
-#include <Python/Python.h>
-#else
 #include <Python.h>
+
+#if PY_MAJOR_VERSION >= 3
+#define IS_PY3K
 #endif
 
 #include <gmp.h>

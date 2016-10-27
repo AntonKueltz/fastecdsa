@@ -20,7 +20,8 @@ class Curve:
     def point_mul(self, P, d):
         ''' Multiply a point P (int, int) with a scalar (d) '''
         if self.is_point_on_curve(P):
-            return map(int, curvemath.mul(str(P[0]), str(P[1]), str(d), self.name))
+            x, y = curvemath.mul(str(P[0]), str(P[1]), str(d), self.name)
+            return int(x), int(y)
         else:
             return (0, 0)
 
@@ -28,7 +29,8 @@ class Curve:
         ''' Add two points P (int, int) and Q (int, int) on the curve, resulting in point R (int,
         int). If P = Q a point doubling algorithm is used. '''
         if self.is_point_on_curve(P) and self.is_point_on_curve(Q):
-            return map(int, curvemath.add(str(P[0]), str(P[1]), str(Q[0]), str(Q[1]), self.name))
+            x, y = curvemath.add(str(P[0]), str(P[1]), str(Q[0]), str(Q[1]), self.name)
+            return int(x), int(y)
         else:
             return (0, 0)
 
