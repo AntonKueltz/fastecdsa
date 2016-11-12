@@ -13,7 +13,7 @@ digital signatures.
 Python Versions Supported
 -------------------------
 The initial release of this package was targeted at python2.7. Earlier versions may work but have
-with no guarantee of correctness or stability. As of release 1.2.1+ python3 is now supported as well.
+no guarantee of correctness or stability. As of release 1.2.1+ python3 is now supported as well.
 
 Supported Primitives
 --------------------
