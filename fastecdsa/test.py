@@ -129,7 +129,7 @@ class TestCurve(unittest.TestCase):
 
     def test_arbitrary_arithmetic(self):
         curves = [P192, P224, P256, P384, P521, secp256k1]
-        
+
         for _ in range(100):
             curve = choice(curves)
             a, b = randint(0, curve.q), randint(0, curve.q)
