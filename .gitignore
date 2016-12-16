@@ -7,3 +7,5 @@ ecdsa
 *.so
 *.egg-info
 MANIFEST
+__pycache__
+docs/_*/
