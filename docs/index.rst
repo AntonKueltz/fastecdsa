@@ -12,11 +12,3 @@ Welcome to fastecdsa's documentation!
 
    installation
    fastecdsa
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
