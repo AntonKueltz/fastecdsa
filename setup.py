@@ -42,7 +42,7 @@ setup(
     long_description=''.join(open('README.rst', 'r').readlines()),
     url='https://github.com/AntonKueltz/fastecdsa',
     packages=['fastecdsa'],
-    ext_modules=[curvemath, _ecdsa],
+    # ext_modules=[curvemath, _ecdsa],
     cmdclass={'test': TestCommand},
     classifiers=[
         'Development Status :: 4 - Beta',
