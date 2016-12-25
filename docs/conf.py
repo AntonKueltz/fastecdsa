@@ -20,8 +20,6 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 from recommonmark.parser import CommonMarkParser
-import sys
-from mock import Mock as MagicMock
 
 
 # -- General configuration ------------------------------------------------
@@ -159,15 +157,3 @@ texinfo_documents = [
      author, 'fastecdsa', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-# -- Skip C Extensions ----------------------------------------------------
-
-
-class Mock(MagicMock):
-    @classmethod
-    def __getattr__(cls, name):
-            return MagicMock()
-
-MOCK_MODULES = ['fastecdsa']
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
