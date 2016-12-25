@@ -4,7 +4,19 @@ from struct import pack
 
 
 class RFC6979:
-    ''' deterministic nonce generation for ECDSA '''
+    """Generate a nonce per RFC6979.
+
+    In order to avoid reusing a nonce with the same key when signing two different messages (which
+    leaks the private key) RFC6979 provides a deterministic method for generating nonces. This is
+    based on using a pseudo-random function (HMAC) to derive a nonce from the message and private
+    key. More info here: http://tools.ietf.org/html/rfc6979.
+
+    Attributes:
+        |  msg (string): A message being signed.
+        |  x (long): An ECDSA private key.
+        |  q (long): The order of the generator point of the curve being used to sign the message.
+        |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
+    """
     def __init__(self, msg, x, q, hashfunc):
         self.x = x
         self.q = q

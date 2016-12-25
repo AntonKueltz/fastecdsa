@@ -10,6 +10,8 @@ Welcome to fastecdsa's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   installation
+   fastecdsa
 
 
 Indices and tables

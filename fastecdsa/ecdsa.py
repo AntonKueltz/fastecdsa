@@ -12,6 +12,21 @@ class EcdsaError(Exception):
 
 
 def sign(msg, d, curve=P256, hashfunc=sha256):
+    """Sign a message using the elliptic curve digital signature algorithm.
+
+    The elliptic curve signature algorithm works as follows:
+
+    1. Take a hash of the message to be signed: :math:`e = hash(msg)`.
+    2. Truncate :math:`e` down to :math:`q` bits, where :math:`q` is the order of the curve:
+       :math:`z = e_{0-q}`.
+    3. Pick a nonce :math:`k` using the process descrived in RFC6979.
+
+    Args:
+        |  msg (str): A message to be signed.
+        |  d (long): An ECDSA private key.
+        |  curve (fastecdsa.curve.Curve): The curve to be used to sign the message.
+        |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
+    """
     # generate a deterministic nonce per RFC6979
     rfc6979 = RFC6979(msg, d, curve.q, hashfunc)
     k = rfc6979.gen_nonce()

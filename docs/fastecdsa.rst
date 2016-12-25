@@ -1,54 +1,34 @@
-fastecdsa package
-=================
+fastecdsa
+=========
 
-Submodules
-----------
-
-fastecdsa.curve module
-----------------------
+fastecdsa.curve
+---------------
 
 .. automodule:: fastecdsa.curve
     :members:
     :undoc-members:
     :show-inheritance:
 
-fastecdsa.ecdsa module
-----------------------
+fastecdsa.ecdsa
+---------------
 
 .. automodule:: fastecdsa.ecdsa
     :members:
     :undoc-members:
     :show-inheritance:
 
-fastecdsa.keys module
----------------------
+fastecdsa.keys
+--------------
 
 .. automodule:: fastecdsa.keys
     :members:
     :undoc-members:
     :show-inheritance:
 
-fastecdsa.test module
----------------------
-
-.. automodule:: fastecdsa.test
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-fastecdsa.util module
----------------------
+fastecdsa.util
+--------------
 
 .. automodule:: fastecdsa.util
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: fastecdsa
     :members:
     :undoc-members:
     :show-inheritance:
