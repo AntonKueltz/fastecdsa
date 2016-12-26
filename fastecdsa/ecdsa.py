@@ -1,7 +1,7 @@
 from binascii import hexlify
 from hashlib import sha256  # Python standard lib SHA2 is already in C
 
-from fastecdsa import _ecdsa
+# from fastecdsa import _ecdsa
 from .curve import P256
 from .util import RFC6979
 
