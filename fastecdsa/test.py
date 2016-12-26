@@ -1,4 +1,5 @@
 from hashlib import sha1, sha224, sha256, sha384, sha512
+from random import choice, randint
 import unittest
 
 from .curve import P192, P224, P256, P384, P521, secp256k1
@@ -125,6 +126,19 @@ class TestCurve(unittest.TestCase):
         (X, Y) = secp256k1.point_mul(secp256k1.G, m)
         self.assertTrue(X == expected[0])
         self.assertTrue(Y == expected[1])
+
+    def test_arbitrary_arithmetic(self):
+        curves = [P192, P224, P256, P384, P521, secp256k1]
+
+        for _ in range(100):
+            curve = choice(curves)
+            a, b = randint(0, curve.q), randint(0, curve.q)
+            c = (a + b) % curve.q
+            P, Q = curve.point_mul(curve.G, a), curve.point_mul(curve.G, b)
+            R = curve.point_mul(curve.G, c)
+            pq_sum, qp_sum = curve.point_add(P, Q), curve.point_add(Q, P)
+            self.assertTrue(pq_sum == qp_sum)
+            self.assertTrue(qp_sum == R)
 
 
 class TestNonceGeneration(unittest.TestCase):
