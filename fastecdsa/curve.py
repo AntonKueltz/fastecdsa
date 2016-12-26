@@ -42,6 +42,9 @@ class Curve:
         self.G = (gx, gy)
         self.q = q
 
+    def __repr__(self):
+        return self.name
+
     def is_point_on_curve(self, P):
         """ Check if a point lies on this curve.
 
