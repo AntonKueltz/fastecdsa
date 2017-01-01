@@ -3,8 +3,8 @@
 
 #include "gmp.h"
 
-#include "flint/fq.h"
-#include "flint/fq_poly.h"
+#include "fq.h"
+#include "fq_poly.h"
 
 // point in a prime field
 typedef struct {

@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -O2 -Wall -Wstrict-prototypes
-IFLAGS = -I/usr/include/python2.7
+IFLAGS = -I/usr/include/python2.7 -I/usr/local/include/flint
 LFLAGS = -lflint -lgmp -lpython2.7
 MAIN = ecdsa
 
