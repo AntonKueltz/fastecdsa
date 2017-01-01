@@ -20,7 +20,7 @@ curvemath = Extension(
     include_dirs=['src/'],
     libraries=['gmp', 'flint'],
     sources=['src/curveMath.c', 'src/curve.c', 'src/point.c'],
-    extra_compile_args=['-O2']
+    extra_compile_args=['-O2', '-lflint']
 )
 
 _ecdsa = Extension(
@@ -28,7 +28,7 @@ _ecdsa = Extension(
     include_dirs=['src/'],
     libraries=['gmp', 'flint'],
     sources=['src/_ecdsa.c', 'src/curveMath.c', 'src/curve.c', 'src/point.c'],
-    extra_compile_args=['-O2']
+    extra_compile_args=['-O2', '-lflint']
 )
 
 setup(
