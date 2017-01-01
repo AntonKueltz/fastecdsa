@@ -1,24 +1,62 @@
 #include "curve.h"
 #include <stdlib.h>
 
-Curve * buildCurve(char * p, char * a, char * b, char * q, char * gx, char * gy, int base) {
-    Curve * curve = (Curve *)malloc(sizeof(Curve));
+CurveZZ_p * buildCurveZZ_p(char * p, char * a, char * b, char * q, char * gx, char * gy, int base) {
+    CurveZZ_p * curve = (CurveZZ_p *)malloc(sizeof(CurveZZ_p));
     mpz_init_set_str(curve->p, p, base);
     mpz_init_set_str(curve->a, a, base);
     mpz_init_set_str(curve->b, b, base);
     mpz_init_set_str(curve->q, q, base);
-    curve->g = buildPoint(gx, gy, base);
+    curve->g = buildPointZZ_p(gx, gy, base);
     return curve;
 }
 
-void destroyCurve(Curve * curve) {
+void destroyCurveZZ_p(CurveZZ_p * curve) {
     mpz_clears(curve->p, curve->a, curve->b, curve->q, NULL);
-    destroyPoint(curve->g);
+    destroyPointZZ_p(curve->g);
     free(curve);
 }
 
-Curve * buildP192() {
-    return buildCurve(
+CurveZZ_pX * buildCurveZZ_pX(unsigned * pt, unsigned ptlen, unsigned degree, int a, char * gx, char * gy, int base) {
+    CurveZZ_pX * curve = (CurveZZ_pX *)malloc(sizeof(CurveZZ_pX));
+    curve->degree = degree;
+
+    fmpz_t p, one;
+    fmpz_init_set_ui(p, 2);
+    fmpz_init_set_ui(one, 1);
+    const char * name = "binary field";
+
+    fq_ctx_init(curve->ctx, p, degree, name);
+    fq_poly_init2(curve->pt, degree+1, curve->ctx);
+    fq_poly_init2(curve->a, degree, curve->ctx);
+    fq_poly_init2(curve->b, degree, curve->ctx);
+    fq_poly_one(curve->b, curve->ctx);  // Koblitz curve has b=1
+    if(a == 1) {
+        fq_poly_one(curve->a, curve->ctx);
+    }
+
+    unsigned i;
+    for(i = 0; i < ptlen; i++) {
+        fq_poly_set_coeff_fmpz(curve->pt, pt[i], one, curve->ctx);
+    }
+
+    curve->g = buildPointZZ_pX(gx, gy, base, degree, curve->ctx);
+    fmpz_clear(p);
+    fmpz_clear(one);
+    return curve;
+}
+
+void destroyCurveZZ_pX(CurveZZ_pX * curve) {
+    fq_poly_clear(curve->a, curve->ctx);
+    fq_poly_clear(curve->b, curve->ctx);
+    fq_poly_clear(curve->pt, curve->ctx);
+    destroyPointZZ_pX(curve->g);
+    fq_ctx_clear(curve->ctx);
+    free(curve);
+}
+
+CurveZZ_p * buildP192() {
+    return buildCurveZZ_p(
         "6277101735386680763835789423207666416083908700390324961279",
         "-3",
         "2455155546008943817740293915197451784769108058161191238065",
@@ -29,8 +67,8 @@ Curve * buildP192() {
     );
 }
 
-Curve * buildP224() {
-    return buildCurve(
+CurveZZ_p * buildP224() {
+    return buildCurveZZ_p(
         "26959946667150639794667015087019630673557916260026308143510066298881",
         "-3",
         "18958286285566608000408668544493926415504680968679321075787234672564",
@@ -41,8 +79,8 @@ Curve * buildP224() {
     );
 }
 
-Curve * buildP256() {
-    return buildCurve(
+CurveZZ_p * buildP256() {
+    return buildCurveZZ_p(
         "115792089210356248762697446949407573530086143415290314195533631308867097853951",
         "-3",
         "41058363725152142129326129780047268409114441015993725554835256314039467401291",
@@ -53,8 +91,8 @@ Curve * buildP256() {
     );
 }
 
-Curve * buildP384() {
-    return buildCurve(
+CurveZZ_p * buildP384() {
+    return buildCurveZZ_p(
         "39402006196394479212279040100143613805079739270465446667948293404245721771496870329047266088258938001861606973112319",
         "-3",
         "27580193559959705877849011840389048093056905856361568521428707301988689241309860865136260764883745107765439761230575",
@@ -65,8 +103,8 @@ Curve * buildP384() {
     );
 }
 
-Curve * buildP521() {
-    return buildCurve(
+CurveZZ_p * buildP521() {
+    return buildCurveZZ_p(
         "6864797660130609714981900799081393217269435300143305409394463459185543183397656052122559640661454554977296311391480858037121987999716643812574028291115057151",
         "-3",
         "1093849038073734274511112390766805569936207598951683748994586394495953116150735016013708737573759623248592132296706313309438452531591012912142327488478985984",
@@ -77,14 +115,27 @@ Curve * buildP521() {
     );
 }
 
-Curve * buildSecp256k1() {
-    return buildCurve(
+CurveZZ_p * buildSecp256k1() {
+    return buildCurveZZ_p(
         "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F",
         "0",
         "7",
         "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141",
         "79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798",
         "483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8",
+        16
+    );
+}
+
+CurveZZ_pX * buildK163() {
+    unsigned coefficients[] = {163, 7, 6, 3, 0};
+    return buildCurveZZ_pX(
+        &coefficients[0],
+        5,
+        163,
+        1,
+        "2fe13c0537bbc11acaa07d793de4e6d5e5c94eee8",
+        "289070fb05d38ff58321f2e800536d538ccdaa3d9",
         16
     );
 }

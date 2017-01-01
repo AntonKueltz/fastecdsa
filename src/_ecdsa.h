@@ -14,7 +14,7 @@ typedef struct {
     mpz_t r, s;
 } Sig;
 
-void sign(Sig * sig, char * msg, mpz_t d, mpz_t k, Curve * curve);
-int verify(Sig * sig, char * msg, Point * Q, Curve * curve);
+void sign(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_p * curve);
+int verify(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve);
 
 #endif

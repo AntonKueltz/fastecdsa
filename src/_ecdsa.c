@@ -2,12 +2,12 @@
 #include <string.h>
 
 
-void sign(Sig * sig, char * msg, mpz_t d, mpz_t k, Curve * curve) {
+void sign(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_p * curve) {
     mpz_t e, kinv;
 
     // R = k * G, r = R[x]
-    Point R;
-    pointMul(curve->g, &R, k, curve);
+    PointZZ_p R;
+    pointZZ_pMul(&R, curve->g, k, curve);
     mpz_init_set(sig->r, R.x);
 
     // convert digest to integer (digest is computed as hex in ecdsa.py)
@@ -33,9 +33,9 @@ void sign(Sig * sig, char * msg, mpz_t d, mpz_t k, Curve * curve) {
 
 // TODO Shamir's trick for two mults and add
 // TODO validate Q, r, s
-int verify(Sig * sig, char * msg, Point * Q, Curve * curve) {
+int verify(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve) {
     mpz_t e, w, u1, u2;
-    Point tmp1, tmp2, tmp3;
+    PointZZ_p tmp1, tmp2, tmp3;
     mpz_inits(w, u1, u2, tmp1.x, tmp1.y, tmp2.x, tmp2.y, tmp3.x, tmp3.y, NULL);
 
     // convert digest to integer (digest is computed as hex in ecdsa.py)
@@ -53,9 +53,9 @@ int verify(Sig * sig, char * msg, Point * Q, Curve * curve) {
     mpz_mul(u2, sig->r, w);
     mpz_mod(u2, u2, curve->q);
 
-    pointMul(curve->g, &tmp1, u1, curve);
-    pointMul(Q, &tmp2, u2, curve);
-    pointAdd(&tmp1, &tmp2, &tmp3, curve);
+    pointZZ_pMul(&tmp1, curve->g, u1, curve);
+    pointZZ_pMul(&tmp2, Q, u2, curve);
+    pointZZ_pAdd(&tmp3, &tmp1, &tmp2, curve);
 
     int equal = (mpz_cmp(tmp3.x, sig->r) == 0);
     mpz_clears(e, w, u1, u2, tmp1.x, tmp1.y, tmp2.x, tmp2.y, tmp3.x, tmp3.y, NULL);
@@ -74,7 +74,7 @@ static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
     }
 
     mpz_t privKey, nonce;
-    Curve * curve;
+    CurveZZ_p * curve;
     Sig sig;
 
     if(strcmp(curveName, "P192") == 0) { curve = buildP192(); }
@@ -92,7 +92,7 @@ static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
     char * resultR = mpz_get_str(NULL, 10, sig.r);
     char * resultS = mpz_get_str(NULL, 10, sig.s);
 
-    destroyCurve(curve);
+    destroyCurveZZ_p(curve);
     mpz_clears(sig.r, sig.s, privKey, NULL);
 
     return Py_BuildValue("ss", resultR, resultS);
@@ -106,8 +106,8 @@ static PyObject * _ecdsa_verify(PyObject *self, PyObject *args) {
         return NULL;
     }
 
-    Point * Q = buildPoint(qx, qy, 10);
-    Curve * curve;
+    PointZZ_p * Q = buildPointZZ_p(qx, qy, 10);
+    CurveZZ_p * curve;
     Sig sig;
 
     if(strcmp(curveName, "P192") == 0) { curve = buildP192(); }
@@ -123,8 +123,8 @@ static PyObject * _ecdsa_verify(PyObject *self, PyObject *args) {
 
     int valid = verify(&sig, msg, Q, curve);
 
-    destroyPoint(Q);
-    destroyCurve(curve);
+    destroyPointZZ_p(Q);
+    destroyCurveZZ_p(curve);
     mpz_clears(sig.r, sig.s, NULL);
 
     return Py_BuildValue("O", valid ? Py_True : Py_False);
@@ -159,6 +159,6 @@ PyMODINIT_FUNC PyInit__ecdsa(void) {
 
 #else
 PyMODINIT_FUNC init_ecdsa(void) {
-    PyObject * m = Py_InitModule("_ecdsa", _ecdsa__methods__);
+    Py_InitModule("_ecdsa", _ecdsa__methods__);
 }
 #endif

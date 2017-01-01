@@ -7,9 +7,11 @@
 #include "curve.h"
 #include "point.h"
 
-int pointEqual(const Point * pointA, const Point * pointB);
-void pointDouble(const Point * pointP, Point * pointR, Curve * curve);
-void pointAdd(const Point * pointP, const Point * pointQ, Point * pointR, Curve * curve);
-void pointMul(const Point * pointP, Point * pointR, const mpz_t d, Curve * curve);
+int pointZZ_pEqual(const PointZZ_p * op1, const PointZZ_p * op2);
+void pointZZ_pDouble(PointZZ_p * rop, const PointZZ_p * op, const CurveZZ_p * curve);
+void pointZZ_pXDouble(PointZZ_pX * rop, const PointZZ_pX * op, const CurveZZ_pX * curve);
+void pointZZ_pAdd(PointZZ_p * rop, const PointZZ_p * op1, const PointZZ_p * op2, const CurveZZ_p * curve);
+void pointZZ_pXAdd(PointZZ_pX * rop, const PointZZ_pX * op1, const PointZZ_pX * op2, const CurveZZ_pX * curve);
+void pointZZ_pMul(PointZZ_p * rop, const PointZZ_p * point, const mpz_t scalar, const CurveZZ_p * curve);
 
 #endif
