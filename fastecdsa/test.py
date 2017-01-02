@@ -2,12 +2,12 @@ from hashlib import sha1, sha224, sha256, sha384, sha512
 from random import choice, randint
 import unittest
 
-from .curve import P192, P224, P256, P384, P521, secp256k1
+from .curve import P192, P224, P256, P384, P521, secp256k1, K163
 from .ecdsa import sign, verify
 from .util import RFC6979
 
 
-class TestCurve(unittest.TestCase):
+class TestPrimeFieldCurve(unittest.TestCase):
     ''' cases taken from https://www.nsa.gov/ia/_files/nist-routines.pdf '''
 
     def test_P192_arith(self):
@@ -54,13 +54,18 @@ class TestCurve(unittest.TestCase):
 
     def test_P384_arith(self):
         S = (
-            0xfba203b81bbd23f2b3be971cc23997e1ae4d89e69cb6f92385dda82768ada415ebab4167459da98e62b1332d1e73cb0e,
-            0x5ffedbaefdeba603e7923e06cdb5d0c65b22301429293376d5c6944e3fa6259f162b4788de6987fd59aed5e4b5285e45
+            long('fba203b81bbd23f2b3be971cc23997e1ae4d89e69cb6f92385dda82768ada415ebab4167459da98e6'
+                 '2b1332d1e73cb0e', 16),
+            long('5ffedbaefdeba603e7923e06cdb5d0c65b22301429293376d5c6944e3fa6259f162b4788de6987fd5'
+                 '9aed5e4b5285e45', 16)
         )
-        d = 0xa4ebcae5a665983493ab3e626085a24c104311a761b5a8fdac052ed1f111a5c44f76f45659d2d111a61b5fdd97583480
+        d = long('a4ebcae5a665983493ab3e626085a24c104311a761b5a8fdac052ed1f111a5c44f76f45659d2d111a'
+                 '61b5fdd97583480', 16)
         expected = (
-            0xe4f77e7ffeb7f0958910e3a680d677a477191df166160ff7ef6bb5261f791aa7b45e3e653d151b95dad3d93ca0290ef2,
-            0xac7dee41d8c5f4a7d5836960a773cfc1376289d3373f8cf7417b0c6207ac32e913856612fc9ff2e357eb2ee05cf9667f
+            long('e4f77e7ffeb7f0958910e3a680d677a477191df166160ff7ef6bb5261f791aa7b45e3e653d151b95d'
+                 'ad3d93ca0290ef2', 16),
+            long('ac7dee41d8c5f4a7d5836960a773cfc1376289d3373f8cf7417b0c6207ac32e913856612fc9ff2e35'
+                 '7eb2ee05cf9667f', 16)
         )
         R = P384.point_mul(S, d)
         self.assertTrue(R[0] == expected[0])
@@ -68,13 +73,18 @@ class TestCurve(unittest.TestCase):
 
     def test_P521_arith(self):
         S = (
-            0x000001d5c693f66c08ed03ad0f031f937443458f601fd098d3d0227b4bf62873af50740b0bb84aa157fc847bcf8dc16a8b2b8bfd8e2d0a7d39af04b089930ef6dad5c1b4,
-            0x00000144b7770963c63a39248865ff36b074151eac33549b224af5c8664c54012b818ed037b2b7c1a63ac89ebaa11e07db89fcee5b556e49764ee3fa66ea7ae61ac01823
+            long('000001d5c693f66c08ed03ad0f031f937443458f601fd098d3d0227b4bf62873af50740b0bb84aa15'
+                 '7fc847bcf8dc16a8b2b8bfd8e2d0a7d39af04b089930ef6dad5c1b4', 16),
+            long('00000144b7770963c63a39248865ff36b074151eac33549b224af5c8664c54012b818ed037b2b7c1a'
+                 '63ac89ebaa11e07db89fcee5b556e49764ee3fa66ea7ae61ac01823', 16)
         )
-        d = 0x000001eb7f81785c9629f136a7e8f8c674957109735554111a2a866fa5a166699419bfa9936c78b62653964df0d6da940a695c7294d41b2d6600de6dfcf0edcfc89fdcb1
+        d = long('000001eb7f81785c9629f136a7e8f8c674957109735554111a2a866fa5a166699419bfa9936c78b62'
+                 '653964df0d6da940a695c7294d41b2d6600de6dfcf0edcfc89fdcb1', 16)
         expected = (
-            0x00000091b15d09d0ca0353f8f96b93cdb13497b0a4bb582ae9ebefa35eee61bf7b7d041b8ec34c6c00c0c0671c4ae063318fb75be87af4fe859608c95f0ab4774f8c95bb,
-            0x00000130f8f8b5e1abb4dd94f6baaf654a2d5810411e77b7423965e0c7fd79ec1ae563c207bd255ee9828eb7a03fed565240d2cc80ddd2cecbb2eb50f0951f75ad87977f
+            long('00000091b15d09d0ca0353f8f96b93cdb13497b0a4bb582ae9ebefa35eee61bf7b7d041b8ec34c6c0'
+                 '0c0c0671c4ae063318fb75be87af4fe859608c95f0ab4774f8c95bb', 16),
+            long('00000130f8f8b5e1abb4dd94f6baaf654a2d5810411e77b7423965e0c7fd79ec1ae563c207bd255ee'
+                 '9828eb7a03fed565240d2cc80ddd2cecbb2eb50f0951f75ad87977f', 16)
         )
         R = P521.point_mul(S, d)
         self.assertTrue(R[0] == expected[0])
@@ -146,13 +156,29 @@ class TestNonceGeneration(unittest.TestCase):
         msg = 'sample'
         x = 0x09A4D6792295A7F730FC3F2B49CBC0F62E862272F
         q = 0x4000000000000000000020108A2E0CC0D99F8A5EF
-        expected = 0x23AF4074C90A02B3FE61D286D5C87F425E6BDD81B
 
+        expected = 0x09744429FA741D12DE2BE8316E35E84DB9E5DF1CD
+        nonce = RFC6979(msg, x, q, sha1).gen_nonce()
+        self.assertTrue(nonce == expected)
+
+        expected = 0x323E7B28BFD64E6082F5B12110AA87BC0D6A6E159
+        nonce = RFC6979(msg, x, q, sha224).gen_nonce()
+        self.assertTrue(nonce == expected)
+
+        expected = 0x23AF4074C90A02B3FE61D286D5C87F425E6BDD81B
         nonce = RFC6979(msg, x, q, sha256).gen_nonce()
         self.assertTrue(nonce == expected)
 
+        expected = 0x2132ABE0ED518487D3E4FA7FD24F8BED1F29CCFCE
+        nonce = RFC6979(msg, x, q, sha384).gen_nonce()
+        self.assertTrue(nonce == expected)
 
-class TestECDSA(unittest.TestCase):
+        expected = 0x00BBCC2F39939388FDFE841892537EC7B1FF33AA3
+        nonce = RFC6979(msg, x, q, sha512).gen_nonce()
+        self.assertTrue(nonce == expected)
+
+
+class TestPrimeFieldECDSA(unittest.TestCase):
     ''' case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 '''
     def test_ecdsa_P256_SHA1_sign(self):
         d = 0xC9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721
@@ -236,6 +262,54 @@ class TestECDSA(unittest.TestCase):
             0x7d1ff961980f961bdaa3233b6209f4013317d3e3f9e1493592dbeaa1af2bc367
         )
         self.assertFalse(verify(sig, msg, Q, curve=P256, hashfunc=sha256))
+
+
+class TestBinaryFieldECDSA(unittest.TestCase):
+    ''' cases taken from https://tools.ietf.org/html/rfc6979#appendix-A.2.8 '''
+    def test_ecdsa_K163_SHA1_sign(self):
+        d = 0x09A4D6792295A7F730FC3F2B49CBC0F62E862272F
+        expected = (
+            0x30C45B80BA0E1406C4EFBBB7000D6DE4FA465D505,
+            0x38D87DF89493522FC4CD7DE1553BD9DBBA2123011
+        )
+        sig = sign('sample', d, curve=K163, hashfunc=sha1)
+        self.assertTrue(sig == expected)
+
+    def test_ecdsa_K163_SHA224_sign(self):
+        d = 0x09A4D6792295A7F730FC3F2B49CBC0F62E862272F
+        expected = (
+            0x38A2749F7EA13BD5DA0C76C842F512D5A65FFAF32,
+            0x064F841F70112B793FD773F5606BFA5AC2A04C1E8
+        )
+        sig = sign('sample', d, curve=K163, hashfunc=sha224)
+        self.assertTrue(sig == expected)
+
+    def test_ecdsa_K163_SHA256_sign(self):
+        d = 0x09A4D6792295A7F730FC3F2B49CBC0F62E862272F
+        expected = (
+            0x113A63990598A3828C407C0F4D2438D990DF99A7F,
+            0x1313A2E03F5412DDB296A22E2C455335545672D9F
+        )
+        sig = sign('sample', d, curve=K163, hashfunc=sha256)
+        self.assertTrue(sig == expected)
+
+    def test_ecdsa_K163_SHA384_sign(self):
+        d = 0x09A4D6792295A7F730FC3F2B49CBC0F62E862272F
+        expected = (
+            0x34D4DE955871BB84FEA4E7D068BA5E9A11BD8B6C4,
+            0x2BAAF4D4FD57F175C405A2F39F9755D9045C820BD
+        )
+        sig = sign('sample', d, curve=K163, hashfunc=sha384)
+        self.assertTrue(sig == expected)
+
+    def test_ecdsa_K163_SHA512_sign(self):
+        d = 0x09A4D6792295A7F730FC3F2B49CBC0F62E862272F
+        expected = (
+            0x38E487F218D696A7323B891F0CCF055D895B77ADC,
+            0x0972D7721093F9B3835A5EB7F0442FA8DCAA873C4
+        )
+        sig = sign('sample', d, curve=K163, hashfunc=sha512)
+        self.assertTrue(sig == expected)
 
 if __name__ == '__main__':
     unittest.main()

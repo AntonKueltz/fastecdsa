@@ -179,6 +179,57 @@ void pointZZ_pMul(PointZZ_p * rop, const PointZZ_p * point, const mpz_t scalar, 
 }
 
 
+void pointZZ_pXMul(PointZZ_pX * rop, const PointZZ_pX * point, const mpz_t scalar, const CurveZZ_pX * curve) {
+    PointZZ_pX R0, R1, tmp;
+    fq_poly_init2(rop->x, curve->degree, curve->ctx);
+    fq_poly_init2(rop->y, curve->degree, curve->ctx);
+    fq_poly_init2(R0.x, curve->degree, curve->ctx);
+    fq_poly_init2(R0.y, curve->degree, curve->ctx);
+    fq_poly_init2(R1.x, curve->degree, curve->ctx);
+    fq_poly_init2(R1.y, curve->degree, curve->ctx);
+    fq_poly_init2(tmp.x, curve->degree, curve->ctx);
+    fq_poly_init2(tmp.y, curve->degree, curve->ctx);
+
+    fq_poly_set(R0.x, point->x, curve->ctx);
+    fq_poly_set(R0.y, point->y, curve->ctx);
+    pointZZ_pXDouble(&R1, point, curve);
+
+    char * dbits = mpz_get_str(NULL, 2, scalar);
+    int i = 1;
+
+    while(dbits[i] != '\0') {
+        if(dbits[i] == '0') {
+            fq_poly_set(tmp.x, R1.x, curve->ctx);
+            fq_poly_set(tmp.y, R1.y, curve->ctx);
+            pointZZ_pXAdd(&R1, &R0, &tmp, curve);
+            fq_poly_set(tmp.x, R0.x, curve->ctx);
+            fq_poly_set(tmp.y, R0.y, curve->ctx);
+            pointZZ_pXDouble(&R0, &tmp, curve);
+        }
+        else {
+            fq_poly_set(tmp.x, R0.x, curve->ctx);
+            fq_poly_set(tmp.y, R0.y, curve->ctx);
+            pointZZ_pXAdd(&R0, &R1, &tmp, curve);
+            fq_poly_set(tmp.x, R1.x, curve->ctx);
+            fq_poly_set(tmp.y, R1.y, curve->ctx);
+            pointZZ_pXDouble(&R1, &tmp, curve);
+        }
+
+        i++;
+    }
+
+    fq_poly_set(rop->x, R0.x, curve->ctx);
+    fq_poly_set(rop->y, R0.y, curve->ctx);
+
+    fq_poly_clear(R0.x, curve->ctx);
+    fq_poly_clear(R0.y, curve->ctx);
+    fq_poly_clear(R1.x, curve->ctx);
+    fq_poly_clear(R1.y, curve->ctx);
+    fq_poly_clear(tmp.x, curve->ctx);
+    fq_poly_clear(tmp.y, curve->ctx);
+}
+
+
 /******************************************************************************
  PYTHON BINDINGS
  ******************************************************************************/

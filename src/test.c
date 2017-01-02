@@ -11,7 +11,7 @@ void ecdsaTest(void) {
     CurveZZ_p * curve = buildP256();
 
     Sig sig;
-    sign(&sig, msg, d, k, curve);
+    signZZ_p(&sig, msg, d, k, curve);
     gmp_printf("r: %Zx\ns: %Zx\n", sig.r, sig.s);
 
     mpz_init_set_str(sig.r, "7214bc9647160bbd39ff2f80533f5dc6ddd70ddf86bb815661e805d5d4e6f27c", 16);
@@ -21,7 +21,7 @@ void ecdsaTest(void) {
         "d8a12ba61d599235f67d9cb4d58f1783d3ca43e78f0a5abaa624079936c0c3a9",
         16
     );
-    int equal = verify(&sig, msg, Q, curve);
+    int equal = verifyZZ_p(&sig, msg, Q, curve);
     printf("%s\n", equal ? "True" : "False");
 
     mpz_set_str(d, "C9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721", 16);
@@ -29,14 +29,23 @@ void ecdsaTest(void) {
 
     char * msg2 = "39a5e04aaff7455d9850c605364f514c11324ce64016960d23d5dc57d3ffd8f49a739468ab8049bf18eef820cdb1ad6c9015f838556bc7fad4138b23fdf986c7";
 
-    sign(&sig, msg2, d, k, curve);
+    signZZ_p(&sig, msg2, d, k, curve);
+    gmp_printf("r: %Zx\ns: %Zx\n", sig.r, sig.s);
+
+
+    // test K163 ECDSA (https://tools.ietf.org/html/rfc6979#appendix-A.2.8)
+    mpz_set_str(d, "09A4D6792295A7F730FC3F2B49CBC0F62E862272F", 16);
+    mpz_set_str(k, "09744429FA741D12DE2BE8316E35E84DB9E5DF1CD", 16);
+    CurveZZ_pX * curveX = buildK163();
+
+    char * msg3 = "8151325dcdbae9e0ff95f9f9658432dbedfdb209";
+
+    signZZ_pX(&sig, msg3, d, k, curveX);
     gmp_printf("r: %Zx\ns: %Zx\n", sig.r, sig.s);
 
     mpz_clears(sig.r, sig.s, d, k, NULL);
     destroyCurveZZ_p(curve);
     destroyPointZZ_p(Q);
-
-
 }
 
 

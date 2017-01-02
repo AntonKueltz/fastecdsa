@@ -1,14 +1,16 @@
 #include "_ecdsa.h"
 #include <string.h>
+#include <stdio.h>
 
 
-void sign(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_p * curve) {
+void signZZ_p(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_p * curve) {
     mpz_t e, kinv;
 
     // R = k * G, r = R[x]
     PointZZ_p R;
     pointZZ_pMul(&R, curve->g, k, curve);
     mpz_init_set(sig->r, R.x);
+    mpz_mod(sig->r, sig->r, curve->q);
 
     // convert digest to integer (digest is computed as hex in ecdsa.py)
     mpz_init_set_str(e, msg, 16);
@@ -31,9 +33,53 @@ void sign(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_p * curve) {
 }
 
 
+void signZZ_pX(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_pX * curve) {
+    mpz_t e, kinv;
+
+    // R = k * G, r = R[x]
+    PointZZ_pX R;
+    pointZZ_pXMul(&R, curve->g, k, curve);
+
+    mpz_init(sig->r);
+    fq_t coeff;
+    fq_init(coeff, curve->ctx);
+    unsigned i;
+    for(i = 0; i < curve->degree; i++) {
+        fq_poly_get_coeff(coeff, R.x, i, curve->ctx);
+        if(fq_is_one(coeff, curve->ctx)) {
+            mpz_setbit(sig->r, i);
+        }
+    }
+    mpz_mod(sig->r, sig->r, curve->q);
+    fq_clear(coeff, curve->ctx);
+
+    // convert digest to integer (digest is computed as hex in ecdsa.py)
+    mpz_init_set_str(e, msg, 16);
+    int orderBits = mpz_sizeinbase(curve->q, 2);
+    int digestBits = ((mpz_sizeinbase(e, 2) + 3) / 4) * 4;
+
+    if(digestBits > orderBits) {
+        mpz_fdiv_q_2exp(e, e, digestBits - orderBits);
+        digestBits = mpz_sizeinbase(e, 2);
+    }
+
+    // s = (k^-1 * (e + d * r)) mod n
+    mpz_inits(kinv, sig->s, NULL);
+    mpz_invert(kinv, k, curve->q);
+    mpz_mul(sig->s, d, sig->r);
+    mpz_add(sig->s, sig->s, e);
+    mpz_mul(sig->s, sig->s, kinv);
+    mpz_mod(sig->s, sig->s, curve->q);
+
+    fq_poly_clear(R.x, curve->ctx);
+    fq_poly_clear(R.y, curve->ctx);
+    mpz_clears(e, kinv, NULL);
+}
+
+
 // TODO Shamir's trick for two mults and add
 // TODO validate Q, r, s
-int verify(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve) {
+int verifyZZ_p(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve) {
     mpz_t e, w, u1, u2;
     PointZZ_p tmp1, tmp2, tmp3;
     mpz_inits(w, u1, u2, tmp1.x, tmp1.y, tmp2.x, tmp2.y, tmp3.x, tmp3.y, NULL);
@@ -63,6 +109,37 @@ int verify(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve) {
 }
 
 
+int verifyZZ_pX(Sig * sig, char * msg, PointZZ_pX * Q, const CurveZZ_pX * curve) {
+    // mpz_t e, w, u1, u2;
+    // PointZZ_pX tmp1, tmp2, tmp3;
+    // mpz_inits(w, u1, u2, tmp1.x, tmp1.y, tmp2.x, tmp2.y, tmp3.x, tmp3.y, NULL);
+    //
+    // // convert digest to integer (digest is computed as hex in ecdsa.py)
+    // mpz_init_set_str(e, msg, 16);
+    // int orderBits = mpz_sizeinbase(curve->q, 2);
+    // int digestBits = ((mpz_sizeinbase(e, 2) + 3) / 4) * 4;
+    //
+    // if(digestBits > orderBits) {
+    //     mpz_fdiv_q_2exp(e, e, digestBits - orderBits);
+    // }
+    //
+    // mpz_invert(w, sig->s, curve->q);
+    // mpz_mul(u1, e, w);
+    // mpz_mod(u1, u1, curve->q);
+    // mpz_mul(u2, sig->r, w);
+    // mpz_mod(u2, u2, curve->q);
+    //
+    // pointZZ_pXMul(&tmp1, curve->g, u1, curve);
+    // pointZZ_pXMul(&tmp2, Q, u2, curve);
+    // pointZZ_pXAdd(&tmp3, &tmp1, &tmp2, curve);
+    //
+    // int equal = (mpz_cmp(tmp3.x, sig->r) == 0);
+    // mpz_clears(e, w, u1, u2, tmp1.x, tmp1.y, tmp2.x, tmp2.y, tmp3.x, tmp3.y, NULL);
+    // return equal;
+    return 1;
+}
+
+
 /******************************************************************************
  PYTHON BINDINGS
  ******************************************************************************/
@@ -74,8 +151,9 @@ static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
     }
 
     mpz_t privKey, nonce;
-    CurveZZ_p * curve;
+    void * curve;
     Sig sig;
+    int binaryField = 0;
 
     if(strcmp(curveName, "P192") == 0) { curve = buildP192(); }
     else if(strcmp(curveName, "P224") == 0) { curve = buildP224(); }
@@ -83,16 +161,23 @@ static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
     else if(strcmp(curveName, "P384") == 0) { curve = buildP384(); }
     else if(strcmp(curveName, "P521") == 0) { curve = buildP521(); }
     else if(strcmp(curveName, "secp256k1") == 0) { curve = buildSecp256k1(); }
+    else if(strcmp(curveName, "K163") == 0) { curve = buildK163(); binaryField = 1; }
     else { return NULL; }
 
     mpz_init_set_str(privKey, d, 10);
     mpz_init_set_str(nonce, k, 10);
 
-    sign(&sig, msg, privKey, nonce, curve);
+    if(binaryField) {
+        signZZ_pX(&sig, msg, privKey, nonce, (CurveZZ_pX *)curve);
+        destroyCurveZZ_pX((CurveZZ_pX *)curve);
+    }
+    else {
+        signZZ_p(&sig, msg, privKey, nonce, (CurveZZ_p *)curve);
+        destroyCurveZZ_p((CurveZZ_p *)curve);
+    }
+
     char * resultR = mpz_get_str(NULL, 10, sig.r);
     char * resultS = mpz_get_str(NULL, 10, sig.s);
-
-    destroyCurveZZ_p(curve);
     mpz_clears(sig.r, sig.s, privKey, NULL);
 
     return Py_BuildValue("ss", resultR, resultS);
@@ -109,6 +194,7 @@ static PyObject * _ecdsa_verify(PyObject *self, PyObject *args) {
     PointZZ_p * Q = buildPointZZ_p(qx, qy, 10);
     CurveZZ_p * curve;
     Sig sig;
+    // int binaryField = 0;
 
     if(strcmp(curveName, "P192") == 0) { curve = buildP192(); }
     else if(strcmp(curveName, "P224") == 0) { curve = buildP224(); }
@@ -116,12 +202,13 @@ static PyObject * _ecdsa_verify(PyObject *self, PyObject *args) {
     else if(strcmp(curveName, "P384") == 0) { curve = buildP384(); }
     else if(strcmp(curveName, "P521") == 0) { curve = buildP521(); }
     else if(strcmp(curveName, "secp256k1") == 0) { curve = buildSecp256k1(); }
+    // else if(strcmp(curveName, "K163") == 0) { curve = buildK163(); binaryField = 1; }
     else { return NULL; }
 
     mpz_init_set_str(sig.r, r, 10);
     mpz_init_set_str(sig.s, s, 10);
 
-    int valid = verify(&sig, msg, Q, curve);
+    int valid = verifyZZ_p(&sig, msg, Q, curve);
 
     destroyPointZZ_p(Q);
     destroyCurveZZ_p(curve);

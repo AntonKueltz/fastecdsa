@@ -17,7 +17,7 @@ void destroyCurveZZ_p(CurveZZ_p * curve) {
     free(curve);
 }
 
-CurveZZ_pX * buildCurveZZ_pX(unsigned * pt, unsigned ptlen, unsigned degree, int a, char * gx, char * gy, int base) {
+CurveZZ_pX * buildCurveZZ_pX(unsigned * pt, unsigned ptlen, unsigned degree, int a, char * q, char * gx, char * gy, int base) {
     CurveZZ_pX * curve = (CurveZZ_pX *)malloc(sizeof(CurveZZ_pX));
     curve->degree = degree;
 
@@ -40,7 +40,9 @@ CurveZZ_pX * buildCurveZZ_pX(unsigned * pt, unsigned ptlen, unsigned degree, int
         fq_poly_set_coeff_fmpz(curve->pt, pt[i], one, curve->ctx);
     }
 
+    mpz_init_set_str(curve->q, q, base);
     curve->g = buildPointZZ_pX(gx, gy, base, degree, curve->ctx);
+
     fmpz_clear(p);
     fmpz_clear(one);
     return curve;
@@ -50,6 +52,7 @@ void destroyCurveZZ_pX(CurveZZ_pX * curve) {
     fq_poly_clear(curve->a, curve->ctx);
     fq_poly_clear(curve->b, curve->ctx);
     fq_poly_clear(curve->pt, curve->ctx);
+    mpz_clear(curve->q);
     destroyPointZZ_pX(curve->g);
     fq_ctx_clear(curve->ctx);
     free(curve);
@@ -134,6 +137,7 @@ CurveZZ_pX * buildK163() {
         5,
         163,
         1,
+        "4000000000000000000020108a2e0cc0d99f8a5ef",
         "2fe13c0537bbc11acaa07d793de4e6d5e5c94eee8",
         "289070fb05d38ff58321f2e800536d538ccdaa3d9",
         16
