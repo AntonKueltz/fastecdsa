@@ -19,8 +19,8 @@ no guarantee of correctness or stability. As of release 1.2.1+ python3 is now su
 
 Supported Primitives
 --------------------
-Curves
-~~~~~~
+Curves over :math:`F_p`
+~~~~~~~~~~~~~~~~~~~~~~~
 * P192 (:code:`fastecdsa.curve.P192`)
 * P224 (:code:`fastecdsa.curve.P224`)
 * P256 (:code:`fastecdsa.curve.P256`)
@@ -28,12 +28,23 @@ Curves
 * P521 (:code:`fastecdsa.curve.P521`)
 * secp256k1 (bitcoin curve) (:code:`fastecdsa.curve.secp256k1`)
 
+Curves over :math:`F_{2^m}`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* K163 (:code:`fastecdsa.curve.K163`)
+* K233 (:code:`fastecdsa.curve.K233`)
+* K283 (:code:`fastecdsa.curve.K283`)
+* K409 (:code:`fastecdsa.curve.K409`)
+* K571 (:code:`fastecdsa.curve.K571`)
+
 Hash Functions
 ~~~~~~~~~~~~~~
-Any hash function in the :code:`hashlib` module (:code:`md5, sha1, sha224, sha256, sha384, sha512`) will work, as will any hash function that implements the same interface / core functionality as the those in :code:`hashlib`. For instance, if you wish to use SHA3 as the hash function the :code:`pysha3` package will work with this library as long as it is at version >=1.0b1 (as previous versions didn't work with the :code:`hmac` module which is used in nonce generation). 
+Any hash function in the :code:`hashlib` module (:code:`md5, sha1, sha224, sha256, sha384, sha512`) will work, as will any hash function that implements the same interface / core functionality as the those in :code:`hashlib`. For instance, if you wish to use SHA3 as the hash function the :code:`pysha3` package will work with this library as long as it is at version >=1.0b1 (as previous versions didn't work with the :code:`hmac` module which is used in nonce generation).
 
 Performance
 -----------
+
+Curves over :math:`F_p`
+~~~~~~~~~~~~~~~~~~~~~~~
 Currently it does basic point multiplication significantly faster than the :code:`ecdsa`
 package. You can see the times for 1,000 signature and verification operations below,
 :code:`fast.py` corresponding to this package and :code:`regular.py` corresponding
@@ -42,6 +53,14 @@ to :code:`ecdsa` package.
 .. image:: http://i.imgur.com/oNOfnG6.png?1
 
 As you can see, this package in this case is ~25x faster.
+
+Curves over :math:`F_{2^m}`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Curves over binary fields are very slow. Although the linear algebra needed for these fields is
+delegated to FLINT_ it still takes at least a second to find inverse polynomials for the size of
+fields that we are working in. I suspect this is because FLINT does not optimize it's polynomials
+over finite fields when the field characteristic is 2. Will have to switch in another linear algebra
+lib to do this at a later time.
 
 Installing
 ----------
@@ -102,7 +121,7 @@ Some basic usage is shown below:
     public_key = keys.get_public_key(private_key, curve.P224)
     r, s = ecdsa.sign(m, private_key, curve=curve.P224)
     valid = ecdsa.verify((r, s), m, public_key, curve=curve.P224)
-    
+
     ''' using SHA3 via pysha3>=1.0b1 package '''
     import sha3  # pip install [--user] pysha3==1.0b1
     from hashlib import sha3_256
@@ -116,4 +135,5 @@ No known current issues. Timing side challenges are mitigated via Montgomery
 point multiplication. Nonces are generated per RFC6979.
 
 
+.. _FLINT: http://flintlib.org/
 .. _GMP: https://gmplib.org/
