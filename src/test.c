@@ -1,3 +1,4 @@
+#include "binaryField.h"
 #include "curveMath.h"
 #include "_ecdsa.h"
 
@@ -136,16 +137,35 @@ void secp256k1Test(void) {
 }
 
 
-void k163Test(void) {
-    CurveZZ_pX * k163 = buildK163();
-    // printf("Built K163\n");
-    destroyCurveZZ_pX(k163);
+void binaryFieldTest(void) {
+    unsigned degree = 163;
+    BinaryField * x = f2m_init(degree);
+    BinaryField * y = f2m_init(degree);
+
+    f2m_set_bit(x, 0);
+    f2m_set_bit(x, 51);
+    f2m_set_bit(x, 100);
+    f2m_set_bit(x, 161);
+    f2m_set_bit(y, 2);
+    f2m_set_bit(y, 17);
+    f2m_set_bit(y, 162);
+
+    BinaryField * z = f2m_mulmod(x, y, 163);
+
+    const char * var = "X";
+    f2m_pretty_print(x, var);
+    f2m_pretty_print(y, var);
+    f2m_pretty_print(z, var);
+
+    f2m_clear(x);
+    f2m_clear(y);
+    f2m_clear(z);
 }
 
 
 int main(int argc, char * argv[]) {
-    ecdsaTest();
-    secp256k1Test();
-    k163Test();
+    // ecdsaTest();
+    // secp256k1Test();
+    binaryFieldTest();
     return 0;
 }
