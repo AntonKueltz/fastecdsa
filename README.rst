@@ -62,7 +62,7 @@ Curves over :math:`F_{2^m}`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Curves over binary fields are slower. This is mainly because there are no good C libraries that I
 could find optimized for binary fields (e.g. FLINT_ only supports polynomials in a field of
-arbitrary characteristic, which means no optimizations and more cases than we need for BinaryField
+arbitrary characteristic, which means no optimizations and more cases than we need for binary
 fields). So the binary field C code is written by me. Finding the inverse of a polynomial is the
 main bottleneck currently taking about 50ms (for comparison, signature generation and verification
 in prime fields are both <5ms). This will be improve when I have time to optimize (or feel free to
