@@ -38,7 +38,11 @@ Curves over :math:`F_{2^m}`
 
 Hash Functions
 ~~~~~~~~~~~~~~
-Any hash function in the :code:`hashlib` module (:code:`md5, sha1, sha224, sha256, sha384, sha512`) will work, as will any hash function that implements the same interface / core functionality as the those in :code:`hashlib`. For instance, if you wish to use SHA3 as the hash function the :code:`pysha3` package will work with this library as long as it is at version >=1.0b1 (as previous versions didn't work with the :code:`hmac` module which is used in nonce generation).
+Any hash function in the :code:`hashlib` module (:code:`md5, sha1, sha224, sha256, sha384, sha512`)
+will work, as will any hash function that implements the same interface / core functionality as the
+those in :code:`hashlib`. For instance, if you wish to use SHA3 as the hash function the
+:code:`pysha3` package will work with this library as long as it is at version >=1.0b1 (as previous
+versions didn't work with the :code:`hmac` module which is used in nonce generation).
 
 Performance
 -----------
@@ -56,11 +60,13 @@ As you can see, this package in this case is ~25x faster.
 
 Curves over :math:`F_{2^m}`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Curves over binary fields are very slow. Although the linear algebra needed for these fields is
-delegated to FLINT_ it still takes at least a second to find inverse polynomials for the size of
-fields that we are working in. I suspect this is because FLINT does not optimize it's polynomials
-over finite fields when the field characteristic is 2. Will have to switch in another linear algebra
-lib to do this at a later time.
+Curves over binary fields are slower. This is mainly because there are no good C libraries that I
+could find optimized for binary fields (e.g. FLINT_ only supports polynomials in a field of
+arbitrary characteristic, which means no optimizations and more cases than we need for BinaryField
+fields). So the binary field C code is written by me. Finding the inverse of a polynomial is the
+main bottleneck currently taking about 50ms (for comparison, signature generation and verification
+in prime fields are both <5ms). This will be improve when I have time to optimize (or feel free to
+fork and optimize the code).
 
 Installing
 ----------

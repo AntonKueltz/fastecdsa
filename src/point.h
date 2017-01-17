@@ -3,8 +3,7 @@
 
 #include "gmp.h"
 
-#include "flint/fq.h"
-#include "flint/fq_poly.h"
+#include "binaryField.h"
 
 // point in a prime field
 typedef struct {
@@ -13,13 +12,13 @@ typedef struct {
 
 // point in a binary field
 typedef struct {
-    fq_poly_t x, y;
+    BinaryField * x, * y;
 } PointZZ_pX;
 
 PointZZ_p * buildPointZZ_p(char * x, char * y, int base);
 void destroyPointZZ_p(PointZZ_p * point);
 
-PointZZ_pX * buildPointZZ_pX(char * x, char * y, int base, unsigned degree, fq_ctx_t ctx);
+PointZZ_pX * buildPointZZ_pX(char * x, char * y, int base, unsigned degree);
 void destroyPointZZ_pX(PointZZ_pX * point);
 
 #endif

@@ -41,17 +41,13 @@ void signZZ_pX(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_pX * curve
     pointZZ_pXMul(&R, curve->g, k, curve);
 
     mpz_init(sig->r);
-    fq_t coeff;
-    fq_init(coeff, curve->ctx);
     unsigned i;
     for(i = 0; i < curve->degree; i++) {
-        fq_poly_get_coeff(coeff, R.x, i, curve->ctx);
-        if(fq_is_one(coeff, curve->ctx)) {
+        if(f2m_is_set(R.x, i)) {
             mpz_setbit(sig->r, i);
         }
     }
     mpz_mod(sig->r, sig->r, curve->q);
-    fq_clear(coeff, curve->ctx);
 
     // convert digest to integer (digest is computed as hex in ecdsa.py)
     mpz_init_set_str(e, msg, 16);
@@ -60,7 +56,6 @@ void signZZ_pX(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_pX * curve
 
     if(digestBits > orderBits) {
         mpz_fdiv_q_2exp(e, e, digestBits - orderBits);
-        digestBits = mpz_sizeinbase(e, 2);
     }
 
     // s = (k^-1 * (e + d * r)) mod n
@@ -71,8 +66,7 @@ void signZZ_pX(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_pX * curve
     mpz_mul(sig->s, sig->s, kinv);
     mpz_mod(sig->s, sig->s, curve->q);
 
-    fq_poly_clear(R.x, curve->ctx);
-    fq_poly_clear(R.y, curve->ctx);
+    destroyPointZZ_pX(&R);
     mpz_clears(e, kinv, NULL);
 }
 

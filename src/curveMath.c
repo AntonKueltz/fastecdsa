@@ -1,4 +1,5 @@
 #include "curveMath.h"
+#include "binaryField.h"
 #include <string.h>
 
 int pointZZ_pEqual(const PointZZ_p * op1, const PointZZ_p * op2) {
@@ -47,33 +48,27 @@ void pointZZ_pDouble(PointZZ_p * rop, const PointZZ_p * op, const CurveZZ_p * cu
 
 
 void pointZZ_pXDouble(PointZZ_pX * rop, const PointZZ_pX * op, const CurveZZ_pX * curve) {
-    fq_poly_t lambda, tmp, G, T;
-    fq_poly_init2(lambda, curve->degree, curve->ctx);
-    fq_poly_init2(tmp, curve->degree, curve->ctx);
-    fq_poly_init2(G, curve->degree, curve->ctx);
-    fq_poly_init2(T, curve->degree, curve->ctx);
-
     // calculate lambda
-    fq_poly_xgcd_euclidean(G, tmp, T, op->x, curve->pt, curve->ctx);
-    fq_poly_mulmod(lambda, op->y, tmp, curve->pt, curve->ctx);
-    fq_poly_add(lambda, lambda, op->x, curve->ctx);
+    BinaryField * xinv = f2m_invmod(op->x, curve->pt);
+    BinaryField * tmp = f2m_mulmod(op->y, xinv, curve->degree);
+    BinaryField * lambda = f2m_add(op->x, tmp);
+    f2m_clear(xinv);
+    f2m_clear(tmp);
 
     // calculate x coordinate
-    fq_poly_mulmod(rop->x, lambda, lambda, curve->pt, curve->ctx);
-    fq_poly_add(rop->x, rop->x, lambda, curve->ctx);
-    fq_poly_add(rop->x, rop->x, curve->a, curve->ctx);
+    tmp = f2m_mulmod(lambda, lambda, curve->degree);
+    rop->x = f2m_add(tmp, lambda);
+    tmp = f2m_add(rop->x, curve->a);
+    f2m_clear(rop->x);
+    rop->x = tmp;
 
     // calculate y coordinate
-    fq_poly_mulmod(rop->y, op->x, op->x, curve->pt, curve->ctx);
-    fq_poly_mulmod(tmp, lambda, rop->x, curve->pt, curve->ctx);
-    fq_poly_add(rop->y, rop->y, tmp, curve->ctx);
-    fq_poly_add(rop->y, rop->y, rop->x, curve->ctx);
-
-    // clear allocated data
-    fq_poly_clear(T, curve->ctx);
-    fq_poly_clear(G, curve->ctx);
-    fq_poly_clear(tmp, curve->ctx);
-    fq_poly_clear(lambda, curve->ctx);
+    BinaryField * x2 = f2m_mulmod(op->x, op->x, curve->degree);
+    tmp = f2m_mulmod(lambda, rop->x, curve->degree);
+    rop->y = f2m_add(x2, tmp);
+    tmp = f2m_add(rop->y, rop->x);
+    f2m_clear(rop->y);
+    rop->y = tmp;
 }
 
 
@@ -107,38 +102,34 @@ void pointZZ_pAdd(PointZZ_p * rop, const PointZZ_p * op1, const PointZZ_p * op2,
 
 
 void pointZZ_pXAdd(PointZZ_pX * rop, const PointZZ_pX * op1, const PointZZ_pX * op2, const CurveZZ_pX * curve) {
-    fq_poly_t lambda, tmp1, tmp2, G, T;
-    fq_poly_init2(lambda, curve->degree, curve->ctx);
-    fq_poly_init2(tmp1, curve->degree, curve->ctx);
-    fq_poly_init2(tmp2, curve->degree, curve->ctx);
-    fq_poly_init2(G, curve->degree, curve->ctx);
-    fq_poly_init2(T, curve->degree, curve->ctx);
-
     // calculate lambda
-    fq_poly_add(tmp1, op1->y, op2->y, curve->ctx);
-    fq_poly_add(tmp2, op1->x, op2->x, curve->ctx);
-    fq_poly_xgcd_euclidean(G, tmp2, T, tmp2, curve->pt, curve->ctx);
-    fq_poly_mulmod(lambda, tmp1, tmp2, curve->pt, curve->ctx);
+    BinaryField * tmp1 = f2m_add(op1->x, op2->x);
+    BinaryField * tmp2 = f2m_invmod(tmp1, curve->pt);
+    BinaryField * tmp3 = f2m_add(op1->y, op2->y);
+    BinaryField * lambda = f2m_mulmod(tmp3, tmp2, curve->degree);
+    f2m_clear(tmp1);
+    f2m_clear(tmp2);
+    f2m_clear(tmp3);
 
     // calculate x coordinate
-    fq_poly_mulmod(rop->x, lambda, lambda, curve->pt, curve->ctx);
-    fq_poly_add(rop->x, rop->x, lambda, curve->ctx);
-    fq_poly_add(rop->x, rop->x, op1->x, curve->ctx);
-    fq_poly_add(rop->x, rop->x, op2->x, curve->ctx);
-    fq_poly_add(rop->x, rop->x, curve->a, curve->ctx);
+    tmp1 = f2m_mulmod(lambda, lambda, curve->degree);
+    tmp2 = f2m_add(tmp1, lambda);
+    f2m_clear(tmp1);
+    tmp1 = f2m_add(tmp2, op1->x);
+    f2m_clear(tmp2);
+    tmp2 = f2m_add(tmp1, op2->x);
+    f2m_clear(tmp1);
+    rop->x = f2m_add(tmp2, curve->a);
+    f2m_clear(tmp2);
 
     // calculate y coordinate
-    fq_poly_add(rop->y, op1->x, rop->x, curve->ctx);
-    fq_poly_mulmod(rop->y, rop->y, lambda, curve->pt, curve->ctx);
-    fq_poly_add(rop->y, rop->y, rop->x, curve->ctx);
-    fq_poly_add(rop->y, rop->y, op1->y, curve->ctx);
-
-    // clear allocated data
-    fq_poly_clear(T, curve->ctx);
-    fq_poly_clear(G, curve->ctx);
-    fq_poly_clear(tmp2, curve->ctx);
-    fq_poly_clear(tmp1, curve->ctx);
-    fq_poly_clear(lambda, curve->ctx);
+    tmp1 = f2m_add(op1->x, rop->x);
+    tmp2 = f2m_mulmod(lambda, tmp1, curve->degree);
+    f2m_clear(tmp1);
+    tmp1 = f2m_add(tmp2, rop->x);
+    f2m_clear(tmp2);
+    rop->y = f2m_add(tmp1, op1->y);
+    f2m_clear(tmp1);
 }
 
 
@@ -180,53 +171,47 @@ void pointZZ_pMul(PointZZ_p * rop, const PointZZ_p * point, const mpz_t scalar, 
 
 
 void pointZZ_pXMul(PointZZ_pX * rop, const PointZZ_pX * point, const mpz_t scalar, const CurveZZ_pX * curve) {
-    PointZZ_pX R0, R1, tmp;
-    fq_poly_init2(rop->x, curve->degree, curve->ctx);
-    fq_poly_init2(rop->y, curve->degree, curve->ctx);
-    fq_poly_init2(R0.x, curve->degree, curve->ctx);
-    fq_poly_init2(R0.y, curve->degree, curve->ctx);
-    fq_poly_init2(R1.x, curve->degree, curve->ctx);
-    fq_poly_init2(R1.y, curve->degree, curve->ctx);
-    fq_poly_init2(tmp.x, curve->degree, curve->ctx);
-    fq_poly_init2(tmp.y, curve->degree, curve->ctx);
-
-    fq_poly_set(R0.x, point->x, curve->ctx);
-    fq_poly_set(R0.y, point->y, curve->ctx);
+    PointZZ_pX R0, R1;
+    R0.x = f2m_copy(point->x);
+    R0.y = f2m_copy(point->y);
     pointZZ_pXDouble(&R1, point, curve);
 
     char * dbits = mpz_get_str(NULL, 2, scalar);
     int i = 1;
 
     while(dbits[i] != '\0') {
+        PointZZ_pX tmp;
+
         if(dbits[i] == '0') {
-            fq_poly_set(tmp.x, R1.x, curve->ctx);
-            fq_poly_set(tmp.y, R1.y, curve->ctx);
+            tmp.x = f2m_copy(R1.x);
+            tmp.y = f2m_copy(R1.y);
             pointZZ_pXAdd(&R1, &R0, &tmp, curve);
-            fq_poly_set(tmp.x, R0.x, curve->ctx);
-            fq_poly_set(tmp.y, R0.y, curve->ctx);
+            f2m_clear(tmp.x);
+            f2m_clear(tmp.y);
+            tmp.x = f2m_copy(R0.x);
+            tmp.y = f2m_copy(R0.y);
             pointZZ_pXDouble(&R0, &tmp, curve);
         }
         else {
-            fq_poly_set(tmp.x, R0.x, curve->ctx);
-            fq_poly_set(tmp.y, R0.y, curve->ctx);
+            tmp.x = f2m_copy(R0.x);
+            tmp.y = f2m_copy(R0.y);
             pointZZ_pXAdd(&R0, &R1, &tmp, curve);
-            fq_poly_set(tmp.x, R1.x, curve->ctx);
-            fq_poly_set(tmp.y, R1.y, curve->ctx);
+            f2m_clear(tmp.x);
+            f2m_clear(tmp.y);
+            tmp.x = f2m_copy(R1.x);
+            tmp.y = f2m_copy(R1.y);
             pointZZ_pXDouble(&R1, &tmp, curve);
         }
 
+        destroyPointZZ_pX(&tmp);
         i++;
     }
 
-    fq_poly_set(rop->x, R0.x, curve->ctx);
-    fq_poly_set(rop->y, R0.y, curve->ctx);
+    rop->x = f2m_copy(R0.x);
+    rop->y = f2m_copy(R0.y);
 
-    fq_poly_clear(R0.x, curve->ctx);
-    fq_poly_clear(R0.y, curve->ctx);
-    fq_poly_clear(R1.x, curve->ctx);
-    fq_poly_clear(R1.y, curve->ctx);
-    fq_poly_clear(tmp.x, curve->ctx);
-    fq_poly_clear(tmp.y, curve->ctx);
+    destroyPointZZ_pX(&R0);
+    destroyPointZZ_pX(&R1);
 }
 
 

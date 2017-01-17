@@ -21,40 +21,35 @@ CurveZZ_pX * buildCurveZZ_pX(unsigned * pt, unsigned ptlen, unsigned degree, int
     CurveZZ_pX * curve = (CurveZZ_pX *)malloc(sizeof(CurveZZ_pX));
     curve->degree = degree;
 
-    fmpz_t p, one;
-    fmpz_init_set_ui(p, 2);
-    fmpz_init_set_ui(one, 1);
-    const char * name = "binary field";
+    curve->pt = f2m_init(degree);
+    curve->b = f2m_init(0);
+    f2m_set_bit(curve->b, 0);  // Koblitz curve has b=1
 
-    fq_ctx_init(curve->ctx, p, degree, name);
-    fq_poly_init2(curve->pt, degree+1, curve->ctx);
-    fq_poly_init2(curve->a, degree, curve->ctx);
-    fq_poly_init2(curve->b, degree, curve->ctx);
-    fq_poly_one(curve->b, curve->ctx);  // Koblitz curve has b=1
     if(a == 1) {
-        fq_poly_one(curve->a, curve->ctx);
+        curve->a = f2m_init(0);
+        f2m_set_bit(curve->a, 0);
+    }
+    else {
+        curve->a = f2m_init(0);
     }
 
     unsigned i;
     for(i = 0; i < ptlen; i++) {
-        fq_poly_set_coeff_fmpz(curve->pt, pt[i], one, curve->ctx);
+        f2m_set_bit(curve->pt, pt[i]);
     }
 
     mpz_init_set_str(curve->q, q, base);
-    curve->g = buildPointZZ_pX(gx, gy, base, degree, curve->ctx);
+    curve->g = buildPointZZ_pX(gx, gy, base, degree);
 
-    fmpz_clear(p);
-    fmpz_clear(one);
     return curve;
 }
 
 void destroyCurveZZ_pX(CurveZZ_pX * curve) {
-    fq_poly_clear(curve->a, curve->ctx);
-    fq_poly_clear(curve->b, curve->ctx);
-    fq_poly_clear(curve->pt, curve->ctx);
+    f2m_clear(curve->a);
+    f2m_clear(curve->b);
+    f2m_clear(curve->pt);
     mpz_clear(curve->q);
     destroyPointZZ_pX(curve->g);
-    fq_ctx_clear(curve->ctx);
     free(curve);
 }
 

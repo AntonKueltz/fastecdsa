@@ -1,3 +1,6 @@
+#ifndef BINARYFIELD_H
+#define BINARYFIELD_H
+
 #include <stdint.h>
 
 typedef struct {
@@ -11,11 +14,17 @@ BinaryField * f2m_copy(const BinaryField * op);
 void f2m_clear(BinaryField * f2m);
 
 void f2m_set_bit(BinaryField * op, unsigned bitIndex);
+int f2m_is_set(const BinaryField * op, const unsigned bitIndex);
+int f2m_is_one(BinaryField * op);
 
 BinaryField * f2m_add(const BinaryField * op1, const BinaryField * op2);
 BinaryField * f2m_mul(const BinaryField * op1, const BinaryField * op2);
 BinaryField * f2m_mulmod(const BinaryField * op1, const BinaryField * op2, unsigned degree);
 BinaryField * f2m_invmod(const BinaryField * op, const BinaryField * mod);
-void f2m_reduce_k163(BinaryField * op);
 
+void _f2m_reduce_k163(BinaryField * op);
+void _f2m_recalculate_degree(BinaryField * op);
+void _f2m_left_shift(BinaryField * op, const unsigned amt);
 void f2m_pretty_print(const BinaryField * op, const char * var);
+
+#endif

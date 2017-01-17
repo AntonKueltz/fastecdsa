@@ -3,9 +3,7 @@
 
 #include "gmp.h"
 
-#include "flint/fq.h"
-#include "flint/fq_poly.h"
-
+#include "binaryField.h"
 #include "point.h"
 
 // curve over a prime field
@@ -16,11 +14,10 @@ typedef struct {
 
 // curve over a binary field
 typedef struct {
-    fq_poly_t pt, a, b;
+    BinaryField * pt, * a, * b;
     mpz_t q;
     PointZZ_pX * g;
     unsigned degree;
-    fq_ctx_t ctx;
 } CurveZZ_pX;
 
 CurveZZ_p * buildCurveZZ_p(char * p, char * a, char * b, char * q, char * gx, char * gy, int base);

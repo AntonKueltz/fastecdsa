@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <time.h>
+
 #include "binaryField.h"
 #include "curveMath.h"
 #include "_ecdsa.h"
@@ -137,6 +140,32 @@ void secp256k1Test(void) {
 }
 
 
+// void binaryFieldInversionTest(void) {
+//     BinaryField * g = f2m_init(8);
+//     BinaryField * p = f2m_init(5);
+//
+//     f2m_set_bit(g, 8);
+//     f2m_set_bit(g, 4);
+//     f2m_set_bit(g, 3);
+//     f2m_set_bit(g, 1);
+//     f2m_set_bit(g, 0);
+//     f2m_set_bit(p, 5);
+//     f2m_set_bit(p, 4);
+//     f2m_set_bit(p, 3);
+//
+//     BinaryField * q = f2m_invmod(p, g);
+//
+//     const char * x = "x";
+//     f2m_pretty_print(g, x);
+//     f2m_pretty_print(p, x);
+//     f2m_pretty_print(q, x);
+//
+//     f2m_clear(g);
+//     f2m_clear(p);
+//     f2m_clear(q);
+// }
+
+
 void binaryFieldTest(void) {
     unsigned degree = 163;
     BinaryField * x = f2m_init(degree);
@@ -150,11 +179,18 @@ void binaryFieldTest(void) {
     f2m_set_bit(y, 17);
     f2m_set_bit(y, 162);
 
-    BinaryField * z = f2m_mulmod(x, y, 163);
-
     const char * var = "X";
     f2m_pretty_print(x, var);
     f2m_pretty_print(y, var);
+
+    BinaryField * z = f2m_mulmod(x, y, 163);
+    f2m_pretty_print(z, var);
+
+    f2m_clear(z);
+    z = f2m_add(x, y);
+    f2m_pretty_print(z, var);
+
+    _f2m_left_shift(z, 2);
     f2m_pretty_print(z, var);
 
     f2m_clear(x);
@@ -163,9 +199,45 @@ void binaryFieldTest(void) {
 }
 
 
+void binaryFieldInversionTest(void) {
+    BinaryField * f = f2m_init(163);
+    f2m_set_bit(f, 163);
+    f2m_set_bit(f, 7);
+    f2m_set_bit(f, 6);
+    f2m_set_bit(f, 3);
+    f2m_set_bit(f, 0);
+
+    unsigned i, j;
+    srand(time(NULL));
+    const char * var = "X";
+
+    for(i = 0; i < 10; i++){
+        BinaryField * a = f2m_init(162);
+        f2m_set_bit(a, 162);
+        for(j = 0; j < 10; j++) {
+            f2m_set_bit(a, rand() % 162);
+        }
+        printf("A = "); f2m_pretty_print(a, var);
+        BinaryField * ainv = f2m_invmod(a, f);
+        printf("A^-1 = "); f2m_pretty_print(ainv, var);
+        BinaryField * check = f2m_mulmod(a, ainv, 163);
+        printf("%s\n", f2m_is_one(check) ? "True" : "False");
+        printf("A * A^-1 = "); f2m_pretty_print(check, var);
+        printf("-----------------------------------\n");
+
+        f2m_clear(a);
+        f2m_clear(ainv);
+        f2m_clear(check);
+    }
+
+    f2m_clear(f);
+}
+
+
 int main(int argc, char * argv[]) {
-    // ecdsaTest();
+    ecdsaTest();
     // secp256k1Test();
-    binaryFieldTest();
+    // binaryFieldTest();
+    // binaryFieldInversionTest();
     return 0;
 }

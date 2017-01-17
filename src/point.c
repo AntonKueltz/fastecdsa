@@ -8,16 +8,15 @@ PointZZ_p * buildPointZZ_p(char * x, char * y, int base) {
     return point;
 }
 
+
 void destroyPointZZ_p(PointZZ_p * point) {
     mpz_clears(point->x, point->y, NULL);
     free(point);
 }
 
-PointZZ_pX * buildPointZZ_pX(char * x, char * y, int base, unsigned degree, fq_ctx_t ctx) {
-    PointZZ_pX * point = (PointZZ_pX *)malloc(sizeof(PointZZ_pX));
 
-    fmpz_t one;
-    fmpz_init_set_ui(one, 1);
+PointZZ_pX * buildPointZZ_pX(char * x, char * y, int base, unsigned degree) {
+    PointZZ_pX * point = (PointZZ_pX *)malloc(sizeof(PointZZ_pX));
 
     // set the base point
     mpz_t gx, gy;
@@ -26,24 +25,27 @@ PointZZ_pX * buildPointZZ_pX(char * x, char * y, int base, unsigned degree, fq_c
     mpz_set_str(gy, y, base);
 
     // convert the base point to polynomials
-    fq_poly_init2(point->x, degree, ctx);
-    fq_poly_init2(point->y, degree, ctx);
+    point->x = f2m_init(degree);
+    point->y = f2m_init(degree);
 
     unsigned bitIndex;
     for(bitIndex = 0; bitIndex < degree; bitIndex++) {
         if(mpz_tstbit(gx, bitIndex)) {
-            fq_poly_set_coeff_fmpz(point->x, bitIndex, one, ctx);
+            f2m_set_bit(point->x, bitIndex);
+            point->x->degree = bitIndex;
         }
         if(mpz_tstbit(gy, bitIndex)) {
-            fq_poly_set_coeff_fmpz(point->y, bitIndex, one, ctx);
+            f2m_set_bit(point->y, bitIndex);
+            point->y->degree = bitIndex;
         }
     }
 
     mpz_clears(gx, gy, NULL);
-    fmpz_clear(one);
     return point;
 }
 
+
 void destroyPointZZ_pX(PointZZ_pX * point) {
-    // fq_poly_clear(z, )
+    f2m_clear(point->x);
+    f2m_clear(point->y);
 }
