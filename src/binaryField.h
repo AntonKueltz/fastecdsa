@@ -24,6 +24,7 @@ BinaryField * f2m_invmod(const BinaryField * op, const BinaryField * mod);
 
 void _f2m_reduce_k163(BinaryField * op);
 void _f2m_recalculate_degree(BinaryField * op);
+void _f2m_scaled_add(BinaryField * rop, const BinaryField * op, const unsigned shift);
 void _f2m_left_shift(BinaryField * op, const unsigned amt);
 void f2m_pretty_print(const BinaryField * op, const char * var);
 

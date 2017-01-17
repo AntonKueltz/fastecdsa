@@ -187,20 +187,8 @@ BinaryField * f2m_invmod(const BinaryField * op, const BinaryField * mod) {
             j = -j;
         }
 
-        BinaryField * scaledV = f2m_copy(v);
-        _f2m_left_shift(scaledV, j);
-        tmp = f2m_add(u, scaledV);
-        f2m_clear(u);
-        u = tmp;
-
-        BinaryField * scaledG2 = f2m_copy(g2);
-        _f2m_left_shift(scaledG2, j);
-        tmp = f2m_add(g1, scaledG2);
-        f2m_clear(g1);
-        g1 = tmp;
-
-        f2m_clear(scaledV);
-        f2m_clear(scaledG2);
+        _f2m_scaled_add(u, v, j);
+        _f2m_scaled_add(g1, g2, j);
     }
 
     f2m_clear(g2);
@@ -245,6 +233,46 @@ void _f2m_recalculate_degree(BinaryField * op) {
     }
 
     op->degree = 0;
+}
+
+
+void _f2m_scaled_add(BinaryField * rop, const BinaryField * op, const unsigned shift) {
+    unsigned maxDegree = rop->degree > (op->degree + shift) ? rop->degree : (op->degree + shift);
+    unsigned maxWords = (maxDegree / WSIZE) + 1;
+    unsigned i;
+
+    if(maxWords > rop->wordslen) {
+        uint32_t * newWords = (uint32_t *)malloc(WSIZE * (rop->wordslen + 1));
+        for(i = 0; i < rop->wordslen; i++) {
+            newWords[i] = rop->words[i];
+        }
+        newWords[rop->wordslen] = 0;
+        free(rop->words);
+        rop->words = newWords;
+        rop->wordslen = maxWords;
+    }
+
+    uint32_t mask = ((1 << shift) - 1) << (WSIZE - shift);
+    uint32_t shiftedBits = 0;
+
+    for(i = 0; i < maxWords; i++) {
+        uint32_t tmp = op->words[i] & mask;
+        uint32_t shiftedWord = (op->words[i] << shift) | shiftedBits;
+
+        if(i >= rop->wordslen) {
+            rop->words[i] = shiftedWord;
+        }
+        else if(i >= op->wordslen) {
+            rop->words[i] = rop->words[i] ^ shiftedBits;
+        }
+        else {
+            rop->words[i] = rop->words[i] ^ shiftedWord;
+        }
+
+        shiftedBits = tmp >> (WSIZE - shift);
+    }
+
+    _f2m_recalculate_degree(rop);
 }
 
 
