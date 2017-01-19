@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -O2 -Wall -Wstrict-prototypes
 IFLAGS = -I/usr/include/python2.7
-LFLAGS = -lflint -lgmp -lpython2.7
+LFLAGS = -lgmp -lpython2.7
 MAIN = ecdsa
 
 test: test.o _ecdsa.o curveMath.o curve.o point.o binaryField.o

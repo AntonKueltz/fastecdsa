@@ -25,7 +25,7 @@ def verify(sig, msg, Q, curve=P256, hashfunc=sha256):
     r, s = sig
 
     # validate Q, r, s
-    if not curve.is_point_on_curve(Q):
+    if not curve.binary and not curve.is_point_on_curve(Q):
         raise EcdsaError('Invalid public key, point is not on curve {}'.format(curve.name))
     elif r > curve.q or r < 1:
         raise EcdsaError('Invalid Signature: r is not a positive integer smaller than the curve order')

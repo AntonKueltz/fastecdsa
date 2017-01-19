@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "gmp.h"
+
 typedef struct {
     unsigned degree;
     unsigned wordslen;
@@ -12,6 +14,8 @@ typedef struct {
 BinaryField * f2m_init(unsigned m);
 BinaryField * f2m_copy(const BinaryField * op);
 void f2m_clear(BinaryField * f2m);
+int f2m_equal(BinaryField * op1, BinaryField * op2);
+void f2m_to_mpz(mpz_t rop, BinaryField * op);
 
 void f2m_set_bit(BinaryField * op, unsigned bitIndex);
 int f2m_is_set(const BinaryField * op, const unsigned bitIndex);

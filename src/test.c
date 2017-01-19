@@ -47,6 +47,11 @@ void ecdsaTest(void) {
     signZZ_pX(&sig, msg3, d, k, curveX);
     gmp_printf("r: %Zx\ns: %Zx\n", sig.r, sig.s);
 
+    PointZZ_pX qX;
+    pointZZ_pXMul(&qX, curveX->g, d, curveX);
+    int valid = verifyZZ_pX(&sig, msg3, &qX, curveX);
+    printf("%s\n", valid ? "True" : "False");
+
     mpz_clears(sig.r, sig.s, d, k, NULL);
     destroyCurveZZ_p(curve);
     destroyPointZZ_p(Q);

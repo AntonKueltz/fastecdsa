@@ -16,6 +16,20 @@ int pointZZ_pEqual(const PointZZ_p * op1, const PointZZ_p * op2) {
 }
 
 
+int pointZZ_pXEqual(const PointZZ_pX * op1, const PointZZ_pX * op2) {
+    // check x coords
+    if(!f2m_equal(op1->x, op2->x)) {
+        return 0;
+    }
+    // check y coords
+    if(!f2m_equal(op1->y, op2->y)) {
+        return 0;
+    }
+
+    return 1;
+}
+
+
 void pointZZ_pDouble(PointZZ_p * rop, const PointZZ_p * op, const CurveZZ_p * curve) {
     mpz_t numer, denom, lambda;
     mpz_inits(numer, denom, lambda, NULL);
@@ -225,10 +239,12 @@ static PyObject * curvemath_mul(PyObject *self, PyObject *args) {
         return NULL;
     }
 
-    PointZZ_p * point = buildPointZZ_p(x, y, 10);
-    CurveZZ_p * curve;
     PointZZ_p result;
     mpz_t scalar;
+    mpz_init_set_str(scalar, d, 10);
+
+    void * curve;
+    unsigned binaryField = 0, degree = 0;
 
     if(strcmp(curveName, "P192") == 0) { curve = buildP192(); }
     else if(strcmp(curveName, "P224") == 0) { curve = buildP224(); }
@@ -236,18 +252,32 @@ static PyObject * curvemath_mul(PyObject *self, PyObject *args) {
     else if(strcmp(curveName, "P384") == 0) { curve = buildP384(); }
     else if(strcmp(curveName, "P521") == 0) { curve = buildP521(); }
     else if(strcmp(curveName, "secp256k1") == 0) { curve = buildSecp256k1(); }
+    else if(strcmp(curveName, "K163") == 0) { curve = buildK163(); binaryField = 1; degree = 163; }
     else { return NULL; }
 
-    mpz_init_set_str(scalar, d, 10);
+    if(binaryField) {
+        PointZZ_pX r;
+        PointZZ_pX * point = buildPointZZ_pX(x, y, 10, degree);
+        pointZZ_pXMul(&r, point, scalar, (CurveZZ_pX *)curve);
 
-    pointZZ_pMul(&result, point, scalar, curve);
+        mpz_inits(result.x, result.y, NULL);
+        f2m_to_mpz(result.x, r.x);
+        f2m_to_mpz(result.y, r.y);
+
+        destroyPointZZ_pX(&r);
+        destroyCurveZZ_pX((CurveZZ_pX *)curve);
+    }
+    else {
+        PointZZ_p * point = buildPointZZ_p(x, y, 10);
+        pointZZ_pMul(&result, point, scalar, (CurveZZ_p *)curve);
+
+        destroyPointZZ_p(point);
+        destroyCurveZZ_p((CurveZZ_p *)curve);
+    }
+
     char * resultX = mpz_get_str(NULL, 10, result.x);
     char * resultY = mpz_get_str(NULL, 10, result.y);
-
-    destroyPointZZ_p(point);
-    destroyCurveZZ_p(curve);
     mpz_clears(result.x, result.y, scalar, NULL);
-
     return Py_BuildValue("ss", resultX, resultY);
 }
 
@@ -258,11 +288,11 @@ static PyObject * curvemath_add(PyObject *self, PyObject *args) {
         return NULL;
     }
 
-    PointZZ_p * p = buildPointZZ_p(px, py, 10);
-    PointZZ_p * q = buildPointZZ_p(qx, qy, 10);
-    CurveZZ_p * curve;
     PointZZ_p result;
     mpz_inits(result.x, result.y, NULL);
+
+    void * curve;
+    unsigned binaryField = 0, degree = 0;
 
     if(strcmp(curveName, "P192") == 0) { curve = buildP192(); }
     else if(strcmp(curveName, "P224") == 0) { curve = buildP224(); }
@@ -270,23 +300,48 @@ static PyObject * curvemath_add(PyObject *self, PyObject *args) {
     else if(strcmp(curveName, "P384") == 0) { curve = buildP384(); }
     else if(strcmp(curveName, "P521") == 0) { curve = buildP521(); }
     else if(strcmp(curveName, "secp256k1") == 0) { curve = buildSecp256k1(); }
+    else if(strcmp(curveName, "K163") == 0) { curve = buildK163(); binaryField = 1; degree = 163; }
     else { return NULL; }
 
-    if(pointZZ_pEqual(p, q)) {
-        pointZZ_pDouble(&result, p, curve);
+    if(binaryField) {
+        PointZZ_pX * p = buildPointZZ_pX(px, py, 10, degree);
+        PointZZ_pX * q = buildPointZZ_pX(qx, qy, 10, degree);
+        PointZZ_pX r;
+
+        if(pointZZ_pXEqual(p, q)) {
+            pointZZ_pXDouble(&r, p, (CurveZZ_pX *)curve);
+        }
+        else {
+            pointZZ_pXAdd(&r, p, q, (CurveZZ_pX *)curve);
+        }
+
+        f2m_to_mpz(result.x, r.x);
+        f2m_to_mpz(result.y, r.y);
+
+        destroyPointZZ_pX(p);
+        destroyPointZZ_pX(q);
+        destroyPointZZ_pX(&r);
+        destroyCurveZZ_pX((CurveZZ_pX *)curve);
     }
     else {
-        pointZZ_pAdd(&result, p, q, curve);
+        PointZZ_p * p = buildPointZZ_p(px, py, 10);
+        PointZZ_p * q = buildPointZZ_p(qx, qy, 10);
+
+        if(pointZZ_pEqual(p, q)) {
+            pointZZ_pDouble(&result, p, (CurveZZ_p *)curve);
+        }
+        else {
+            pointZZ_pAdd(&result, p, q, (CurveZZ_p *)curve);
+        }
+
+        destroyPointZZ_p(p);
+        destroyPointZZ_p(q);
+        destroyCurveZZ_p((CurveZZ_p *)curve);
     }
 
     char * resultX = mpz_get_str(NULL, 10, result.x);
     char * resultY = mpz_get_str(NULL, 10, result.y);
-
-    destroyPointZZ_p(p);
-    destroyPointZZ_p(q);
-    destroyCurveZZ_p(curve);
     mpz_clears(result.x, result.y, NULL);
-
     return Py_BuildValue("ss", resultX, resultY);
 }
 

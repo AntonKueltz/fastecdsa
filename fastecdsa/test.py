@@ -275,6 +275,9 @@ class TestBinaryFieldECDSA(unittest.TestCase):
         sig = sign('sample', d, curve=K163, hashfunc=sha1)
         self.assertTrue(sig == expected)
 
+        Q = K163.point_mul(K163.G, d)
+        self.assertTrue(verify(sig, 'sample', Q, curve=K163, hashfunc=sha1))
+
     def test_ecdsa_K163_SHA224_sign(self):
         d = 0x09A4D6792295A7F730FC3F2B49CBC0F62E862272F
         expected = (
@@ -283,6 +286,9 @@ class TestBinaryFieldECDSA(unittest.TestCase):
         )
         sig = sign('sample', d, curve=K163, hashfunc=sha224)
         self.assertTrue(sig == expected)
+
+        Q = K163.point_mul(K163.G, d)
+        self.assertTrue(verify(sig, 'sample', Q, curve=K163, hashfunc=sha224))
 
     def test_ecdsa_K163_SHA256_sign(self):
         d = 0x09A4D6792295A7F730FC3F2B49CBC0F62E862272F
@@ -293,6 +299,9 @@ class TestBinaryFieldECDSA(unittest.TestCase):
         sig = sign('sample', d, curve=K163, hashfunc=sha256)
         self.assertTrue(sig == expected)
 
+        Q = K163.point_mul(K163.G, d)
+        self.assertTrue(verify(sig, 'sample', Q, curve=K163, hashfunc=sha256))
+
     def test_ecdsa_K163_SHA384_sign(self):
         d = 0x09A4D6792295A7F730FC3F2B49CBC0F62E862272F
         expected = (
@@ -302,6 +311,9 @@ class TestBinaryFieldECDSA(unittest.TestCase):
         sig = sign('sample', d, curve=K163, hashfunc=sha384)
         self.assertTrue(sig == expected)
 
+        Q = K163.point_mul(K163.G, d)
+        self.assertTrue(verify(sig, 'sample', Q, curve=K163, hashfunc=sha384))
+
     def test_ecdsa_K163_SHA512_sign(self):
         d = 0x09A4D6792295A7F730FC3F2B49CBC0F62E862272F
         expected = (
@@ -310,6 +322,9 @@ class TestBinaryFieldECDSA(unittest.TestCase):
         )
         sig = sign('sample', d, curve=K163, hashfunc=sha512)
         self.assertTrue(sig == expected)
+
+        Q = K163.point_mul(K163.G, d)
+        self.assertTrue(verify(sig, 'sample', Q, curve=K163, hashfunc=sha512))
 
 if __name__ == '__main__':
     unittest.main()

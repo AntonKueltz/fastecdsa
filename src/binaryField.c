@@ -42,6 +42,30 @@ void f2m_clear(BinaryField * f2m) {
 }
 
 
+int f2m_equal(BinaryField * op1, BinaryField * op2) {
+    if(op1->wordslen != op2->wordslen) {
+        return 0;
+    }
+
+    unsigned i, diff = 0;
+    for(i = 0; i < op1->wordslen; i++) {
+        diff = diff | (op1->words[i] ^ op2->words[i]);
+    }
+
+    return diff == 0;
+}
+
+
+void f2m_to_mpz(mpz_t rop, BinaryField * op) {
+    unsigned i;
+    for(i = 0; i <= op->degree; i++) {
+        if(f2m_is_set(op, i)) {
+            mpz_setbit(rop, i);
+        }
+    }
+}
+
+
 void f2m_set_bit(BinaryField * op, unsigned bitIndex) {
     unsigned word = bitIndex / WSIZE;
     unsigned bit = bitIndex % WSIZE;
