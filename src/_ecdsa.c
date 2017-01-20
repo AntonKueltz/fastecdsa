@@ -15,7 +15,7 @@ void signZZ_p(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_p * curve) 
     // convert digest to integer (digest is computed as hex in ecdsa.py)
     mpz_init_set_str(e, msg, 16);
     int orderBits = mpz_sizeinbase(curve->q, 2);
-    int digestBits = ((mpz_sizeinbase(e, 2) + 3) / 4) * 4;
+    int digestBits = strlen(msg) * 4;
 
     if(digestBits > orderBits) {
         mpz_fdiv_q_2exp(e, e, digestBits - orderBits);
@@ -46,7 +46,7 @@ void signZZ_pX(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_pX * curve
     // convert digest to integer (digest is computed as hex in ecdsa.py)
     mpz_init_set_str(e, msg, 16);
     int orderBits = mpz_sizeinbase(curve->q, 2);
-    int digestBits = ((mpz_sizeinbase(e, 2) + 3) / 4) * 4;
+    int digestBits = strlen(msg) * 4;
 
     if(digestBits > orderBits) {
         mpz_fdiv_q_2exp(e, e, digestBits - orderBits);
@@ -75,7 +75,7 @@ int verifyZZ_p(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve) {
     // convert digest to integer (digest is computed as hex in ecdsa.py)
     mpz_init_set_str(e, msg, 16);
     int orderBits = mpz_sizeinbase(curve->q, 2);
-    int digestBits = ((mpz_sizeinbase(e, 2) + 3) / 4) * 4;
+    int digestBits = strlen(msg) * 4;
 
     if(digestBits > orderBits) {
         mpz_fdiv_q_2exp(e, e, digestBits - orderBits);
@@ -90,6 +90,7 @@ int verifyZZ_p(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve) {
     pointZZ_pMul(&tmp1, curve->g, u1, curve);
     pointZZ_pMul(&tmp2, Q, u2, curve);
     pointZZ_pAdd(&tmp3, &tmp1, &tmp2, curve);
+    mpz_mod(tmp3.x, tmp3.x, curve->q);
 
     int equal = (mpz_cmp(tmp3.x, sig->r) == 0);
     mpz_clears(e, w, u1, u2, tmp1.x, tmp1.y, tmp2.x, tmp2.y, tmp3.x, tmp3.y, NULL);
@@ -105,7 +106,7 @@ int verifyZZ_pX(Sig * sig, char * msg, PointZZ_pX * Q, const CurveZZ_pX * curve)
     // convert digest to integer (digest is computed as hex in ecdsa.py)
     mpz_init_set_str(e, msg, 16);
     int orderBits = mpz_sizeinbase(curve->q, 2);
-    int digestBits = ((mpz_sizeinbase(e, 2) + 3) / 4) * 4;
+    int digestBits = strlen(msg) * 4;
 
     if(digestBits > orderBits) {
         mpz_fdiv_q_2exp(e, e, digestBits - orderBits);
@@ -121,8 +122,9 @@ int verifyZZ_pX(Sig * sig, char * msg, PointZZ_pX * Q, const CurveZZ_pX * curve)
     pointZZ_pXMul(&tmp2, Q, u2, curve);
     pointZZ_pXAdd(&tmp3, &tmp1, &tmp2, curve);
     f2m_to_mpz(x, tmp3.x);
-    int equal = (mpz_cmp(x, sig->r) == 0);
+    mpz_mod(x, x, curve->q);
 
+    int equal = (mpz_cmp(x, sig->r) == 0);
     destroyPointZZ_pX(&tmp1);
     destroyPointZZ_pX(&tmp2);
     destroyPointZZ_pX(&tmp3);
