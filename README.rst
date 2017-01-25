@@ -12,6 +12,15 @@ About
 This is a python package for doing fast elliptic curve cryptography, specifically
 digital signatures.
 
+Security
+--------
+I am not aware of any current issues. There is no nonce reuse, no branching on secret material,
+and all points are validated before any operations are performed on them. Timing side challenges
+are mitigated via Montgomery point multiplication. Nonces are generated per RFC6979. That being
+said crypto is tricky and I'm not beyond making mistakes. Please use a more established and
+reviewed library for security critical applications. Open an issue or email me if you see any
+seurity issue or risk with this library.
+
 Python Versions Supported
 -------------------------
 The initial release of this package was targeted at python2.7. Earlier versions may work but have
@@ -19,8 +28,8 @@ no guarantee of correctness or stability. As of release 1.2.1+ python3 is now su
 
 Supported Primitives
 --------------------
-Curves over :math:`F_p`
-~~~~~~~~~~~~~~~~~~~~~~~
+Curves over Prime Fields
+~~~~~~~~~~~~~~~~~~~~~~~~
 * P192 (:code:`fastecdsa.curve.P192`)
 * P224 (:code:`fastecdsa.curve.P224`)
 * P256 (:code:`fastecdsa.curve.P256`)
@@ -28,8 +37,8 @@ Curves over :math:`F_p`
 * P521 (:code:`fastecdsa.curve.P521`)
 * secp256k1 (bitcoin curve) (:code:`fastecdsa.curve.secp256k1`)
 
-Curves over :math:`F_{2^m}`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Curves over Binary Fields
+~~~~~~~~~~~~~~~~~~~~~~~~~
 * K163 (:code:`fastecdsa.curve.K163`)
 * K233 (:code:`fastecdsa.curve.K233`)
 * K283 (:code:`fastecdsa.curve.K283`)
@@ -47,8 +56,8 @@ versions didn't work with the :code:`hmac` module which is used in nonce generat
 Performance
 -----------
 
-Curves over :math:`F_p`
-~~~~~~~~~~~~~~~~~~~~~~~
+Curves over Prime Fields
+~~~~~~~~~~~~~~~~~~~~~~~~
 Currently it does basic point multiplication significantly faster than the :code:`ecdsa`
 package. You can see the times for 1,000 signature and verification operations below,
 :code:`fast.py` corresponding to this package and :code:`regular.py` corresponding
@@ -58,14 +67,14 @@ to :code:`ecdsa` package.
 
 As you can see, this package in this case is ~25x faster.
 
-Curves over :math:`F_{2^m}`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Curves over Binary Fields
+~~~~~~~~~~~~~~~~~~~~~~~~~
 Curves over binary fields are slower. This is mainly because there are no good C libraries that I
 could find optimized for binary fields (e.g. FLINT_ only supports polynomials in a field of
 arbitrary characteristic, which means no optimizations and more cases than we need for binary
 fields). So the binary field C code is written by me. Finding the inverse of a polynomial is the
 main bottleneck currently taking about 50ms (for comparison, signature generation and verification
-in prime fields are both <5ms). This will be improve when I have time to optimize (or feel free to
+in prime fields are both <5ms). This will be improved when I have time to optimize (or feel free to
 fork and optimize the code).
 
 Installing
@@ -134,15 +143,6 @@ Some basic usage is shown below:
     private_key, public_key = keys.gen_keypair(curve.P256)
     r, s = ecdsa.sign(m, private_key, hashfunc=sha3_256)
     valid = ecdsa.verify((r, s), m, public_key, hashfunc=sha3_256)
-
-Security
---------
-I am not aware of any current issues. There is no nonce reuse, no branching on secret material, 
-and all points are validated before any operations are performed on them. Timing side challenges
-are mitigated via Montgomery point multiplication. Nonces are generated per RFC6979. That being
-said crypto is tricky and I'm not beyond making mistakes. Please use a more established and
-reviewed library for security critical applications. Open an issue or email me if you see any
-seurity issue or risk with this library.
 
 .. _FLINT: http://flintlib.org/
 .. _GMP: https://gmplib.org/
