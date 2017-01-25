@@ -253,6 +253,10 @@ static PyObject * curvemath_mul(PyObject *self, PyObject *args) {
     else if(strcmp(curveName, "P521") == 0) { curve = buildP521(); }
     else if(strcmp(curveName, "secp256k1") == 0) { curve = buildSecp256k1(); }
     else if(strcmp(curveName, "K163") == 0) { curve = buildK163(); binaryField = 1; degree = 163; }
+    else if(strcmp(curveName, "K233") == 0) { curve = buildK233(); binaryField = 1; degree = 233; }
+    else if(strcmp(curveName, "K283") == 0) { curve = buildK283(); binaryField = 1; degree = 283; }
+    else if(strcmp(curveName, "K409") == 0) { curve = buildK409(); binaryField = 1; degree = 409; }
+    else if(strcmp(curveName, "K571") == 0) { curve = buildK571(); binaryField = 1; degree = 571; }
     else { return NULL; }
 
     if(binaryField) {
@@ -301,6 +305,10 @@ static PyObject * curvemath_add(PyObject *self, PyObject *args) {
     else if(strcmp(curveName, "P521") == 0) { curve = buildP521(); }
     else if(strcmp(curveName, "secp256k1") == 0) { curve = buildSecp256k1(); }
     else if(strcmp(curveName, "K163") == 0) { curve = buildK163(); binaryField = 1; degree = 163; }
+    else if(strcmp(curveName, "K233") == 0) { curve = buildK233(); binaryField = 1; degree = 233; }
+    else if(strcmp(curveName, "K283") == 0) { curve = buildK283(); binaryField = 1; degree = 283; }
+    else if(strcmp(curveName, "K409") == 0) { curve = buildK409(); binaryField = 1; degree = 409; }
+    else if(strcmp(curveName, "K571") == 0) { curve = buildK571(); binaryField = 1; degree = 571; }
     else { return NULL; }
 
     if(binaryField) {

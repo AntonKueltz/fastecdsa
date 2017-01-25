@@ -85,7 +85,20 @@ int f2m_is_set(const BinaryField * op, const unsigned bitIndex) {
 }
 
 
-int f2m_is_one(BinaryField * op) {
+int f2m_is_zero(const BinaryField * op) {
+    unsigned i = 0;
+
+    for(i = 0; i < op->wordslen; i++) {
+        if(op->words[i] != 0) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+
+int f2m_is_one(const BinaryField * op) {
     unsigned i = 0;
 
     if(op->words[i] != 1) {
@@ -103,6 +116,13 @@ int f2m_is_one(BinaryField * op) {
 
 
 BinaryField * f2m_add(const BinaryField * op1, const BinaryField * op2) {
+    if(f2m_is_zero(op1)) {
+        return f2m_copy(op2);
+    }
+    else if(f2m_is_zero(op2)) {
+        return f2m_copy(op1);
+    }
+
     unsigned maxWords = op1->wordslen > op2->wordslen ? op1->wordslen : op2->wordslen;
     BinaryField * rop = f2m_init(maxWords * WSIZE - 1);
     int i;
@@ -177,7 +197,18 @@ BinaryField * f2m_mulmod(const BinaryField * op1, const BinaryField * op2, unsig
     case 163:
         _f2m_reduce_k163(rop);
         break;
-
+    case 233:
+        _f2m_reduce_k233(rop);
+        break;
+    case 283:
+        _f2m_reduce_k283(rop);
+        break;
+    case 409:
+        _f2m_reduce_k409(rop);
+        break;
+    case 571:
+        _f2m_reduce_k571(rop);
+        break;
     default:
         break;
     }
@@ -239,6 +270,93 @@ void _f2m_reduce_k163(BinaryField * op) {
     op->words[1] = op->words[1] ^ (t >> 25) ^ (t >> 26);
     op->words[5] = op->words[5] & 0x7;
     op->wordslen = 6;
+
+    _f2m_recalculate_degree(op);
+}
+
+
+void _f2m_reduce_k233(BinaryField * op) {
+    // see Guide to Elliptic Curve Cryptography - Algorithm 2.42
+    unsigned i;
+    uint32_t t;
+
+    for(i = 15; i >= 8; i--) {
+        t = i < op->wordslen ? op->words[i] : 0;
+        op->words[i-8] = op->words[i-8] ^ (t << 23);
+        op->words[i-7] = op->words[i-7] ^ (t >> 9);
+        op->words[i-5] = op->words[i-5] ^ (t << 1);
+        op->words[i-4] = op->words[i-4] ^ (t >> 31);
+    }
+
+    t = op->words[7] >> 9;
+    op->words[0] = op->words[0] ^ t;
+    op->words[2] = op->words[2] ^ (t << 10);
+    op->words[3] = op->words[3] ^ (t >> 22);
+    op->words[7] = op->words[7] & 0x1FF;
+    op->wordslen = 8;
+
+    _f2m_recalculate_degree(op);
+}
+
+
+void _f2m_reduce_k283(BinaryField * op) {
+    // see Guide to Elliptic Curve Cryptography - Algorithm 2.43
+    unsigned i;
+    uint32_t t;
+
+    for(i = 17; i >= 9; i--) {
+        t = i < op->wordslen ? op->words[i] : 0;
+        op->words[i-9] = op->words[i-9] ^ (t << 5) ^ (t << 10) ^ (t << 12) ^ (t << 17);
+        op->words[i-8] = op->words[i-8] ^ (t >> 27) ^ (t >> 22) ^ (t >> 20) ^ (t >> 15);
+    }
+
+    t = op->words[8] >> 27;
+    op->words[0] = op->words[0] ^ t ^ (t << 5) ^ (t << 7) ^ (t << 12);
+    op->words[8] = op->words[8] & 0x7FFFFFF;
+    op->wordslen = 9;
+
+    _f2m_recalculate_degree(op);
+}
+
+
+void _f2m_reduce_k409(BinaryField * op) {
+    // see Guide to Elliptic Curve Cryptography - Algorithm 2.44
+    unsigned i;
+    uint32_t t;
+
+    for(i = 25; i >= 13; i--) {
+        t = i < op->wordslen ? op->words[i] : 0;
+        op->words[i-13] = op->words[i-13] ^ (t << 7);
+        op->words[i-12] = op->words[i-12] ^ (t >> 25);
+        op->words[i-11] = op->words[i-11] ^ (t << 30);
+        op->words[i-10] = op->words[i-10] ^ (t >> 2);
+    }
+
+    t = op->words[12] >> 25;
+    op->words[0] = op->words[0] ^ t;
+    op->words[2] = op->words[2] ^ (t << 23);
+    op->words[12] = op->words[12] & 0x1FFFFFF;
+    op->wordslen = 13;
+
+    _f2m_recalculate_degree(op);
+}
+
+
+void _f2m_reduce_k571(BinaryField * op) {
+    // see Guide to Elliptic Curve Cryptography - Algorithm 2.45
+    unsigned i;
+    uint32_t t;
+
+    for(i = 35; i >= 18; i--) {
+        t = i < op->wordslen ? op->words[i] : 0;
+        op->words[i-18] = op->words[i-18] ^ (t << 5) ^ (t << 7) ^ (t << 10) ^ (t << 15);
+        op->words[i-17] = op->words[i-17] ^ (t >> 27) ^ (t >> 25) ^ (t >> 22) ^ (t >> 17);
+    }
+
+    t = op->words[17] >> 27;
+    op->words[0] = op->words[0] ^ t ^ (t << 2) ^ (t << 5) ^ (t << 10);
+    op->words[17] = op->words[17] & 0x7FFFFFF;
+    op->wordslen = 18;
 
     _f2m_recalculate_degree(op);
 }

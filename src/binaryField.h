@@ -19,7 +19,8 @@ void f2m_to_mpz(mpz_t rop, BinaryField * op);
 
 void f2m_set_bit(BinaryField * op, unsigned bitIndex);
 int f2m_is_set(const BinaryField * op, const unsigned bitIndex);
-int f2m_is_one(BinaryField * op);
+int f2m_is_zero(const BinaryField * op);
+int f2m_is_one(const BinaryField * op);
 
 BinaryField * f2m_add(const BinaryField * op1, const BinaryField * op2);
 BinaryField * f2m_mul(const BinaryField * op1, const BinaryField * op2);
@@ -27,6 +28,11 @@ BinaryField * f2m_mulmod(const BinaryField * op1, const BinaryField * op2, unsig
 BinaryField * f2m_invmod(const BinaryField * op, const BinaryField * mod);
 
 void _f2m_reduce_k163(BinaryField * op);
+void _f2m_reduce_k233(BinaryField * op);
+void _f2m_reduce_k283(BinaryField * op);
+void _f2m_reduce_k409(BinaryField * op);
+void _f2m_reduce_k571(BinaryField * op);
+
 void _f2m_recalculate_degree(BinaryField * op);
 void _f2m_scaled_add(BinaryField * rop, const BinaryField * op, const unsigned shift);
 void _f2m_left_shift(BinaryField * op, const unsigned amt);

@@ -2,7 +2,7 @@ from hashlib import sha1, sha224, sha256, sha384, sha512
 from random import choice, randint
 import unittest
 
-from .curve import P192, P224, P256, P384, P521, secp256k1, K163
+from .curve import P192, P224, P256, P384, P521, secp256k1, K163, K233, K283, K409, K571
 from .ecdsa import sign, verify
 from .util import RFC6979
 
@@ -275,7 +275,10 @@ class TestBinaryFieldECDSA(unittest.TestCase):
         sig = sign('sample', d, curve=K163, hashfunc=sha1)
         self.assertTrue(sig == expected)
 
-        Q = K163.point_mul(K163.G, d)
+        Q = (
+            0x79AEE090DB05EC252D5CB4452F356BE198A4FF96F,
+            0x782E29634DDC9A31EF40386E896BAA18B53AFA5A3
+        )
         self.assertTrue(verify(sig, 'sample', Q, curve=K163, hashfunc=sha1))
 
     def test_ecdsa_K163_SHA224_sign(self):
@@ -287,7 +290,10 @@ class TestBinaryFieldECDSA(unittest.TestCase):
         sig = sign('sample', d, curve=K163, hashfunc=sha224)
         self.assertTrue(sig == expected)
 
-        Q = K163.point_mul(K163.G, d)
+        Q = (
+            0x79AEE090DB05EC252D5CB4452F356BE198A4FF96F,
+            0x782E29634DDC9A31EF40386E896BAA18B53AFA5A3
+        )
         self.assertTrue(verify(sig, 'sample', Q, curve=K163, hashfunc=sha224))
 
     def test_ecdsa_K163_SHA256_sign(self):
@@ -299,7 +305,10 @@ class TestBinaryFieldECDSA(unittest.TestCase):
         sig = sign('sample', d, curve=K163, hashfunc=sha256)
         self.assertTrue(sig == expected)
 
-        Q = K163.point_mul(K163.G, d)
+        Q = (
+            0x79AEE090DB05EC252D5CB4452F356BE198A4FF96F,
+            0x782E29634DDC9A31EF40386E896BAA18B53AFA5A3
+        )
         self.assertTrue(verify(sig, 'sample', Q, curve=K163, hashfunc=sha256))
 
     def test_ecdsa_K163_SHA384_sign(self):
@@ -311,7 +320,10 @@ class TestBinaryFieldECDSA(unittest.TestCase):
         sig = sign('sample', d, curve=K163, hashfunc=sha384)
         self.assertTrue(sig == expected)
 
-        Q = K163.point_mul(K163.G, d)
+        Q = (
+            0x79AEE090DB05EC252D5CB4452F356BE198A4FF96F,
+            0x782E29634DDC9A31EF40386E896BAA18B53AFA5A3
+        )
         self.assertTrue(verify(sig, 'sample', Q, curve=K163, hashfunc=sha384))
 
     def test_ecdsa_K163_SHA512_sign(self):
@@ -323,8 +335,86 @@ class TestBinaryFieldECDSA(unittest.TestCase):
         sig = sign('sample', d, curve=K163, hashfunc=sha512)
         self.assertTrue(sig == expected)
 
-        Q = K163.point_mul(K163.G, d)
+        Q = (
+            0x79AEE090DB05EC252D5CB4452F356BE198A4FF96F,
+            0x782E29634DDC9A31EF40386E896BAA18B53AFA5A3
+        )
         self.assertTrue(verify(sig, 'sample', Q, curve=K163, hashfunc=sha512))
+
+    def test_ecdsa_K233_SHA1_sign(self):
+        d = 0x103B2142BDC2A3C3B55080D09DF1808F79336DA2399F5CA7171D1BE9B0
+        expected = (
+            0x5474541C988A9A1F73899F55EF28963DFFBBF0C2B1A1EE787C6A76C6A4,
+            0x46301F9EC6624257BFC70D72186F17898EDBD0A3522560A88DD1B7D45A
+        )
+        sig = sign('sample', d, curve=K233, hashfunc=sha1)
+        self.assertTrue(sig == expected)
+
+        Q = (
+            0x0682886F36C68473C1A221720C2B12B9BE13458BA907E1C4736595779F2,
+            0x1B20639B41BE0927090999B7817A3B3928D20503A39546044EC13A10309
+        )
+        self.assertTrue(verify(sig, 'sample', Q, curve=K233, hashfunc=sha1))
+
+    def test_ecdsa_K283_SHA1_sign(self):
+        d = 0x06A0777356E87B89BA1ED3A3D845357BE332173C8F7A65BDC7DB4FAB3C4CC79ACC8194E
+        expected = (
+            0x1B66D1E33FBDB6E107A69B610995C93C744CEBAEAF623CB42737C27D60188BD1D045A68,
+            0x02E45B62C9C258643532FD536594B46C63B063946494F95DAFF8759FD552502324295C5
+        )
+        sig = sign('sample', d, curve=K283, hashfunc=sha1)
+        self.assertTrue(sig == expected)
+
+        Q = (
+            0x25330D0A651D5A20DC6389BC02345117725640AEC3C126612CE444EDD19649BDECC03D6,
+            0x505BD60A4B67182474EC4D1C668A73140F70504A68F39EFCD972487E9530E0508A76193
+        )
+        self.assertTrue(verify(sig, 'sample', Q, curve=K283, hashfunc=sha1))
+
+    def test_ecdsa_K409_SHA1_sign(self):
+        d = int('29C16768F01D1B8A89FDA85E2EFD73A09558B92A178A2931F359E4D70AD853E5'
+                '69CDAF16DAA569758FB4E73089E4525D8BBFCF', 16)
+        expected = (
+            int('7192EE99EC7AFE23E02CB1F9850D1ECE620475EDA6B65D04984029408EC1E5A6'
+                '476BC940D81F218FC31D979814CAC6E78340FA', 16),
+            int('1DE75DE97CBE740FC79A6B5B22BC2B7832C687E6960F0B8173D5D8BE2A75AC6C'
+                'A43438BAF69C669CE6D64E0FB93BC5854E0F81', 16)
+        )
+        sig = sign('sample', d, curve=K409, hashfunc=sha1)
+        self.assertTrue(sig == expected)
+
+        Q = (
+            int('0CF923F523FE34A6E863D8BA45FB1FE6D784C8F219C414EEF4DB8362DBBD3CA7'
+                '1AEB28F568668D5D7A0093E2B84F6FAD759DB42', 16),
+            int('13B1C374D5132978A1B1123EBBE9A5C54D1A9D56B09AFDB4ADE93CCD7C4D332E'
+                '2916F7D4B9D18578EE3C2E2DE4D2ECE0DE63549', 16)
+        )
+        self.assertTrue(verify(sig, 'sample', Q, curve=K409, hashfunc=sha1))
+
+    def test_ecdsa_K571_SHA1_sign(self):
+        d = int('0C16F58550D824ED7B95569D4445375D3A490BC7E0194C41A39DEB732C29396C'
+                'DF1D66DE02DD1460A816606F3BEC0F32202C7BD18A32D87506466AA92032F131'
+                '4ED7B19762B0D22', 16)
+        expected = (
+            int('0767913F96C82E38B7146A505938B79EC07E9AA3214377651BE968B52C039D3E'
+                '4837B4A2DE26C481C4E1DE96F4D9DE63845D9B32E26D0D332725678E3CE57F66'
+                '8A5E3108FB6CEA5', 16),
+            int('109F89F55FA39FF465E40EBCF869A9B1DB425AEA53AB4ECBCE3C310572F79315'
+                'F5D4891461372A0C36E63871BEDDBB3BA2042C6410B67311F1A185589FF4C987'
+                'DBA02F9D992B9DF', 16)
+        )
+        sig = sign('sample', d, curve=K571, hashfunc=sha1)
+        self.assertTrue(sig == expected)
+
+        Q = (
+            int('6CFB0DF7541CDD4C41EF319EA88E849EFC8605D97779148082EC991C463ED323'
+                '19596F9FDF4779C17CAF20EFD9BEB57E9F4ED55BFC52A2FA15CA23BC62B7BF01'
+                '9DB59793DD77318', 16),
+            int('1CFC91102F7759A561BD8D5B51AAAEEC7F40E659D67870361990D6DE29F6B4F7'
+                'E18AE13BDE5EA5C1F77B23D676F44050C9DBFCCDD7B3756328DDA059779AAE84'
+                '46FC5158A75C227', 16)
+        )
+        self.assertTrue(verify(sig, 'sample', Q, curve=K571, hashfunc=sha1))
 
 if __name__ == '__main__':
     unittest.main()

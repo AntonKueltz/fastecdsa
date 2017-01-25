@@ -138,3 +138,59 @@ CurveZZ_pX * buildK163() {
         16
     );
 }
+
+CurveZZ_pX * buildK233() {
+    unsigned coefficients[] = {233, 74, 0};
+    return buildCurveZZ_pX(
+        &coefficients[0],
+        3,
+        233,
+        0,
+        "8000000000000000000000000000069d5bb915bcd46efb1ad5f173abdf",
+        "17232ba853a7e731af129f22ff4149563a419c26bf50a4c9d6eefad6126",
+        "1db537dece819b7f70f555a67c427a8cd9bf18aeb9b56e0c11056fae6a3",
+        16
+    );
+}
+
+CurveZZ_pX * buildK283() {
+    unsigned coefficients[] = {283, 12, 7, 5, 0};
+    return buildCurveZZ_pX(
+        &coefficients[0],
+        5,
+        283,
+        0,
+        "1ffffffffffffffffffffffffffffffffffe9ae2ed07577265dff7f94451e061e163c61",
+        "503213f78ca44883f1a3b8162f188e553cd265f23c1567a16876913b0c2ac2458492836",
+        "1ccda380f1c9e318d90f95d07e5426fe87e45c0e8184698e45962364e34116177dd2259",
+        16
+    );
+}
+
+CurveZZ_pX * buildK409() {
+    unsigned coefficients[] = {409, 87, 0};
+    return buildCurveZZ_pX(
+        &coefficients[0],
+        3,
+        409,
+        0,
+        "7ffffffffffffffffffffffffffffffffffffffffffffffffffe5f83b2d4ea20400ec4557d5ed3e3e7ca5b4b5c83b8e01e5fcf",
+        "060f05f658f49c1ad3ab1890f7184210efd0987e307c84c27accfb8f9f67cc2c460189eb5aaaa62ee222eb1b35540cfe9023746",
+        "1e369050b7c4e42acba1dacbf04299c3460782f918ea427e6325165e9ea10e3da5f6c42e9c55215aa9ca27a5863ec48d8e0286b",
+        16
+    );
+}
+
+CurveZZ_pX * buildK571() {
+    unsigned coefficients[] = {571, 10, 5, 2, 0};
+    return buildCurveZZ_pX(
+        &coefficients[0],
+        5,
+        571,
+        0,
+        "20000000000000000000000000000000000000000000000000000000000000000000000131850e1f19a63e4b391a8db917f4138b630d84be5d639381e91deb45cfe778f637c1001",
+        "26eb7a859923fbc82189631f8103fe4ac9ca2970012d5d46024804801841ca44370958493b205e647da304db4ceb08cbbd1ba39494776fb988b47174dca88c7e2945283a01c8972",
+        "349dc807f4fbf374f4aeade3bca95314dd58cec9f307a54ffc61efc006d8a2c9d4979c0ac44aea74fbebbb9f772aedcb620b01a7ba7af1b320430c8591984f601cd4c143ef1c7a3",
+        16
+    );
+}

@@ -35,5 +35,9 @@ CurveZZ_p * buildP521(void);
 CurveZZ_p * buildSecp256k1(void);
 
 CurveZZ_pX * buildK163(void);
+CurveZZ_pX * buildK233(void);
+CurveZZ_pX * buildK283(void);
+CurveZZ_pX * buildK409(void);
+CurveZZ_pX * buildK571(void);
 
 #endif
