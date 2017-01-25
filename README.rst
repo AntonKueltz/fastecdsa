@@ -112,8 +112,11 @@ Some basic usage is shown below:
 
 Security
 --------
-No known current issues. Timing side challenges are mitigated via Montgomery
-point multiplication. Nonces are generated per RFC6979.
-
+I am not aware of any current issues. There is no nonce reuse, no branching on secret material, 
+and all points are validated before any operations are performed on them. Timing side challenges
+are mitigated via Montgomery point multiplication. Nonces are generated per RFC6979. That being
+said crypto is tricky and I'm not beyond making mistakes. Please use a more established and
+reviewed library for security critical applications. Open an issue or email me if you see any
+seurity issue or risk with this library.
 
 .. _GMP: https://gmplib.org/
