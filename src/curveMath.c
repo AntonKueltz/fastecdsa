@@ -181,6 +181,7 @@ void pointZZ_pMul(PointZZ_p * rop, const PointZZ_p * point, const mpz_t scalar, 
     mpz_init_set(rop->x, R0.x);
     mpz_init_set(rop->y, R0.y);
     mpz_clears(R0.x, R0.y, R1.x, R1.y, tmp.x, tmp.y, NULL);
+    free(dbits);
 }
 
 
@@ -282,7 +283,10 @@ static PyObject * curvemath_mul(PyObject *self, PyObject *args) {
     char * resultX = mpz_get_str(NULL, 10, result.x);
     char * resultY = mpz_get_str(NULL, 10, result.y);
     mpz_clears(result.x, result.y, scalar, NULL);
-    return Py_BuildValue("ss", resultX, resultY);
+    PyObject * ret = Py_BuildValue("ss", resultX, resultY);
+    free(resultX);
+    free(resultY);
+    return ret;
 }
 
 static PyObject * curvemath_add(PyObject *self, PyObject *args) {
@@ -350,7 +354,10 @@ static PyObject * curvemath_add(PyObject *self, PyObject *args) {
     char * resultX = mpz_get_str(NULL, 10, result.x);
     char * resultY = mpz_get_str(NULL, 10, result.y);
     mpz_clears(result.x, result.y, NULL);
-    return Py_BuildValue("ss", resultX, resultY);
+    PyObject * ret = Py_BuildValue("ss", resultX, resultY);
+    free(resultX);
+    free(resultY);
+    return ret;
 }
 
 

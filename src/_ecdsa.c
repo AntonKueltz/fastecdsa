@@ -70,7 +70,7 @@ void signZZ_pX(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_pX * curve
 int verifyZZ_p(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve) {
     mpz_t e, w, u1, u2;
     PointZZ_p tmp1, tmp2, tmp3;
-    mpz_inits(w, u1, u2, tmp1.x, tmp1.y, tmp2.x, tmp2.y, tmp3.x, tmp3.y, NULL);
+    mpz_inits(w, u1, u2, tmp3.x, tmp3.y, NULL);
 
     // convert digest to integer (digest is computed as hex in ecdsa.py)
     mpz_init_set_str(e, msg, 16);
