@@ -75,7 +75,7 @@ arbitrary characteristic, which means no optimizations and more cases than we ne
 fields). So the binary field C code is written by me. Finding the inverse of a polynomial is the
 main bottleneck currently taking about 50ms (for comparison, signature generation and verification
 in prime fields are both <5ms). This will be improved when I have time to optimize (or feel free to
-fork and optimize the code).
+fork and optimize the code). The obvious solution is to use projective coordinates for binary curves.
 
 Installing
 ----------
