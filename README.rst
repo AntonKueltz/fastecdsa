@@ -144,5 +144,11 @@ Some basic usage is shown below:
     r, s = ecdsa.sign(m, private_key, hashfunc=sha3_256)
     valid = ecdsa.verify((r, s), m, public_key, hashfunc=sha3_256)
 
+Acknowledgements
+----------------
+Thanks to those below for contributing improvements:
+
+- targon
+
 .. _FLINT: http://flintlib.org/
 .. _GMP: https://gmplib.org/
