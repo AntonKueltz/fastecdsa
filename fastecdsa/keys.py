@@ -37,4 +37,4 @@ def gen_private_key(curve):
 def get_public_key(d, curve):
     ''' Get the curve point corresponding to the curves generator point multiplied by the private
     key "d"'''
-    return curve.point_mul(curve.G, d)
+    return d * curve.G

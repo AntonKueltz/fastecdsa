@@ -2,14 +2,14 @@ from fastecdsa import curvemath
 
 
 class Curve:
-    def __init__(self, name, p, a, b, q, gx, gy, binary=False):
+    def __init__(self, name, p, a, b, q, gx, gy):
         self.name = name
         self.p = p
         self.a = a
         self.b = b
-        self.G = (gx, gy)
         self.q = q
-        self.binary = binary
+        self.gx = gx
+        self.gy = gy
 
     def is_point_on_curve(self, P):
         ''' Check if a point P (int, int) is on the curve '''
@@ -18,22 +18,10 @@ class Curve:
         right = (x * x * x) + (self.a * x) + self.b
         return (left - right) % self.p == 0
 
-    def point_mul(self, P, d):
-        ''' Multiply a point P (int, int) with a scalar (d) '''
-        if self.binary or self.is_point_on_curve(P):
-            x, y = curvemath.mul(str(P[0]), str(P[1]), str(d), self.name)
-            return int(x), int(y)
-        else:
-            return (0, 0)
-
-    def point_add(self, P, Q):
-        ''' Add two points P (int, int) and Q (int, int) on the curve, resulting in point R (int,
-        int). If P = Q a point doubling algorithm is used. '''
-        if self.is_point_on_curve(P) and self.is_point_on_curve(Q):
-            x, y = curvemath.add(str(P[0]), str(P[1]), str(Q[0]), str(Q[1]), self.name)
-            return int(x), int(y)
-        else:
-            return (0, 0)
+    @property
+    def G(self):
+        from .point import Point
+        return Point(self.gx, self.gy, self)
 
 
 # see https://www.nsa.gov/ia/_files/nist-routines.pdf for params
@@ -102,64 +90,4 @@ secp256k1 = Curve(
     0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141,
     0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798,
     0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8
-)
-
-
-K163 = Curve(
-    'K163',
-    0x800000000000000000000000000000000000000c9,
-    0x1,
-    0x1,
-    0x4000000000000000000020108a2e0cc0d99f8a5ef,
-    0x2fe13c0537bbc11acaa07d793de4e6d5e5c94eee8,
-    0x289070fb05d38ff58321f2e800536d538ccdaa3d9,
-    binary=True
-)
-K233 = Curve(
-    'K233',
-    0x20000000000000000000000000000000000000004000000000000000001,
-    0x0,
-    0x1,
-    0x8000000000000000000000000000069d5bb915bcd46efb1ad5f173abdf,
-    0x17232ba853a7e731af129f22ff4149563a419c26bf50a4c9d6eefad6126,
-    0x1db537dece819b7f70f555a67c427a8cd9bf18aeb9b56e0c11056fae6a3,
-    binary=True
-)
-K283 = Curve(
-    'K283',
-    0x80000000000000000000000000000000000000000000000000000000000000000001041,
-    0x0,
-    0x1,
-    0x1ffffffffffffffffffffffffffffffffffe9ae2ed07577265dff7f94451e061e163c61,
-    0x503213f78ca44883f1a3b8162f188e553cd265f23c1567a16876913b0c2ac2458492836,
-    0x1ccda380f1c9e318d90f95d07e5426fe87e45c0e8184698e45962364e34116177dd2259,
-    binary=True
-)
-K409 = Curve(
-    'K409',
-    int('20000000000000000000000000000000000000000000000000000000000000000000000000000000080000000'
-        '00000000000001', 16),
-    0x0,
-    0x1,
-    int('7ffffffffffffffffffffffffffffffffffffffffffffffffffe5f83b2d4ea20400ec4557d5ed3e3e7ca5b4b5'
-        'c83b8e01e5fcf', 16),
-    int('060f05f658f49c1ad3ab1890f7184210efd0987e307c84c27accfb8f9f67cc2c460189eb5aaaa62ee222eb1b3'
-        '5540cfe9023746', 16),
-    int('1e369050b7c4e42acba1dacbf04299c3460782f918ea427e6325165e9ea10e3da5f6c42e9c55215aa9ca27a58'
-        '63ec48d8e0286b', 16),
-    binary=True
-)
-K571 = Curve(
-    'K571',
-    int('80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
-        '000000000000000000000000000000000000000000000000000425', 16),
-    0x0,
-    0x1,
-    int('20000000000000000000000000000000000000000000000000000000000000000000000131850e1f19a63e4b3'
-        '91a8db917f4138b630d84be5d639381e91deb45cfe778f637c1001', 16),
-    int('26eb7a859923fbc82189631f8103fe4ac9ca2970012d5d46024804801841ca44370958493b205e647da304db4'
-        'ceb08cbbd1ba39494776fb988b47174dca88c7e2945283a01c8972', 16),
-    int('349dc807f4fbf374f4aeade3bca95314dd58cec9f307a54ffc61efc006d8a2c9d4979c0ac44aea74fbebbb9f7'
-        '72aedcb620b01a7ba7af1b320430c8591984f601cd4c143ef1c7a3', 16),
-    binary=True
 )

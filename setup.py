@@ -15,6 +15,7 @@ class TestCommand(Command):
         from subprocess import call
         call(['python', '-m', 'fastecdsa.test'])
 
+
 curvemath = Extension(
     'fastecdsa.curvemath',
     include_dirs=['src/'],
@@ -33,7 +34,7 @@ _ecdsa = Extension(
 
 setup(
     name='fastecdsa',
-    version='1.3.2',
+    version='1.4.1',
     author='Anton Kueltz',
     author_email='kueltz.anton@gmail.com',
     license='CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',

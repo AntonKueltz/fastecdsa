@@ -7,3 +7,4 @@ ecdsa
 *.so
 *.egg-info
 MANIFEST
+binaryField.*

@@ -17,7 +17,4 @@ typedef struct {
 void signZZ_p(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_p * curve);
 int verifyZZ_p(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve);
 
-void signZZ_pX(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_pX * curve);
-int verifyZZ_pX(Sig * sig, char * msg, PointZZ_pX * Q, const CurveZZ_pX * curve);
-
 #endif
