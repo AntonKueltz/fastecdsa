@@ -1,5 +1,4 @@
 #include "curveMath.h"
-#include "binaryField.h"
 #include <string.h>
 
 int pointZZ_pEqual(const PointZZ_p * op1, const PointZZ_p * op2) {
