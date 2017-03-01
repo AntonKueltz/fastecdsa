@@ -20,7 +20,7 @@ curvemath = Extension(
     'fastecdsa.curvemath',
     include_dirs=['src/'],
     libraries=['gmp'],
-    sources=['src/curveMath.c', 'src/curve.c', 'src/point.c', 'src/binaryField.c'],
+    sources=['src/curveMath.c', 'src/curve.c', 'src/point.c'],
     extra_compile_args=['-O2']
 )
 
@@ -28,7 +28,7 @@ _ecdsa = Extension(
     'fastecdsa._ecdsa',
     include_dirs=['src/'],
     libraries=['gmp'],
-    sources=['src/_ecdsa.c', 'src/curveMath.c', 'src/curve.c', 'src/point.c', 'src/binaryField.c'],
+    sources=['src/_ecdsa.c', 'src/curveMath.c', 'src/curve.c', 'src/point.c'],
     extra_compile_args=['-O2']
 )
 
