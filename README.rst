@@ -130,9 +130,9 @@ Some basic usage is shown below:
 
 Arbitrary Elliptic Curve Arithmetic
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The :class:`Point` class allows arbitrary arithmetic to be performed over curves. The two main
+The :code:`Point` class allows arbitrary arithmetic to be performed over curves. The two main
 operations are point addition and point multiplication (by a scalar) which can be done via the
-standard python operators (:func:`+` and :func:`*` respectively):
+standard python operators (:code:`+` and :code:`*` respectively):
 
 .. code:: python
 
