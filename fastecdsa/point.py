@@ -27,6 +27,15 @@ class Point:
         return self.x == other.x and self.y == other.y and self.curve is other.curve
 
     def __add__(self, other):
+        """Add two :class:`Point`s on the same elliptic curve.
+
+        :param self: a point :math:`P` on the curve
+        :type self: :class:`Point`
+        :param other: a point :math:`Q` on the curve
+        :type other: :class:`Point`
+
+        :returns: :class:`Point` - A point :math:`R` such that :math:`R = P + Q`
+        """
         if self.curve is not other.curve:
             raise CurveMismatchError(self.curve, other.curve)
         else:
@@ -35,23 +44,56 @@ class Point:
             return Point(int(x), int(y), self.curve)
 
     def __radd__(self, other):
+        """Add two :class:`Point`s on the same elliptic curve.
+
+        :param self: a point :math:`P` on the curve
+        :type self: :class:`Point`
+        :param other: a point :math:`Q` on the curve
+        :type other: :class:`Point`
+
+        :returns: :class:`Point` - A point :math:`R` such that :math:`R = Q + P`
+        """
         return self.__add__(other)
 
     def __sub__(self, other):
+        """Subtract two :class:`Point`s on the same elliptic curve.
+
+        :param self: a point :math:`P` on the curve
+        :type self: :class:`Point`
+        :param other: a point :math:`Q` on the curve
+        :type other: :class:`Point`
+
+        :returns: :class:`Point` - A point :math:`R` such that :math:`R = P - Q`
+        """
         negative = Point(other.x, -other.y % other.curve.p, other.curve)
         return self.__add__(negative)
 
-    def __rsub__(self, other):
-        return self.__sub__(other)
+    def __mul__(self, scalar):
+        """Multiply a :class:`Point`s on an elliptic curve by an integer.
 
-    def __mul__(self, other):
+        :param self: a point :math:`P` on the curve
+        :type self: :class:`Point`
+        :param scalar: other - an integer :math:`d \in \mathbb{Z}`
+        :type scalar: long
+
+        :returns: :class:`Point` - A point :math:`R` such that :math:`R = P * d`
+        """
         try:
-            d = int(other)
+            d = int(scalar)
         except ValueError:
             raise TypeError('Curve point multiplication must be by an integer')
         else:
             x, y = curvemath.mul(str(self.x), str(self.y), str(d), self.curve.name)
             return Point(int(x), int(y), self.curve)
 
-    def __rmul__(self, other):
-        return self.__mul__(other)
+    def __rmul__(self, scalar):
+        """Multiply a :class:`Point`s on an elliptic curve by an integer.
+
+        :param self: a point :math:`P` on the curve
+        :type self: :class:`Point`
+        :param scalar: other - an integer :math:`d \in \mathbb{Z}`
+        :type scalar: long
+
+        :returns: :class:`Point` - A point :math:`R` such that :math:`R = d * P`
+        """
+        return self.__mul__(scalar)

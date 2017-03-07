@@ -4,8 +4,6 @@ fastecdsa
     :target: https://travis-ci.org/AntonKueltz/fastecdsa
 .. image:: https://badge.fury.io/py/fastecdsa.svg
     :target: https://badge.fury.io/py/fastecdsa
-.. image:: https://readthedocs.org/projects/fastecdsa/badge/?version=latest
-    :target: https://fastecdsa.readthedocs.io/en/latest/
 
 About
 -----
@@ -19,9 +17,9 @@ and all points are validated before any operations are performed on them. Timing
 are mitigated via Montgomery point multiplication. Nonces are generated per RFC6979. The default
 curve used throughout the package is P256 which provides 128 bits of security. If you require a
 higher level of security you can specify the curve parameter in a method to use a curve over a
-bigger field e.g. P385. All that being said, crypto is tricky and I'm not beyond making mistakes.
+bigger field e.g. P384. All that being said, crypto is tricky and I'm not beyond making mistakes.
 Please use a more established and reviewed library for security critical applications. Open an
-issue or email me if you see any seurity issue or risk with this library.
+issue or email me if you see any security issue or risk with this library.
 
 Python Versions Supported
 -------------------------
@@ -170,5 +168,4 @@ standard python operators (:code:`+` and :code:`*` respectively):
     # Joint Scalar Multiplication
     R = d * S + e * T
 
-.. _FLINT: http://flintlib.org/
 .. _GMP: https://gmplib.org/
