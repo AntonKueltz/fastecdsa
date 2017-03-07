@@ -113,6 +113,50 @@ void pointZZ_pMul(PointZZ_p * rop, const PointZZ_p * point, const mpz_t scalar, 
 }
 
 
+void pointZZ_pShamirsTrick(PointZZ_p * rop, const PointZZ_p * point1, const mpz_t scalar1,
+    const PointZZ_p * point2, const mpz_t scalar2, const CurveZZ_p * curve)
+{
+    PointZZ_p sum, tmp;
+    mpz_inits(sum.x, sum.y, tmp.x, tmp.y, NULL);
+    pointZZ_pAdd(&sum, point1, point2, curve);
+
+    int scalar1Bits = mpz_sizeinbase(scalar1, 2);
+    int scalar2Bits = mpz_sizeinbase(scalar2, 2);
+    int l = (scalar1Bits > scalar2Bits ? scalar1Bits : scalar2Bits) - 1;
+
+    if(mpz_tstbit(scalar1, l) && mpz_tstbit(scalar2, l)) {
+        mpz_set(rop->x, sum.x);
+        mpz_set(rop->y, sum.y);
+    } else if(mpz_tstbit(scalar1, l)) {
+        mpz_set(rop->x, point1->x);
+        mpz_set(rop->y, point1->y);
+    } else if(mpz_tstbit(scalar2, l)) {
+        mpz_set(rop->x, point2->x);
+        mpz_set(rop->y, point2->y);
+    }
+
+    for(l = l - 1; l >= 0; l--) {
+        mpz_set(tmp.x, rop->x);
+        mpz_set(tmp.y, rop->y);
+        pointZZ_pDouble(rop, &tmp, curve);
+
+        mpz_set(tmp.x, rop->x);
+        mpz_set(tmp.y, rop->y);
+
+        if(mpz_tstbit(scalar1, l) && mpz_tstbit(scalar2, l)) {
+            pointZZ_pAdd(rop, &tmp, &sum, curve);
+        } else if(mpz_tstbit(scalar1, l)) {
+            pointZZ_pAdd(rop, &tmp, point1, curve);
+        } else if(mpz_tstbit(scalar2, l)) {
+            pointZZ_pAdd(rop, &tmp, point2, curve);
+        }
+    }
+
+    mpz_clears(sum.x, sum.y, tmp.x, tmp.y, NULL);
+}
+
+
+
 /******************************************************************************
  PYTHON BINDINGS
  ******************************************************************************/

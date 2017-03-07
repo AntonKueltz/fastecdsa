@@ -33,12 +33,10 @@ void signZZ_p(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_p * curve) 
 }
 
 
-// TODO Shamir's trick for two mults and add
-// TODO validate Q, r, s
 int verifyZZ_p(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve) {
     mpz_t e, w, u1, u2;
-    PointZZ_p tmp1, tmp2, tmp3;
-    mpz_inits(w, u1, u2, tmp3.x, tmp3.y, NULL);
+    PointZZ_p tmp;
+    mpz_inits(w, u1, u2, tmp.x, tmp.y, NULL);
 
     // convert digest to integer (digest is computed as hex in ecdsa.py)
     mpz_init_set_str(e, msg, 16);
@@ -55,13 +53,11 @@ int verifyZZ_p(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve) {
     mpz_mul(u2, sig->r, w);
     mpz_mod(u2, u2, curve->q);
 
-    pointZZ_pMul(&tmp1, curve->g, u1, curve);
-    pointZZ_pMul(&tmp2, Q, u2, curve);
-    pointZZ_pAdd(&tmp3, &tmp1, &tmp2, curve);
-    mpz_mod(tmp3.x, tmp3.x, curve->q);
+    pointZZ_pShamirsTrick(&tmp, curve->g, u1, Q, u2, curve);
+    mpz_mod(tmp.x, tmp.x, curve->q);
 
-    int equal = (mpz_cmp(tmp3.x, sig->r) == 0);
-    mpz_clears(e, w, u1, u2, tmp1.x, tmp1.y, tmp2.x, tmp2.y, tmp3.x, tmp3.y, NULL);
+    int equal = (mpz_cmp(tmp.x, sig->r) == 0);
+    mpz_clears(e, w, u1, u2, tmp.x, tmp.y, NULL);
     return equal;
 }
 
