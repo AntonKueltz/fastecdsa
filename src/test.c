@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "binaryField.h"
 #include "curveMath.h"
 #include "_ecdsa.h"
 
@@ -35,21 +34,6 @@ void ecdsaTest(void) {
 
     signZZ_p(&sig, msg2, d, k, curve);
     gmp_printf("r: %Zx\ns: %Zx\n", sig.r, sig.s);
-
-
-    mpz_set_str(d, "0C16F58550D824ED7B95569D4445375D3A490BC7E0194C41A39DEB732C29396CDF1D66DE02DD1460A816606F3BEC0F32202C7BD18A32D87506466AA92032F1314ED7B19762B0D22", 16);
-    mpz_set_str(k, "17F7E360B21BEAE4A757A19ACA77FB404D273F05719A86EAD9D7B3F4D5ED7B4630584BB153CF7DCD5A87CCA101BD7EA9ECA0CE5EE27CA985833560000BB52B6BBE068740A45B267", 16);
-    CurveZZ_pX * curveX = buildK571();
-
-    char * msg3 = "8151325dcdbae9e0ff95f9f9658432dbedfdb209";
-
-    signZZ_pX(&sig, msg3, d, k, curveX);
-    gmp_printf("r: %Zx\ns: %Zx\n", sig.r, sig.s);
-
-    PointZZ_pX qX;
-    pointZZ_pXMul(&qX, curveX->g, d, curveX);
-    int valid = verifyZZ_pX(&sig, msg3, &qX, curveX);
-    printf("%s\n", valid ? "True" : "False");
 
     mpz_clears(sig.r, sig.s, d, k, NULL);
     destroyCurveZZ_p(curve);
@@ -144,104 +128,8 @@ void secp256k1Test(void) {
 }
 
 
-// void binaryFieldInversionTest(void) {
-//     BinaryField * g = f2m_init(8);
-//     BinaryField * p = f2m_init(5);
-//
-//     f2m_set_bit(g, 8);
-//     f2m_set_bit(g, 4);
-//     f2m_set_bit(g, 3);
-//     f2m_set_bit(g, 1);
-//     f2m_set_bit(g, 0);
-//     f2m_set_bit(p, 5);
-//     f2m_set_bit(p, 4);
-//     f2m_set_bit(p, 3);
-//
-//     BinaryField * q = f2m_invmod(p, g);
-//
-//     const char * x = "x";
-//     f2m_pretty_print(g, x);
-//     f2m_pretty_print(p, x);
-//     f2m_pretty_print(q, x);
-//
-//     f2m_clear(g);
-//     f2m_clear(p);
-//     f2m_clear(q);
-// }
-
-
-void binaryFieldTest(void) {
-    unsigned degree = 163;
-    BinaryField * x = f2m_init(degree);
-    BinaryField * y = f2m_init(degree);
-
-    f2m_set_bit(x, 0);
-    f2m_set_bit(x, 51);
-    f2m_set_bit(x, 100);
-    f2m_set_bit(x, 161);
-    f2m_set_bit(y, 2);
-    f2m_set_bit(y, 17);
-    f2m_set_bit(y, 162);
-
-    const char * var = "X";
-    f2m_pretty_print(x, var);
-    f2m_pretty_print(y, var);
-
-    BinaryField * z = f2m_mulmod(x, y, 163);
-    f2m_pretty_print(z, var);
-
-    f2m_clear(z);
-    z = f2m_add(x, y);
-    f2m_pretty_print(z, var);
-
-    _f2m_left_shift(z, 2);
-    f2m_pretty_print(z, var);
-
-    f2m_clear(x);
-    f2m_clear(y);
-    f2m_clear(z);
-}
-
-
-void binaryFieldInversionTest(void) {
-    BinaryField * f = f2m_init(163);
-    f2m_set_bit(f, 163);
-    f2m_set_bit(f, 7);
-    f2m_set_bit(f, 6);
-    f2m_set_bit(f, 3);
-    f2m_set_bit(f, 0);
-
-    unsigned i, j;
-    srand(time(NULL));
-    const char * var = "X";
-
-    for(i = 0; i < 10; i++){
-        BinaryField * a = f2m_init(162);
-        f2m_set_bit(a, 162);
-        for(j = 0; j < 10; j++) {
-            f2m_set_bit(a, rand() % 162);
-        }
-        printf("A = "); f2m_pretty_print(a, var);
-        BinaryField * ainv = f2m_invmod(a, f);
-        printf("A^-1 = "); f2m_pretty_print(ainv, var);
-        BinaryField * check = f2m_mulmod(a, ainv, 163);
-        printf("%s\n", f2m_is_one(check) ? "True" : "False");
-        printf("A * A^-1 = "); f2m_pretty_print(check, var);
-        printf("-----------------------------------\n");
-
-        f2m_clear(a);
-        f2m_clear(ainv);
-        f2m_clear(check);
-    }
-
-    f2m_clear(f);
-}
-
-
 int main(int argc, char * argv[]) {
     ecdsaTest();
-    // secp256k1Test();
-    // binaryFieldTest();
-    // binaryFieldInversionTest();
+    secp256k1Test();
     return 0;
 }

@@ -15,11 +15,12 @@ class TestCommand(Command):
         from subprocess import call
         call(['python', '-m', 'fastecdsa.test'])
 
+
 curvemath = Extension(
     'fastecdsa.curvemath',
     include_dirs=['src/'],
     libraries=['gmp'],
-    sources=['src/curveMath.c', 'src/curve.c', 'src/point.c', 'src/binaryField.c'],
+    sources=['src/curveMath.c', 'src/curve.c', 'src/point.c'],
     extra_compile_args=['-O2']
 )
 
@@ -27,13 +28,13 @@ _ecdsa = Extension(
     'fastecdsa._ecdsa',
     include_dirs=['src/'],
     libraries=['gmp'],
-    sources=['src/_ecdsa.c', 'src/curveMath.c', 'src/curve.c', 'src/point.c', 'src/binaryField.c'],
+    sources=['src/_ecdsa.c', 'src/curveMath.c', 'src/curve.c', 'src/point.c'],
     extra_compile_args=['-O2']
 )
 
 setup(
     name='fastecdsa',
-    version='1.3.2',
+    version='1.4.1',
     author='Anton Kueltz',
     author_email='kueltz.anton@gmail.com',
     license='CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',

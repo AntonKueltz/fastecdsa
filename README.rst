@@ -4,8 +4,6 @@ fastecdsa
     :target: https://travis-ci.org/AntonKueltz/fastecdsa
 .. image:: https://badge.fury.io/py/fastecdsa.svg
     :target: https://badge.fury.io/py/fastecdsa
-.. image:: https://readthedocs.org/projects/fastecdsa/badge/?version=latest
-    :target: https://fastecdsa.readthedocs.io/en/latest/
 
 About
 -----
@@ -16,10 +14,12 @@ Security
 --------
 I am not aware of any current issues. There is no nonce reuse, no branching on secret material,
 and all points are validated before any operations are performed on them. Timing side challenges
-are mitigated via Montgomery point multiplication. Nonces are generated per RFC6979. That being
-said crypto is tricky and I'm not beyond making mistakes. Please use a more established and
-reviewed library for security critical applications. Open an issue or email me if you see any
-seurity issue or risk with this library.
+are mitigated via Montgomery point multiplication. Nonces are generated per RFC6979. The default
+curve used throughout the package is P256 which provides 128 bits of security. If you require a
+higher level of security you can specify the curve parameter in a method to use a curve over a
+bigger field e.g. P384. All that being said, crypto is tricky and I'm not beyond making mistakes.
+Please use a more established and reviewed library for security critical applications. Open an
+issue or email me if you see any security issue or risk with this library.
 
 Python Versions Supported
 -------------------------
@@ -36,14 +36,6 @@ Curves over Prime Fields
 * P384 (:code:`fastecdsa.curve.P384`)
 * P521 (:code:`fastecdsa.curve.P521`)
 * secp256k1 (bitcoin curve) (:code:`fastecdsa.curve.secp256k1`)
-
-Curves over Binary Fields
-~~~~~~~~~~~~~~~~~~~~~~~~~
-* K163 (:code:`fastecdsa.curve.K163`)
-* K233 (:code:`fastecdsa.curve.K233`)
-* K283 (:code:`fastecdsa.curve.K283`)
-* K409 (:code:`fastecdsa.curve.K409`)
-* K571 (:code:`fastecdsa.curve.K571`)
 
 Hash Functions
 ~~~~~~~~~~~~~~
@@ -66,16 +58,6 @@ to :code:`ecdsa` package.
 .. image:: http://i.imgur.com/oNOfnG6.png?1
 
 As you can see, this package in this case is ~25x faster.
-
-Curves over Binary Fields
-~~~~~~~~~~~~~~~~~~~~~~~~~
-Curves over binary fields are slower. This is mainly because there are no good C libraries that I
-could find optimized for binary fields (e.g. FLINT_ only supports polynomials in a field of
-arbitrary characteristic, which means no optimizations and more cases than we need for binary
-fields). So the binary field C code is written by me. Finding the inverse of a polynomial is the
-main bottleneck currently taking about 50ms (for comparison, signature generation and verification
-in prime fields are both <5ms). This will be improved when I have time to optimize (or feel free to
-fork and optimize the code). The obvious solution is to use projective coordinates for binary curves.
 
 Installing
 ----------
@@ -144,11 +126,52 @@ Some basic usage is shown below:
     r, s = ecdsa.sign(m, private_key, hashfunc=sha3_256)
     valid = ecdsa.verify((r, s), m, public_key, hashfunc=sha3_256)
 
+Arbitrary Elliptic Curve Arithmetic
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The :code:`Point` class allows arbitrary arithmetic to be performed over curves. The two main
+operations are point addition and point multiplication (by a scalar) which can be done via the
+standard python operators (:code:`+` and :code:`*` respectively):
+
+.. code:: python
+
+    # example taken from the document below (section 4.3.2):
+    # https://koclab.cs.ucsb.edu/teaching/cren/docs/w02/nist-routines.pdf
+
+    from fastecdsa.curve import P256
+    from fastecdsa.point import Point
+
+    xs = 0xde2444bebc8d36e682edd27e0f271508617519b3221a8fa0b77cab3989da97c9
+    ys = 0xc093ae7ff36e5380fc01a5aad1e66659702de80f53cec576b6350b243042a256
+    S = Point(xs, ys, curve=P256)
+
+    xt = 0x55a8b00f8da1d44e62f6b3b25316212e39540dc861c89575bb8cf92e35e0986b
+    yt = 0x5421c3209c2d6c704835d82ac4c3dd90f61a8a52598b9e7ab656e9d8c8b24316
+    T = Point(xt, yt, curve=P256)
+
+    # Point Addition
+    R = S + T
+
+    # Point Subtraction: (xs, ys) - (xt, yt) = (xs, ys) + (xt, -yt)
+    R = S - T
+
+    # Point Doubling
+    R = S + S  # produces the same value as the operation below
+    R = 2 * S  # S * 2 works fine too i.e. order doesn't matter
+
+    d = 0xc51e4753afdec1e6b6c6a5b992f43f8dd0c7a8933072708b6522468b2ffb06fd
+
+    # Scalar Multiplication
+    R = d * S  # S * d works fine too i.e. order doesn't matter
+
+    e = 0xd37f628ece72a462f0145cbefe3f0b355ee8332d37acdd83a358016aea029db7
+
+    # Joint Scalar Multiplication
+    R = d * S + e * T
+
 Acknowledgements
 ----------------
 Thanks to those below for contributing improvements:
 
 - targon
 
-.. _FLINT: http://flintlib.org/
 .. _GMP: https://gmplib.org/
