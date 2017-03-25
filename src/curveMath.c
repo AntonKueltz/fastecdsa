@@ -23,9 +23,7 @@ void pointZZ_pDouble(PointZZ_p * rop, const PointZZ_p * op, const CurveZZ_p * cu
     mpz_mul(numer, op->x, op->x);
     mpz_mul_ui(numer, numer, 3);
     mpz_add(numer, numer, curve->a);
-    mpz_mod(numer, numer, curve->p);
     mpz_mul_ui(denom, op->y, 2);
-    mpz_mod(denom, denom, curve->p);
     mpz_invert(denom, denom, curve->p);  // TODO check status
     mpz_mul(lambda, numer, denom);
     mpz_mod(lambda, lambda, curve->p);
@@ -52,9 +50,7 @@ void pointZZ_pAdd(PointZZ_p * rop, const PointZZ_p * op1, const PointZZ_p * op2,
 
     // calculate lambda
     mpz_sub(ydiff, op2->y, op1->y);
-    mpz_mod(ydiff, ydiff, curve->p);
     mpz_sub(xdiff, op2->x, op1->x);
-    mpz_mod(xdiff, xdiff, curve->p);
     mpz_invert(xdiff, xdiff, curve->p);  // TODO check status
     mpz_mul(lambda, ydiff, xdiff);
     mpz_mod(lambda, lambda, curve->p);

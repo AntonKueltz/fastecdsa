@@ -87,7 +87,6 @@ are integers, and public keys are points i.e. integer pairs.
 
     # get the public key corresponding to the private key we just generated
     pub_key = keys.get_public_key(priv_key, curve.P256)
-    (Qx, Qy) = pub_key  # recall that pub_key is simply an integer pair
 
 
 Signing and Verifying

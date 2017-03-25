@@ -1,4 +1,4 @@
-from distutils.core import setup, Extension, Command
+from setuptools import setup, Extension, Command
 
 
 class TestCommand(Command):
