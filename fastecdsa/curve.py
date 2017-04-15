@@ -2,7 +2,40 @@ from fastecdsa import curvemath
 
 
 class Curve:
+    """Representation of an elliptic curve.
+
+    Defines a group for  the arithmetic operations of point addition and scalar multiplication.
+    Currently only curves defined via the equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}` are
+    supported.
+
+    Attributes:
+        |  name (string): The name of the curve
+        |  p (long): The value of :math:`p` in the curve equation.
+        |  a (long): The value of :math:`a` in the curve equation.
+        |  b (long): The value of :math:`a` in the curve equation.
+        |  G (long, long): The base point of the curve.
+        |  q (long): The order of the base point of the curve.
+    """
+
     def __init__(self, name, p, a, b, q, gx, gy):
+        """Initialize the parameters of an elliptic curve.
+
+        WARNING: Do not generate your own parameters unless you know what you are doing or you could
+        generate a curve severely less secure than you think. Even then, consider using a
+        standardized curve for the sake of interoperability.
+
+        Currently only curves defined via the equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}` are
+        supported.
+
+        Args:
+            |  name (string): The name of the curve
+            |  p (long): The value of :math:`p` in the curve equation.
+            |  a (long): The value of :math:`a` in the curve equation.
+            |  b (long): The value of :math:`a` in the curve equation.
+            |  q (long): The order of the base point of the curve.
+            |  gx (long): The x coordinate of the base point of the curve.
+            |  gy (long): The y coordinate of the base point of the curve.
+        """
         self.name = name
         self.p = p
         self.a = a
@@ -12,7 +45,19 @@ class Curve:
         self.gy = gy
 
     def is_point_on_curve(self, P):
-        ''' Check if a point P (int, int) is on the curve '''
+        """ Check if a point lies on this curve.
+
+        The check is done by evaluating the curve equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}`
+        at the given point :math:`(x,y)` with this curve's domain parameters :math:`(a, b, p)`. If
+        the congruence holds, then the point lies on this curve.
+
+        Args:
+            P (long, long): A tuple representing the point :math:`P` as an :math:`(x, y)` coordinate
+            pair.
+
+        Returns:
+            bool: :code:`True` if the point lies on this curve, otherwise :code:`False`.
+        """
         x, y, = P[0], P[1]
         left = y * y
         right = (x * x * x) + (self.a * x) + self.b
@@ -20,6 +65,12 @@ class Curve:
 
     @property
     def G(self):
+        """ The base point of the curve.
+
+        For the purposes of ECDSA this point is multiplied by a private key to obtain the
+        corresponding public key. Make a property to avoid cyclic dependency of Point on Curve
+        (a point lies on a curve) and Curve on Point (curves have a base point).
+        """
         from .point import Point
         return Point(self.gx, self.gy, self)
 

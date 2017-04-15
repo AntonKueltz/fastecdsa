@@ -4,7 +4,19 @@ from struct import pack
 
 
 class RFC6979:
-    ''' deterministic nonce generation for ECDSA '''
+    """Generate a nonce per RFC6979.
+
+    In order to avoid reusing a nonce with the same key when signing two different messages (which
+    leaks the private key) RFC6979 provides a deterministic method for generating nonces. This is
+    based on using a pseudo-random function (HMAC) to derive a nonce from the message and private
+    key. More info here: http://tools.ietf.org/html/rfc6979.
+
+    Attributes:
+        |  msg (string): A message being signed.
+        |  x (long): An ECDSA private key.
+        |  q (long): The order of the generator point of the curve being used to sign the message.
+        |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
+    """
     def __init__(self, msg, x, q, hashfunc):
         self.x = x
         self.q = q
@@ -14,7 +26,7 @@ class RFC6979:
         self.hashfunc = hashfunc
 
     def _bits2int(self, b):
-        ''' http://tools.ietf.org/html/rfc6979#section-2.3.2 '''
+        """ http://tools.ietf.org/html/rfc6979#section-2.3.2 """
         i = int(hexlify(b), 16)
         blen = len(b) * 8
 
@@ -24,7 +36,7 @@ class RFC6979:
         return i
 
     def _int2octets(self, x):
-        ''' http://tools.ietf.org/html/rfc6979#section-2.3.3 '''
+        """ http://tools.ietf.org/html/rfc6979#section-2.3.3 """
         octets = b''
 
         while x > 0:
@@ -35,13 +47,13 @@ class RFC6979:
         return padding + octets
 
     def _bits2octets(self, b):
-        ''' http://tools.ietf.org/html/rfc6979#section-2.3.4 '''
+        """ http://tools.ietf.org/html/rfc6979#section-2.3.4 """
         z1 = self._bits2int(b)  # -2 for the leading '0b'
         z2 = z1 % self.q
         return self._int2octets(z2)
 
     def gen_nonce(self):
-        ''' http://tools.ietf.org/html/rfc6979#section-3.2 '''
+        """ http://tools.ietf.org/html/rfc6979#section-3.2 """
         h1 = self.hashfunc(self.msg.encode())
         hash_size = h1.digest_size
         h1 = h1.digest()

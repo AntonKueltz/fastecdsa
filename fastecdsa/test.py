@@ -9,7 +9,7 @@ from .util import RFC6979
 
 
 class TestPrimeFieldCurve(unittest.TestCase):
-    ''' cases taken from https://www.nsa.gov/ia/_files/nist-routines.pdf '''
+    """ cases taken from https://www.nsa.gov/ia/_files/nist-routines.pdf """
 
     def test_P192_arith(self):
         S = Point(
@@ -185,7 +185,7 @@ class TestNonceGeneration(unittest.TestCase):
 
 
 class TestPrimeFieldECDSA(unittest.TestCase):
-    ''' case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 '''
+    """ case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 """
     def test_ecdsa_P256_SHA1_sign(self):
         d = 0xC9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721
         expected = (
@@ -198,7 +198,7 @@ class TestPrimeFieldECDSA(unittest.TestCase):
         Q = d * P256.G
         self.assertTrue(verify(sig, 'sample', Q, curve=P256, hashfunc=sha1))
 
-    ''' case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 '''
+    """ case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 """
     def test_ecdsa_P256_SHA224_sign(self):
         d = 0xC9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721
         expected = (
@@ -211,7 +211,7 @@ class TestPrimeFieldECDSA(unittest.TestCase):
         Q = d * P256.G
         self.assertTrue(verify(sig, 'sample', Q, curve=P256, hashfunc=sha224))
 
-    ''' case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 '''
+    """ case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 """
     def test_ecdsa_P256_SHA2_sign(self):
         d = 0xC9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721
         expected = (
@@ -224,7 +224,7 @@ class TestPrimeFieldECDSA(unittest.TestCase):
         Q = d * P256.G
         self.assertTrue(verify(sig, 'sample', Q, curve=P256, hashfunc=sha256))
 
-    ''' case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 '''
+    """ case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 """
     def test_ecdsa_P256_SHA384_sign(self):
         d = 0xC9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721
         expected = (
@@ -237,7 +237,7 @@ class TestPrimeFieldECDSA(unittest.TestCase):
         Q = d * P256.G
         self.assertTrue(verify(sig, 'sample', Q, curve=P256, hashfunc=sha384))
 
-    ''' case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 '''
+    """ case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 """
     def test_ecdsa_P256_SHA512_sign(self):
         d = 0xC9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721
         expected = (
@@ -250,7 +250,7 @@ class TestPrimeFieldECDSA(unittest.TestCase):
         Q = d * P256.G
         self.assertTrue(verify(sig, 'sample', Q, curve=P256, hashfunc=sha512))
 
-    ''' case taken from https://www.nsa.gov/ia/_files/ecdsa.pdf '''
+    """ case taken from https://www.nsa.gov/ia/_files/ecdsa.pdf """
     def test_ecdsa_P256_verify(self):
         Q = Point(
             0x8101ece47464a6ead70cf69a6e2bd3d88691a3262d22cba4f7635eaff26680a8,

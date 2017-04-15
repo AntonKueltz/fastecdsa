@@ -27,14 +27,14 @@ class Point:
         return self.x == other.x and self.y == other.y and self.curve is other.curve
 
     def __add__(self, other):
-        """Add two :class:`Point`s on the same elliptic curve.
+        """Add two points on the same elliptic curve.
 
-        :param self: a point :math:`P` on the curve
-        :type self: :class:`Point`
-        :param other: a point :math:`Q` on the curve
-        :type other: :class:`Point`
+        Args:
+            | self (fastecdsa.point.Point): a point :math:`P` on the curve
+            | other (fastecdsa.point.Point): a point :math:`Q` on the curve
 
-        :returns: :class:`Point` - A point :math:`R` such that :math:`R = P + Q`
+        Returns:
+            fastecdsa.point.Point: A point :math:`R` such that :math:`R = P + Q`
         """
         if self.curve is not other.curve:
             raise CurveMismatchError(self.curve, other.curve)
@@ -44,26 +44,26 @@ class Point:
             return Point(int(x), int(y), self.curve)
 
     def __radd__(self, other):
-        """Add two :class:`Point`s on the same elliptic curve.
+        """Add two points on the same elliptic curve.
 
-        :param self: a point :math:`P` on the curve
-        :type self: :class:`Point`
-        :param other: a point :math:`Q` on the curve
-        :type other: :class:`Point`
+        Args:
+            | self (fastecdsa.point.Point): a point :math:`P` on the curve
+            | other (fastecdsa.point.Point): a point :math:`Q` on the curve
 
-        :returns: :class:`Point` - A point :math:`R` such that :math:`R = Q + P`
+        Returns:
+            fastecdsa.point.Point: A point :math:`R` such that :math:`R = P + Q`
         """
         return self.__add__(other)
 
     def __sub__(self, other):
-        """Subtract two :class:`Point`s on the same elliptic curve.
+        """Subtract two points on the same elliptic curve.
 
-        :param self: a point :math:`P` on the curve
-        :type self: :class:`Point`
-        :param other: a point :math:`Q` on the curve
-        :type other: :class:`Point`
+        Args:
+            | self (fastecdsa.point.Point): a point :math:`P` on the curve
+            | other (fastecdsa.point.Point): a point :math:`Q` on the curve
 
-        :returns: :class:`Point` - A point :math:`R` such that :math:`R = P - Q`
+        Returns:
+            fastecdsa.point.Point: A point :math:`R` such that :math:`R = P - Q`
         """
         negative = Point(other.x, -other.y % other.curve.p, other.curve)
         return self.__add__(negative)
@@ -71,12 +71,13 @@ class Point:
     def __mul__(self, scalar):
         """Multiply a :class:`Point`s on an elliptic curve by an integer.
 
-        :param self: a point :math:`P` on the curve
-        :type self: :class:`Point`
-        :param scalar: other - an integer :math:`d \in \mathbb{Z}`
-        :type scalar: long
+        Args:
+            | self (fastecdsa.point.Point): a point :math:`P` on the curve
+            | other (long): an integer :math:`d \in \mathbb{Z_q}` where :math:`q` is the order of
+                the curve that :math:`P` is on
 
-        :returns: :class:`Point` - A point :math:`R` such that :math:`R = P * d`
+        Returns:
+            fastecdsa.point.Point: A point :math:`R` such that :math:`R = P * d`
         """
         try:
             d = int(scalar)
@@ -89,11 +90,12 @@ class Point:
     def __rmul__(self, scalar):
         """Multiply a :class:`Point`s on an elliptic curve by an integer.
 
-        :param self: a point :math:`P` on the curve
-        :type self: :class:`Point`
-        :param scalar: other - an integer :math:`d \in \mathbb{Z}`
-        :type scalar: long
+        Args:
+            | self (fastecdsa.point.Point): a point :math:`P` on the curve
+            | other (long): an integer :math:`d \in \mathbb{Z_q}` where :math:`q` is the order of
+                the curve that :math:`P` is on
 
-        :returns: :class:`Point` - A point :math:`R` such that :math:`R = d * P`
+        Returns:
+            fastecdsa.point.Point: A point :math:`R` such that :math:`R = d * P`
         """
         return self.__mul__(scalar)
