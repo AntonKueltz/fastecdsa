@@ -2,9 +2,9 @@ from binascii import hexlify
 from hashlib import sha256  # Python standard lib SHA2 is already in C
 
 from fastecdsa import _ecdsa
-from curve import P256
-from point import Point
-from util import RFC6979
+from fastecdsa.curve import P256
+from fastecdsa.point import Point
+from fastecdsa.util import RFC6979
 
 
 class EcdsaError(Exception):
