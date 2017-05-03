@@ -25,7 +25,7 @@ curvemath = Extension(
 )
 
 _ecdsa = Extension(
-    'fastecdsa.._ecdsa',
+    'fastecdsa._ecdsa',
     include_dirs=['src/'],
     libraries=['gmp'],
     sources=['src/_ecdsa.c', 'src/curveMath.c', 'src/curve.c', 'src/point.c'],
