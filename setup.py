@@ -17,7 +17,7 @@ class TestCommand(Command):
 
 
 curvemath = Extension(
-    'fastecdsa.curvemath',
+    'curvemath',
     include_dirs=['src/'],
     libraries=['gmp'],
     sources=['src/curveMath.c', 'src/curve.c', 'src/point.c'],
@@ -25,7 +25,7 @@ curvemath = Extension(
 )
 
 _ecdsa = Extension(
-    'fastecdsa._ecdsa',
+    '_ecdsa',
     include_dirs=['src/'],
     libraries=['gmp'],
     sources=['src/_ecdsa.c', 'src/curveMath.c', 'src/curve.c', 'src/point.c'],
