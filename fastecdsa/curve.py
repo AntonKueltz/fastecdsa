@@ -71,7 +71,7 @@ class Curve:
         corresponding public key. Make a property to avoid cyclic dependency of Point on Curve
         (a point lies on a curve) and Curve on Point (curves have a base point).
         """
-        from .point import Point
+        from point import Point
         return Point(self.gx, self.gy, self)
 
 

@@ -2,10 +2,10 @@ from hashlib import sha1, sha224, sha256, sha384, sha512
 from random import choice, randint
 import unittest
 
-from .curve import P192, P224, P256, P384, P521, secp256k1
-from .ecdsa import sign, verify
-from .point import Point
-from .util import RFC6979
+from curve import P192, P224, P256, P384, P521, secp256k1
+from ecdsa import sign, verify
+from point import Point
+from util import RFC6979
 
 
 class TestPrimeFieldCurve(unittest.TestCase):

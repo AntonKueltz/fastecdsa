@@ -1,5 +1,5 @@
 from fastecdsa import curvemath
-from .curve import P256
+from curve import P256
 
 
 class CurveMismatchError(Exception):
