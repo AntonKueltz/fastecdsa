@@ -17,7 +17,7 @@ class TestCommand(Command):
 
 
 curvemath = Extension(
-    'curvemath',
+    'fastecdsa.curvemath',
     include_dirs=['src/'],
     libraries=['gmp'],
     sources=['src/curveMath.c', 'src/curve.c', 'src/point.c'],
@@ -25,7 +25,7 @@ curvemath = Extension(
 )
 
 _ecdsa = Extension(
-    '_ecdsa',
+    'fastecdsa.._ecdsa',
     include_dirs=['src/'],
     libraries=['gmp'],
     sources=['src/_ecdsa.c', 'src/curveMath.c', 'src/curve.c', 'src/point.c'],
@@ -43,7 +43,7 @@ setup(
     long_description=''.join(open('README.rst', 'r').readlines()),
     url='https://github.com/AntonKueltz/fastecdsa',
     packages=['fastecdsa'],
-    ext_modules=[curvemath, _ecdsa],
+    ext_modules=[_ecdsa, curvemath], 
     cmdclass={'test': TestCommand},
     classifiers=[
         'Development Status :: 4 - Beta',
