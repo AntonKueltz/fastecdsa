@@ -34,7 +34,7 @@ _ecdsa = Extension(
 
 setup(
     name='fastecdsa',
-    version='1.4.2',
+    version='1.4.3',
     author='Anton Kueltz',
     author_email='kueltz.anton@gmail.com',
     license='CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',
@@ -43,7 +43,7 @@ setup(
     long_description=''.join(open('README.rst', 'r').readlines()),
     url='https://github.com/AntonKueltz/fastecdsa',
     packages=['fastecdsa'],
-    ext_modules=[curvemath, _ecdsa],
+    ext_modules=[_ecdsa, curvemath], 
     cmdclass={'test': TestCommand},
     classifiers=[
         'Development Status :: 4 - Beta',
