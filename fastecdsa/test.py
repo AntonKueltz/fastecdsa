@@ -275,7 +275,7 @@ class TestPrimeFieldECDSA(unittest.TestCase):
 
 class TestP192ECDSA(unittest.TestCase):
     def test_rfc6979(self):
-        text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read()
+        text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read().decode()
         curve_tests = findall(r'curve: NIST P-192(.*)curve: NIST P-224', text, flags=DOTALL)[0]
 
         q = int(findall(r'q = ([0-9A-F]*)', curve_tests)[0], 16)
@@ -307,7 +307,7 @@ class TestP192ECDSA(unittest.TestCase):
 
 class TestP224ECDSA(unittest.TestCase):
     def test_rfc6979(self):
-        text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read()
+        text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read().decode()
         curve_tests = findall(r'curve: NIST P-224(.*)curve: NIST P-256', text, flags=DOTALL)[0]
 
         q = int(findall(r'q = ([0-9A-F]*)', curve_tests)[0], 16)
@@ -339,7 +339,7 @@ class TestP224ECDSA(unittest.TestCase):
 
 class TestP256ECDSA(unittest.TestCase):
     def test_rfc6979(self):
-        text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read()
+        text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read().decode()
         curve_tests = findall(r'curve: NIST P-256(.*)curve: NIST P-384', text, flags=DOTALL)[0]
 
         q = int(findall(r'q = ([0-9A-F]*)', curve_tests)[0], 16)
@@ -371,7 +371,7 @@ class TestP256ECDSA(unittest.TestCase):
 
 class TestP384ECDSA(unittest.TestCase):
     def test_rfc6979(self):
-        text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read()
+        text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read().decode()
         curve_tests = findall(r'curve: NIST P-384(.*)curve: NIST P-521', text, flags=DOTALL)[0]
 
         q_parts = findall(r'q = ([0-9A-F]*)\n\s*([0-9A-F]*)', curve_tests)[0]
@@ -405,7 +405,7 @@ class TestP384ECDSA(unittest.TestCase):
 
 class TestP521ECDSA(unittest.TestCase):
     def test_rfc6979(self):
-        text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read()
+        text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read().decode()
         curve_tests = findall(r'curve: NIST P-521(.*)curve: NIST K-163', text, flags=DOTALL)[0]
 
         q_parts = findall(r'q = ([0-9A-F]*)\n\s*([0-9A-F]*)\n\s*([0-9A-F]*)', curve_tests)[0]
