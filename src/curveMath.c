@@ -1,4 +1,5 @@
 #include "curveMath.h"
+
 #include <string.h>
 
 int pointZZ_pEqual(const PointZZ_p * op1, const PointZZ_p * op2) {
@@ -44,6 +45,42 @@ void pointZZ_pDouble(PointZZ_p * rop, const PointZZ_p * op, const CurveZZ_p * cu
 }
 
 
+void pointZZ_pXDouble(PointZZ_pX * rop, const PointZZ_pX * op, const CurveZZ_pX * curve) {
+    uint32_t * a = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * b = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * c = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * bc = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * d = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * e = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * tmp = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+
+    bfSqr(op->x, a, curve->field);
+
+    bfMul(op->y, op->z, b, curve->field);
+    bfAdd(a, b, b, curve->field);
+
+    bfMul(op->x, op->z, c, curve->field);
+
+    bfAdd(b, c, bc, curve->field);
+
+    bfSqr(c, d, curve->field);
+
+    bfMul(b, bc, e, curve->field);
+    bfAdd(e, d, e, curve->field);
+
+    bfMul(c, e, rop->x, curve->field);
+
+    bfMul(bc, e, tmp, curve->field);
+    bfSqr(a, rop->y, curve->field);
+    bfMul(rop->y, c, rop->y, curve->field);
+    bfAdd(tmp, rop->y, rop->y, curve->field);
+
+    bfMul(c, d, rop->z, curve->field);
+
+    free(a); free(b); free(c); free(bc); free(d); free(e); free(tmp);
+}
+
+
 void pointZZ_pAdd(PointZZ_p * rop, const PointZZ_p * op1, const PointZZ_p * op2, const CurveZZ_p * curve) {
     mpz_t xdiff, ydiff, lambda;
     mpz_inits(xdiff, ydiff, lambda, NULL);
@@ -68,6 +105,56 @@ void pointZZ_pAdd(PointZZ_p * rop, const PointZZ_p * op1, const PointZZ_p * op2,
     mpz_mod(rop->y, rop->y, curve->p);
 
     mpz_clears(xdiff, ydiff, lambda, NULL);
+}
+
+
+void pointZZ_pXAdd(PointZZ_pX * rop, const PointZZ_pX * op1, const PointZZ_pX * op2, const  CurveZZ_pX * curve) {
+    uint32_t * y1z2 = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * x1z2 = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * a = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * b = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * ab = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * c = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * d = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * e = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * f = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * tmp = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+
+    bfMul(op1->y, op2->z, y1z2, curve->field);
+
+    bfMul(op1->x, op2->z, x1z2, curve->field);
+
+    bfMul(op1->z, op2->y, a, curve->field);
+    bfAdd(y1z2, a, a, curve->field);
+
+    bfMul(op1->z, op2->x, b, curve->field);
+    bfAdd(x1z2, b, b, curve->field);
+
+    bfAdd(a, b, ab, curve->field);
+
+    bfSqr(b, c, curve->field);
+
+    bfMul(op1->z, op2->z, d, curve->field);
+
+    bfMul(b, c, e, curve->field);
+
+    bfMul(a, ab, f, curve->field);
+    bfAdd(f, c, f, curve->field);
+    bfMul(f, d, f, curve->field);
+    bfAdd(f, e, f, curve->field);
+
+    bfMul(b, f, rop->x, curve->field);
+
+    bfMul(a, x1z2, tmp, curve->field);
+    bfMul(b, y1z2, rop->y, curve->field);
+    bfAdd(tmp, rop->y, rop->y, curve->field);
+    bfMul(c, rop->y, rop->y, curve->field);
+    bfMul(ab, f, tmp, curve->field);
+    bfAdd(rop->y, tmp, rop->y, curve->field);
+
+    bfMul(e, d, rop->z, curve->field);
+
+    free(y1z2); free(x1z2); free(a); free(b); free(ab); free(c); free(d); free(e); free(f); free(tmp);
 }
 
 
@@ -102,6 +189,54 @@ void pointZZ_pMul(PointZZ_p * rop, const PointZZ_p * point, const mpz_t scalar, 
     mpz_init_set(rop->x, R0.x);
     mpz_init_set(rop->y, R0.y);
     mpz_clears(R0.x, R0.y, R1.x, R1.y, tmp.x, tmp.y, NULL);
+}
+
+
+void pointZZ_pXMul(PointZZ_pX * rop, const PointZZ_pX * point, const mpz_t scalar, const CurveZZ_pX * curve) {
+    uint32_t * r0x = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * r0y = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * r0z = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * r1x = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * r1y = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    uint32_t * r1z = (uint32_t *)calloc(curve->field->words, sizeof(uint32_t));
+    PointZZ_pX R0 = {.x = r0x, .y = r0y, .z = r0z}, R1 = {.x = r1x, .y = r1y, .z = r1z};
+
+    for(int i = 0; i < curve->field->words; i++) {
+        R0.x[i] = point->x[i];
+        R0.y[i] = point->y[i];
+        R0.z[i] = point->z[i];
+    }
+    printf("[R0.x] "); bfPrint(R0.x, curve->field);
+    printf("[R0.y] "); bfPrint(R0.y, curve->field);
+    printf("[R1.x] "); bfPrint(R1.x, curve->field);
+    printf("[R1.y] "); bfPrint(R1.y, curve->field);
+    pointZZ_pXDouble(&R1, point, curve);
+
+    int dbits = mpz_sizeinbase(scalar, 2), i;
+    for(i = dbits - 2; i >= 0; i--) {
+        printf("[i=%d, bit=%d]\n", i, mpz_tstbit(scalar, i));
+        printf("[R0.x] "); bfPrint(R0.x, curve->field);
+        printf("[R0.y] "); bfPrint(R0.y, curve->field);
+        printf("[R1.x] "); bfPrint(R1.x, curve->field);
+        printf("[R1.y] "); bfPrint(R1.y, curve->field);
+
+        if(mpz_tstbit(scalar, i)) {
+            pointZZ_pXAdd(&R0, &R1, &R0, curve);
+            pointZZ_pXDouble(&R1, &R1, curve);
+        }
+        else {
+            pointZZ_pXAdd(&R1, &R0, &R1, curve);
+            pointZZ_pXDouble(&R0, &R0, curve);
+        }
+    }
+
+    for(int i = 0; i < curve->field->words; i++) {
+        rop->x[i] = R0.x[i];
+        rop->y[i] = R0.y[i];
+        rop->z[i] = R0.z[i];
+    }
+
+    free(r0x); free(r0y); free(r0z); free(r1x); free(r1y); free(r1z);
 }
 
 
@@ -145,6 +280,26 @@ void pointZZ_pShamirsTrick(PointZZ_p * rop, const PointZZ_p * point1, const mpz_
     }
 
     mpz_clears(sum.x, sum.y, tmp.x, tmp.y, NULL);
+}
+
+
+void normalizePointZZ_pX(mpz_t ropx, mpz_t ropy, const PointZZ_pX * op, Field * field) {
+    uint32_t * zinv = (uint32_t *)calloc(field->words, sizeof(uint32_t));
+
+    bfInv(op->z, zinv, field);
+    bfMul(op->x, zinv, op->x, field);
+    bfMul(op->y, zinv, op->y, field);
+
+    for(int i = 0; i < field->words * BITS_IN_WORD; i++) {
+        if(op->x[i / BITS_IN_WORD] & (1 << (i % BITS_IN_WORD))) {
+            mpz_setbit(ropx, i);
+        }
+        if(op->y[i / BITS_IN_WORD] & (1 << (i % BITS_IN_WORD))) {
+            mpz_setbit(ropy, i);
+        }
+    }
+
+    free(zinv);
 }
 
 

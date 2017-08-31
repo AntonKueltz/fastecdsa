@@ -88,3 +88,34 @@ CurveZZ_p * buildSecp256k1() {
         16
     );
 }
+
+void destroyCurveZZ_pX(CurveZZ_pX * curve) {
+    mpz_clears(curve->a, curve->b, curve->q);
+    free(curve);
+}
+
+CurveZZ_pX * buildK163() {
+    CurveZZ_pX * curve = (CurveZZ_pX *)malloc(sizeof(CurveZZ_pX));
+
+    mpz_init_set_ui(curve->a, 1);
+    mpz_init_set_ui(curve->b, 1);
+    mpz_init_set_str(curve->q, "5846006549323611672814741753598448348329118574063", 10);
+
+    curve->field = &K163_FIELD;
+    curve->g = &K163_G;
+
+    return curve;
+}
+
+CurveZZ_pX * buildK233() {
+    CurveZZ_pX * curve = (CurveZZ_pX *)malloc(sizeof(CurveZZ_pX));
+
+    mpz_init_set_ui(curve->a, 0);
+    mpz_init_set_ui(curve->b, 1);
+    mpz_init_set_str(curve->q, "3450873173395281893717377931138512760570940988862252126328087024741343", 10);
+
+    curve->field = &K233_FIELD;
+    curve->g = &K233_G;
+
+    return curve;
+}

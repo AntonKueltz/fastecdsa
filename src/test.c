@@ -127,9 +127,50 @@ void secp256k1Test(void) {
     mpz_clears(d, r.x, r.y, NULL);
 }
 
+void k163Test(void) {
+    mpz_t k, x, y;
+    mpz_inits(x, y, NULL);
+    mpz_init_set_str(k, "2854409634255779570371480294187805694377328639", 10);
+
+    CurveZZ_pX * k163 = buildK163();
+    uint32_t * qx = (uint32_t *)calloc(k163->field->words, sizeof(uint32_t));
+    uint32_t * qy = (uint32_t *)calloc(k163->field->words, sizeof(uint32_t));
+    uint32_t * qz = (uint32_t *)calloc(k163->field->words, sizeof(uint32_t));
+    PointZZ_pX Q = {.x = qx, .y = qy, .z = qz};
+
+    pointZZ_pXMul(&Q, k163->g, k, k163);
+    normalizePointZZ_pX(x, y, &Q, k163->field);
+    gmp_printf("0x%ZX\n0x%ZX\n", x, y);
+
+    free(qx); free(qy); free(qz);
+    destroyCurveZZ_pX(k163);
+    mpz_clears(k, x, y, NULL);
+}
+
+void k233Test(void) {
+    mpz_t k, x, y;
+    mpz_inits(x, y, NULL);
+    mpz_init_set_str(k, "3558661949422509798906317152333164942344057847777634287642572963676160", 10);
+
+    CurveZZ_pX * k233 = buildK233();
+    uint32_t * qx = (uint32_t *)calloc(k233->field->words, sizeof(uint32_t));
+    uint32_t * qy = (uint32_t *)calloc(k233->field->words, sizeof(uint32_t));
+    uint32_t * qz = (uint32_t *)calloc(k233->field->words, sizeof(uint32_t));
+    PointZZ_pX Q = {.x = qx, .y = qy, .z = qz};
+
+    pointZZ_pXMul(&Q, k233->g, k, k233);
+    normalizePointZZ_pX(x, y, &Q, k233->field);
+    gmp_printf("0x%ZX\n0x%ZX\n", x, y);
+
+    free(qx); free(qy); free(qz);
+    destroyCurveZZ_pX(k233);
+    mpz_clears(k, x, y, NULL);
+}
 
 int main(int argc, char * argv[]) {
-    ecdsaTest();
-    secp256k1Test();
+    // printf("[K163]\n");
+    // k163Test();
+    printf("\n[K233]\n");
+    k233Test();
     return 0;
 }
