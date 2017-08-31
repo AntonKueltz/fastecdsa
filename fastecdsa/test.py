@@ -1,5 +1,7 @@
 from hashlib import sha1, sha224, sha256, sha384, sha512
 from random import choice, randint
+from re import findall, DOTALL
+from six.moves.urllib.request import urlopen
 import unittest
 
 from .curve import P192, P224, P256, P384, P521, secp256k1
@@ -272,80 +274,167 @@ class TestPrimeFieldECDSA(unittest.TestCase):
 
 
 class TestP192ECDSA(unittest.TestCase):
-    """ taken from https://tools.ietf.org/html/rfc6979#appendix-A.2.3 """
-    q = 0xFFFFFFFFFFFFFFFFFFFFFFFF99DEF836146BC9B1B4D22831
-    x = 0x6FAB034934E4C0FC9AE67F5B5659A9D7D1FEFD187EE09FD4
-    U = Point(
-        0xAC2C77F529F91689FEA0EA5EFEC7F210D8EEA0B9E047ED56,
-        0x3BC723E57670BD4887EBC732C523063D0A7C957BC97C1C43,
-        curve=P192
-    )
+    def test_rfc6979(self):
+        text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read()
+        curve_tests = findall(r'curve: NIST P-192(.*)curve: NIST P-224', text, flags=DOTALL)[0]
 
-    def test_sample_message(self):
-        msg = 'sample'
+        q = int(findall(r'q = ([0-9A-F]*)', curve_tests)[0], 16)
+        x = int(findall(r'x = ([0-9A-F]*)', curve_tests)[0], 16)
 
-        k = 0x37D7CA00D2C7B0E5E412AC03BD44BA837FDD5B28CD3B0021
-        r = 0x98C6BD12B23EAF5E2A2045132086BE3EB8EBD62ABF6698FF
-        s = 0x57A22B07DEA9530F8DE9471B1DC6624472E8E2844BC25B64
-        self.assertEqual(k, RFC6979(msg, self.x, self.q, sha1).gen_nonce())
-        self.assertEqual((r, s), sign(msg, self.x, curve=P192, hashfunc=sha1))
+        test_regex = r'With SHA-(\d+), message = "([a-zA-Z]*)":\n' \
+                     r'\s*k = ([0-9A-F]*)\n' \
+                     r'\s*r = ([0-9A-F]*)\n' \
+                     r'\s*s = ([0-9A-F]*)\n'
 
-        k = 0x4381526B3FC1E7128F202E194505592F01D5FF4C5AF015D8
-        r = 0xA1F00DAD97AEEC91C95585F36200C65F3C01812AA60378F5
-        s = 0xE07EC1304C7C6C9DEBBE980B9692668F81D4DE7922A0F97A
-        self.assertEqual(k, RFC6979(msg, self.x, self.q, sha224).gen_nonce())
-        self.assertEqual((r, s), sign(msg, self.x, curve=P192, hashfunc=sha224))
+        hash_lookup = {
+            '1': sha1,
+            '224': sha224,
+            '256': sha256,
+            '384': sha384,
+            '512': sha512
+        }
 
-        k = 0x32B1B6D7D42A05CB449065727A84804FB1A3E34D8F261496
-        r = 0x4B0B8CE98A92866A2820E20AA6B75B56382E0F9BFD5ECB55
-        s = 0xCCDB006926EA9565CBADC840829D8C384E06DE1F1E381B85
-        self.assertEqual(k, RFC6979(msg, self.x, self.q, sha256).gen_nonce())
-        self.assertEqual((r, s), sign(msg, self.x, curve=P192, hashfunc=sha256))
+        for test in findall(test_regex, curve_tests):
+            h = hash_lookup[test[0]]
+            msg = test[1]
+            k = int(test[2], 16)
+            r = int(test[3], 16)
+            s = int(test[4], 16)
 
-        k = 0x4730005C4FCB01834C063A7B6760096DBE284B8252EF4311
-        r = 0xDA63BF0B9ABCF948FBB1E9167F136145F7A20426DCC287D5
-        s = 0xC3AA2C960972BD7A2003A57E1C4C77F0578F8AE95E31EC5E
-        self.assertEqual(k, RFC6979(msg, self.x, self.q, sha384).gen_nonce())
-        self.assertEqual((r, s), sign(msg, self.x, curve=P192, hashfunc=sha384))
+            self.assertEqual(k, RFC6979(msg, x, q, h).gen_nonce())
+            self.assertEqual((r, s), sign(msg, x, curve=P192, hashfunc=h))
 
-        k = 0xA2AC7AB055E4F20692D49209544C203A7D1F2C0BFBC75DB1
-        r = 0x4D60C5AB1996BD848343B31C00850205E2EA6922DAC2E4B8
-        s = 0x3F6E837448F027A1BF4B34E796E32A811CBB4050908D8F67
-        self.assertEqual(k, RFC6979(msg, self.x, self.q, sha512).gen_nonce())
-        self.assertEqual((r, s), sign(msg, self.x, curve=P192, hashfunc=sha512))
 
-    def test_test_message(self):
-        msg = 'test'
+class TestP224ECDSA(unittest.TestCase):
+    def test_rfc6979(self):
+        text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read()
+        curve_tests = findall(r'curve: NIST P-224(.*)curve: NIST P-256', text, flags=DOTALL)[0]
 
-        k = 0xD9CF9C3D3297D3260773A1DA7418DB5537AB8DD93DE7FA25
-        r = 0x0F2141A0EBBC44D2E1AF90A50EBCFCE5E197B3B7D4DE036D
-        s = 0xEB18BC9E1F3D7387500CB99CF5F7C157070A8961E38700B7
-        self.assertEqual(k, RFC6979(msg, self.x, self.q, sha1).gen_nonce())
-        self.assertEqual((r, s), sign(msg, self.x, curve=P192, hashfunc=sha1))
+        q = int(findall(r'q = ([0-9A-F]*)', curve_tests)[0], 16)
+        x = int(findall(r'x = ([0-9A-F]*)', curve_tests)[0], 16)
 
-        k = 0xF5DC805F76EF851800700CCE82E7B98D8911B7D510059FBE
-        r = 0x6945A1C1D1B2206B8145548F633BB61CEF04891BAF26ED34
-        s = 0xB7FB7FDFC339C0B9BD61A9F5A8EAF9BE58FC5CBA2CB15293
-        self.assertEqual(k, RFC6979(msg, self.x, self.q, sha224).gen_nonce())
-        self.assertEqual((r, s), sign(msg, self.x, curve=P192, hashfunc=sha224))
+        test_regex = r'With SHA-(\d+), message = "([a-zA-Z]*)":\n' \
+                     r'\s*k = ([0-9A-F]*)\n' \
+                     r'\s*r = ([0-9A-F]*)\n' \
+                     r'\s*s = ([0-9A-F]*)\n'
 
-        k = 0x5C4CE89CF56D9E7C77C8585339B006B97B5F0680B4306C6C
-        r = 0x3A718BD8B4926C3B52EE6BBE67EF79B18CB6EB62B1AD97AE
-        s = 0x5662E6848A4A19B1F1AE2F72ACD4B8BBE50F1EAC65D9124F
-        self.assertEqual(k, RFC6979(msg, self.x, self.q, sha256).gen_nonce())
-        self.assertEqual((r, s), sign(msg, self.x, curve=P192, hashfunc=sha256))
+        hash_lookup = {
+            '1': sha1,
+            '224': sha224,
+            '256': sha256,
+            '384': sha384,
+            '512': sha512
+        }
 
-        k = 0x5AFEFB5D3393261B828DB6C91FBC68C230727B030C975693
-        r = 0xB234B60B4DB75A733E19280A7A6034BD6B1EE88AF5332367
-        s = 0x7994090B2D59BB782BE57E74A44C9A1C700413F8ABEFE77A
-        self.assertEqual(k, RFC6979(msg, self.x, self.q, sha384).gen_nonce())
-        self.assertEqual((r, s), sign(msg, self.x, curve=P192, hashfunc=sha384))
+        for test in findall(test_regex, curve_tests):
+            h = hash_lookup[test[0]]
+            msg = test[1]
+            k = int(test[2], 16)
+            r = int(test[3], 16)
+            s = int(test[4], 16)
 
-        k = 0x0758753A5254759C7CFBAD2E2D9B0792EEE44136C9480527
-        r = 0xFE4F4AE86A58B6507946715934FE2D8FF9D95B6B098FE739
-        s = 0x74CF5605C98FBA0E1EF34D4B5A1577A7DCF59457CAE52290
-        self.assertEqual(k, RFC6979(msg, self.x, self.q, sha512).gen_nonce())
-        self.assertEqual((r, s), sign(msg, self.x, curve=P192, hashfunc=sha512))
+            self.assertEqual(k, RFC6979(msg, x, q, h).gen_nonce())
+            self.assertEqual((r, s), sign(msg, x, curve=P224, hashfunc=h))
+
+
+class TestP256ECDSA(unittest.TestCase):
+    def test_rfc6979(self):
+        text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read()
+        curve_tests = findall(r'curve: NIST P-256(.*)curve: NIST P-384', text, flags=DOTALL)[0]
+
+        q = int(findall(r'q = ([0-9A-F]*)', curve_tests)[0], 16)
+        x = int(findall(r'x = ([0-9A-F]*)', curve_tests)[0], 16)
+
+        test_regex = r'With SHA-(\d+), message = "([a-zA-Z]*)":\n' \
+                     r'\s*k = ([0-9A-F]*)\n' \
+                     r'\s*r = ([0-9A-F]*)\n' \
+                     r'\s*s = ([0-9A-F]*)\n'
+
+        hash_lookup = {
+            '1': sha1,
+            '224': sha224,
+            '256': sha256,
+            '384': sha384,
+            '512': sha512
+        }
+
+        for test in findall(test_regex, curve_tests):
+            h = hash_lookup[test[0]]
+            msg = test[1]
+            k = int(test[2], 16)
+            r = int(test[3], 16)
+            s = int(test[4], 16)
+
+            self.assertEqual(k, RFC6979(msg, x, q, h).gen_nonce())
+            self.assertEqual((r, s), sign(msg, x, curve=P256, hashfunc=h))
+
+
+class TestP384ECDSA(unittest.TestCase):
+    def test_rfc6979(self):
+        text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read()
+        curve_tests = findall(r'curve: NIST P-384(.*)curve: NIST P-521', text, flags=DOTALL)[0]
+
+        q_parts = findall(r'q = ([0-9A-F]*)\n\s*([0-9A-F]*)', curve_tests)[0]
+        q = int(q_parts[0] + q_parts[1], 16)
+        x_parts = findall(r'x = ([0-9A-F]*)\n\s*([0-9A-F]*)', curve_tests)[0]
+        x = int(x_parts[0] + x_parts[1], 16)
+
+        test_regex = r'With SHA-(\d+), message = "([a-zA-Z]*)":\n' \
+                     r'\s*k = ([0-9A-F]*)\n\s*([0-9A-F]*)\n' \
+                     r'\s*r = ([0-9A-F]*)\n\s*([0-9A-F]*)\n' \
+                     r'\s*s = ([0-9A-F]*)\n\s*([0-9A-F]*)\n'
+
+        hash_lookup = {
+            '1': sha1,
+            '224': sha224,
+            '256': sha256,
+            '384': sha384,
+            '512': sha512
+        }
+
+        for test in findall(test_regex, curve_tests):
+            h = hash_lookup[test[0]]
+            msg = test[1]
+            k = int(test[2] + test[3], 16)
+            r = int(test[4] + test[5], 16)
+            s = int(test[6] + test[7], 16)
+
+            self.assertEqual(k, RFC6979(msg, x, q, h).gen_nonce())
+            self.assertEqual((r, s), sign(msg, x, curve=P384, hashfunc=h))
+
+
+class TestP521ECDSA(unittest.TestCase):
+    def test_rfc6979(self):
+        text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read()
+        curve_tests = findall(r'curve: NIST P-521(.*)curve: NIST K-163', text, flags=DOTALL)[0]
+
+        q_parts = findall(r'q = ([0-9A-F]*)\n\s*([0-9A-F]*)\n\s*([0-9A-F]*)', curve_tests)[0]
+        q = int(q_parts[0] + q_parts[1] + q_parts[2], 16)
+        x_parts = findall(r'x = ([0-9A-F]*)\n\s*([0-9A-F]*)\n\s*([0-9A-F]*)', curve_tests)[0]
+        x = int(x_parts[0] + x_parts[1] + x_parts[2], 16)
+
+        test_regex = r'With SHA-(\d+), message = "([a-zA-Z]*)":\n' \
+                     r'\s*k = ([0-9A-F]*)\n\s*([0-9A-F]*)\n\s*([0-9A-F]*)\n' \
+                     r'\s*r = ([0-9A-F]*)\n\s*([0-9A-F]*)\n\s*([0-9A-F]*)\n' \
+                     r'\s*s = ([0-9A-F]*)\n\s*([0-9A-F]*)\n\s*([0-9A-F]*)\n'
+
+        hash_lookup = {
+            '1': sha1,
+            '224': sha224,
+            '256': sha256,
+            '384': sha384,
+            '512': sha512
+        }
+
+        for test in findall(test_regex, curve_tests):
+            h = hash_lookup[test[0]]
+            msg = test[1]
+            k = int(test[2] + test[3] + test[4], 16)
+            r = int(test[5] + test[6] + test[7], 16)
+            s = int(test[8] + test[9] + test[10], 16)
+
+            self.assertEqual(k, RFC6979(msg, x, q, h).gen_nonce())
+            self.assertEqual((r, s), sign(msg, x, curve=P521, hashfunc=h))
 
 
 if __name__ == '__main__':
