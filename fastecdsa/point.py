@@ -80,7 +80,7 @@ class Point:
             fastecdsa.point.Point: A point :math:`R` such that :math:`R = P * d`
         """
         try:
-            d = int(scalar)
+            d = int(scalar) % self.curve.q
         except ValueError:
             raise TypeError('Curve point multiplication must be by an integer')
         else:
