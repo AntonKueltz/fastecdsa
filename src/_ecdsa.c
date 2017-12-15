@@ -66,23 +66,15 @@ int verifyZZ_p(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve) {
  PYTHON BINDINGS
  ******************************************************************************/
 static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
-    char * msg, * d, * k, * curveName;
+    char * msg, * d, * k, * p, * a, * b, * q, * gx, * gy;
 
-    if (!PyArg_ParseTuple(args, "ssss", &msg, &d, &k, &curveName)) {
+    if (!PyArg_ParseTuple(args, "sssssssss", &msg, &d, &k, &p, &a, &b, &q, &gx, &gy)) {
         return NULL;
     }
 
     mpz_t privKey, nonce;
-    CurveZZ_p * curve;
+    CurveZZ_p * curve = buildCurveZZ_p(p, a, b, q, gx, gy, 10);
     Sig sig;
-
-    if(strcmp(curveName, "P192") == 0) { curve = buildP192(); }
-    else if(strcmp(curveName, "P224") == 0) { curve = buildP224(); }
-    else if(strcmp(curveName, "P256") == 0) { curve = buildP256(); }
-    else if(strcmp(curveName, "P384") == 0) { curve = buildP384(); }
-    else if(strcmp(curveName, "P521") == 0) { curve = buildP521(); }
-    else if(strcmp(curveName, "secp256k1") == 0) { curve = buildSecp256k1(); }
-    else { return NULL; }
 
     mpz_init_set_str(privKey, d, 10);
     mpz_init_set_str(nonce, k, 10);
@@ -102,9 +94,9 @@ static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
 
 
 static PyObject * _ecdsa_verify(PyObject *self, PyObject *args) {
-    char * r, * s, * msg, * qx, * qy, * curveName;
+    char * r, * s, * msg, * qx, * qy, * p, * a, * b, * q, * gx, * gy;
 
-    if (!PyArg_ParseTuple(args, "ssssss", &r, &s, &msg, &qx, &qy, &curveName)) {
+    if (!PyArg_ParseTuple(args, "sssssssssss", &r, &s, &msg, &qx, &qy, &p, &a, &b, &q, &gx, &gy)) {
         return NULL;
     }
 
@@ -112,16 +104,8 @@ static PyObject * _ecdsa_verify(PyObject *self, PyObject *args) {
     mpz_init_set_str(sig.r, r, 10);
     mpz_init_set_str(sig.s, s, 10);
 
-    CurveZZ_p * curve;
+    CurveZZ_p * curve = buildCurveZZ_p(p, a, b, q, gx, gy, 10);
     int valid = 0;
-
-    if(strcmp(curveName, "P192") == 0) { curve = buildP192(); }
-    else if(strcmp(curveName, "P224") == 0) { curve = buildP224(); }
-    else if(strcmp(curveName, "P256") == 0) { curve = buildP256(); }
-    else if(strcmp(curveName, "P384") == 0) { curve = buildP384(); }
-    else if(strcmp(curveName, "P521") == 0) { curve = buildP521(); }
-    else if(strcmp(curveName, "secp256k1") == 0) { curve = buildSecp256k1(); }
-    else { return NULL; }
 
     PointZZ_p * Q = buildPointZZ_p(qx, qy, 10);
     valid = verifyZZ_p(&sig, msg, Q, curve);

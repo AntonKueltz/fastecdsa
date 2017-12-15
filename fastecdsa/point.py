@@ -39,8 +39,18 @@ class Point:
         if self.curve is not other.curve:
             raise CurveMismatchError(self.curve, other.curve)
         else:
-            x, y = curvemath.add(str(self.x), str(self.y), str(other.x), str(other.y),
-                                 self.curve.name)
+            x, y = curvemath.add(
+                str(self.x),
+                str(self.y),
+                str(other.x),
+                str(other.y),
+                str(self.curve.p),
+                str(self.curve.a),
+                str(self.curve.b),
+                str(self.curve.q),
+                str(self.curve.gx),
+                str(self.curve.gy)
+            )
             return Point(int(x), int(y), self.curve)
 
     def __radd__(self, other):
@@ -84,7 +94,17 @@ class Point:
         except ValueError:
             raise TypeError('Curve point multiplication must be by an integer')
         else:
-            x, y = curvemath.mul(str(self.x), str(self.y), str(d), self.curve.name)
+            x, y = curvemath.mul(
+                str(self.x),
+                str(self.y),
+                str(d),
+                str(self.curve.p),
+                str(self.curve.a),
+                str(self.curve.b),
+                str(self.curve.q),
+                str(self.curve.gx),
+                str(self.curve.gy)
+            )
             return Point(int(x), int(y), self.curve)
 
     def __rmul__(self, scalar):

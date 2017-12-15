@@ -29,7 +29,17 @@ def sign(msg, d, curve=P256, hashfunc=sha256):
     k = rfc6979.gen_nonce()
 
     hashed = hashfunc(msg.encode()).hexdigest()
-    r, s = _ecdsa.sign(hashed, str(d), str(k), curve.name)
+    r, s = _ecdsa.sign(
+        hashed,
+        str(d),
+        str(k),
+        str(curve.p),
+        str(curve.a),
+        str(curve.b),
+        str(curve.q),
+        str(curve.gx),
+        str(curve.gy)
+    )
     return (int(r), int(s))
 
 
@@ -68,4 +78,16 @@ def verify(sig, msg, Q, curve=P256, hashfunc=sha256):
             'Invalid Signature: s is not a positive integer smaller than the curve order')
 
     hashed = hashfunc(msg.encode()).hexdigest()
-    return _ecdsa.verify(str(r), str(s), hashed, str(Q.x), str(Q.y), curve.name)
+    return _ecdsa.verify(
+        str(r),
+        str(s),
+        hashed,
+        str(Q.x),
+        str(Q.y),
+        str(curve.p),
+        str(curve.a),
+        str(curve.b),
+        str(curve.q),
+        str(curve.gx),
+        str(curve.gy)
+    )
