@@ -12,7 +12,7 @@ class Curve:
         |  name (string): The name of the curve
         |  p (long): The value of :math:`p` in the curve equation.
         |  a (long): The value of :math:`a` in the curve equation.
-        |  b (long): The value of :math:`a` in the curve equation.
+        |  b (long): The value of :math:`b` in the curve equation.
         |  q (long): The order of the base point of the curve.
         |  oid (long): The object identifier of the curve.
     """
@@ -31,7 +31,7 @@ class Curve:
             |  name (string): The name of the curve
             |  p (long): The value of :math:`p` in the curve equation.
             |  a (long): The value of :math:`a` in the curve equation.
-            |  b (long): The value of :math:`a` in the curve equation.
+            |  b (long): The value of :math:`b` in the curve equation.
             |  q (long): The order of the base point of the curve.
             |  gx (long): The x coordinate of the base point of the curve.
             |  gy (long): The y coordinate of the base point of the curve.

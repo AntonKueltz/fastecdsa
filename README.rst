@@ -37,6 +37,28 @@ Curves over Prime Fields
 * P521 (:code:`fastecdsa.curve.P521`)
 * secp256k1 (bitcoin curve) (:code:`fastecdsa.curve.secp256k1`)
 
+Arbitrary Curves
+~~~~~~~~~~~~~~~~
+As of version 1.5.1 construction of arbitrary curves in Weierstrass form
+(:code:`y^2 = x^3 + ax + b (mod p)`) is supported. I advise against using custom curves for any
+security critical applications. It's up to you to make sure that the parameters you pass here are
+correct, no validation of the base point is done, and in general no sanity checks are done. Use
+at your own risk.
+
+.. code:: python
+
+    from fastecdsa.curve import Curve
+    curve = Curve(
+        name,  # (str): The name of the curve
+        p,  # (long): The value of p in the curve equation.
+        a,  # (long): The value of a in the curve equation.
+        b,  # (long): The value of b in the curve equation.
+        q,  # (long): The order of the base point of the curve.
+        gx,  # (long): The x coordinate of the base point of the curve.
+        gy,  # (long): The y coordinate of the base point of the curve.
+        oid  # (str): The object identifier of the curve (optional).
+    )
+
 Hash Functions
 ~~~~~~~~~~~~~~
 Any hash function in the :code:`hashlib` module (:code:`md5, sha1, sha224, sha256, sha384, sha512`)
