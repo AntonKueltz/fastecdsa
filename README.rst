@@ -4,6 +4,8 @@ fastecdsa
     :target: https://travis-ci.org/AntonKueltz/fastecdsa
 .. image:: https://badge.fury.io/py/fastecdsa.svg
     :target: https://badge.fury.io/py/fastecdsa
+    
+.. contents::
 
 About
 -----
