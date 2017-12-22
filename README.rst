@@ -85,9 +85,14 @@ As you can see, this package in this case is ~25x faster.
 
 Benchmarking
 ~~~~~~~~~~~~
-If you'd like to benchmark performance on your machine you can do so using the command
-:code:`python setup.py benchmark`. This will use the :code:`timeit` module to benchmark 1000
-signature and verification operations for each curve supported by this package.
+If you'd like to benchmark performance on your machine you can do so using the command:
+
+.. code:: bash
+
+    $ python setup.py benchmark
+
+This will use the :code:`timeit` module to benchmark 1000 signature and verification operations
+for each curve supported by this package.
 
 Installing
 ----------
