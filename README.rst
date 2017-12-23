@@ -32,19 +32,36 @@ Supported Primitives
 --------------------
 Curves over Prime Fields
 ~~~~~~~~~~~~~~~~~~~~~~~~
-* P192 (:code:`fastecdsa.curve.P192`) (NIST / NSA)
-* P224 (:code:`fastecdsa.curve.P224`) (NIST / NSA)
-* P256 (:code:`fastecdsa.curve.P256`) (NIST / NSA)
-* P384 (:code:`fastecdsa.curve.P384`) (NIST / NSA)
-* P521 (:code:`fastecdsa.curve.P521`) (NIST / NSA)
-* secp256k1 (bitcoin curve) (:code:`fastecdsa.curve.secp256k1`) (Certicom)
-* brainpoolP160r1 (:code:`fastecdsa.curve.brainpoolP160r1`) (BSI)
-* brainpoolP192r1 (:code:`fastecdsa.curve.brainpoolP192r1`) (BSI)
-* brainpoolP224r1 (:code:`fastecdsa.curve.brainpoolP224r1`) (BSI)
-* brainpoolP256r1 (:code:`fastecdsa.curve.brainpoolP256r1`) (BSI)
-* brainpoolP320r1 (:code:`fastecdsa.curve.brainpoolP320r1`) (BSI)
-* brainpoolP384r1 (:code:`fastecdsa.curve.brainpoolP384r1`) (BSI)
-* brainpoolP512r1 (:code:`fastecdsa.curve.brainpoolP512r1`) (BSI)
+
++---------------------------+-----------------------------------------+-------------+
+| Name                      | Class                                   | Proposed By |
++===========================+=========================================+=============+
+| P192                      | :code:`fastecdsa.curve.P192`            | NIST / NSA  |
++---------------------------+-----------------------------------------+-------------+
+| P224                      | :code:`fastecdsa.curve.P224`            | NIST / NSA  |
++---------------------------+-----------------------------------------+-------------+
+| P256                      | :code:`fastecdsa.curve.P256`            | NIST / NSA  |
++---------------------------+-----------------------------------------+-------------+
+| P384                      | :code:`fastecdsa.curve.P384`            | NIST / NSA  |
++---------------------------+-----------------------------------------+-------------+
+| P521                      | :code:`fastecdsa.curve.P521`            | NIST / NSA  |
++---------------------------+-----------------------------------------+-------------+
+| secp256k1 (bitcoin curve) | :code:`fastecdsa.curve.secp256k1`       | Certicom    |
++---------------------------+-----------------------------------------+-------------+
+| brainpoolP160r1           | :code:`fastecdsa.curve.brainpoolP160r1` | BSI         |
++---------------------------+-----------------------------------------+-------------+
+| brainpoolP192r1           | :code:`fastecdsa.curve.brainpoolP192r1` | BSI         |
++---------------------------+-----------------------------------------+-------------+
+| brainpoolP224r1           | :code:`fastecdsa.curve.brainpoolP224r1` | BSI         |
++---------------------------+-----------------------------------------+-------------+
+| brainpoolP256r1           | :code:`fastecdsa.curve.brainpoolP256r1` | BSI         |
++---------------------------+-----------------------------------------+-------------+
+| brainpoolP320r1           | :code:`fastecdsa.curve.brainpoolP320r1` | BSI         |
++---------------------------+-----------------------------------------+-------------+
+| brainpoolP384r1           | :code:`fastecdsa.curve.brainpoolP384r1` | BSI         |
++---------------------------+-----------------------------------------+-------------+
+| brainpoolP512r1           | :code:`fastecdsa.curve.brainpoolP512r1` | BSI         |
++---------------------------+-----------------------------------------+-------------+
 
 Arbitrary Curves
 ~~~~~~~~~~~~~~~~
