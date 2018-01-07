@@ -1,7 +1,10 @@
 build/
 dist/
 venv*/
+.*/
+
 ecdsa
+
 *.o
 *.pyc
 *.so

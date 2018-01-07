@@ -119,3 +119,14 @@ class Point:
             fastecdsa.point.Point: A point :math:`R` such that :math:`R = d * P`
         """
         return self.__mul__(scalar)
+
+    def __neg__(self):
+        """Return the negation of a :class:`Point` i.e. the points reflection over the x-axis.
+
+        Args:
+            | self (fastecdsa.point.Point): a point :math:`P` on the curve
+
+        Returns:
+            fastecdsa.point.Point: A point :math:`R = (P_x, -P_y)`
+        """
+        return Point(self.x, -self.y % self.curve.p, self.curve) 
