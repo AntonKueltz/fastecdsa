@@ -129,4 +129,4 @@ class Point:
         Returns:
             fastecdsa.point.Point: A point :math:`R = (P_x, -P_y)`
         """
-        return Point(self.x, -self.y % self.curve.p, self.curve) 
+        return Point(self.x, -self.y % self.curve.p, self.curve)
