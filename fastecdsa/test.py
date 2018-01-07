@@ -5,7 +5,8 @@ from six.moves.urllib.request import urlopen
 import unittest
 
 from .curve import (
-    P192, P224, P256, P384, P521, secp256k1, brainpoolP256r1, brainpoolP384r1, brainpoolP512r1
+    P192, P224, P256, P384, P521, secp192k1, secp224k1, secp256k1, brainpoolP256r1, brainpoolP384r1,
+    brainpoolP512r1
 )
 from .ecdsa import sign, verify
 from .point import Point
@@ -148,7 +149,10 @@ class TestPrimeFieldCurve(unittest.TestCase):
         self.assertEqual(R, expected)
 
     def test_arbitrary_arithmetic(self):
-        curves = [P192, P224, P256, P384, P521, secp256k1]
+        curves = [
+            P192, P224, P256, P384, P521, secp192k1, secp224k1, secp256k1, brainpoolP256r1,
+            brainpoolP384r1, brainpoolP512r1
+        ]
 
         for _ in range(100):
             curve = choice(curves)
