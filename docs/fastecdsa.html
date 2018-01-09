@@ -1,0 +1,298 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>fastecdsa &#8212; fastecdsa 1.2.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">fastecdsa 1.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="fastecdsa">
+<h1>fastecdsa<a class="headerlink" href="#fastecdsa" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-fastecdsa.curve">
+<span id="fastecdsa-curve"></span><h2>fastecdsa.curve<a class="headerlink" href="#module-fastecdsa.curve" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fastecdsa.curve.Curve">
+<em class="property">class </em><code class="descclassname">fastecdsa.curve.</code><code class="descname">Curve</code><span class="sig-paren">(</span><em>name</em>, <em>p</em>, <em>a</em>, <em>b</em>, <em>q</em>, <em>gx</em>, <em>gy</em>, <em>oid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#fastecdsa.curve.Curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Representation of an elliptic curve.</p>
+<p>Defines a group for  the arithmetic operations of point addition and scalar multiplication.
+Currently only curves defined via the equation <span class="math">\(y^2 \equiv x^3 + ax + b \pmod{p}\)</span> are
+supported.</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd><div class="first last line-block">
+<div class="line">name (string): The name of the curve</div>
+<div class="line">p (long): The value of <span class="math">\(p\)</span> in the curve equation.</div>
+<div class="line">a (long): The value of <span class="math">\(a\)</span> in the curve equation.</div>
+<div class="line">b (long): The value of <span class="math">\(b\)</span> in the curve equation.</div>
+<div class="line">q (long): The order of the base point of the curve.</div>
+<div class="line">oid (long): The object identifier of the curve.</div>
+</div>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="fastecdsa.curve.Curve.G">
+<code class="descname">G</code><a class="headerlink" href="#fastecdsa.curve.Curve.G" title="Permalink to this definition">¶</a></dt>
+<dd><p>The base point of the curve.</p>
+<p>For the purposes of ECDSA this point is multiplied by a private key to obtain the
+corresponding public key. Make a property to avoid cyclic dependency of Point on Curve
+(a point lies on a curve) and Curve on Point (curves have a base point).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fastecdsa.curve.Curve.is_point_on_curve">
+<code class="descname">is_point_on_curve</code><span class="sig-paren">(</span><em>P</em><span class="sig-paren">)</span><a class="headerlink" href="#fastecdsa.curve.Curve.is_point_on_curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a point lies on this curve.</p>
+<p>The check is done by evaluating the curve equation <span class="math">\(y^2 \equiv x^3 + ax + b \pmod{p}\)</span>
+at the given point <span class="math">\((x,y)\)</span> with this curve&#8217;s domain parameters <span class="math">\((a, b, p)\)</span>. If
+the congruence holds, then the point lies on this curve.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>P (long, long): A tuple representing the point <span class="math">\(P\)</span> as an <span class="math">\((x, y)\)</span> coordinate
+pair.</dd>
+<dt>Returns:</dt>
+<dd>bool: <code class="code docutils literal"><span class="pre">True</span></code> if the point lies on this curve, otherwise <code class="code docutils literal"><span class="pre">False</span></code>.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fastecdsa.ecdsa">
+<span id="fastecdsa-ecdsa"></span><h2>fastecdsa.ecdsa<a class="headerlink" href="#module-fastecdsa.ecdsa" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fastecdsa.ecdsa.sign">
+<code class="descclassname">fastecdsa.ecdsa.</code><code class="descname">sign</code><span class="sig-paren">(</span><em>msg</em>, <em>d</em>, <em>curve=P256</em>, <em>hashfunc=&lt;built-in function openssl_sha256&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#fastecdsa.ecdsa.sign" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sign a message using the elliptic curve digital signature algorithm.</p>
+<p>The elliptic curve signature algorithm is described in full in FIPS 186-4 Section 6. Please
+refer to <a class="reference external" href="http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf">http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf</a> for more information.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">msg (str): A message to be signed.</div>
+<div class="line">d (long): The ECDSA private key of the signer.</div>
+<div class="line">curve (fastecdsa.curve.Curve): The curve to be used to sign the message.</div>
+<div class="line">hashfunc (_hashlib.HASH): The hash function used to compress the message.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fastecdsa.ecdsa.verify">
+<code class="descclassname">fastecdsa.ecdsa.</code><code class="descname">verify</code><span class="sig-paren">(</span><em>sig</em>, <em>msg</em>, <em>Q</em>, <em>curve=P256</em>, <em>hashfunc=&lt;built-in function openssl_sha256&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#fastecdsa.ecdsa.verify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify a message signature using the elliptic curve digital signature algorithm.</p>
+<p>The elliptic curve signature algorithm is described in full in FIPS 186-4 Section 6. Please
+refer to <a class="reference external" href="http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf">http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf</a> for more information.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">sig (long, long): The signature for the message.</div>
+<div class="line">msg (str): A message to be signed.</div>
+<div class="line">Q (fastecdsa.point.Point): The ECDSA public key of the signer.</div>
+<div class="line">curve (fastecdsa.curve.Curve): The curve to be used to sign the message.</div>
+<div class="line">hashfunc (_hashlib.HASH): The hash function used to compress the message.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd>bool: True if the signature is valid, False otherwise.</dd>
+<dt>Raises:</dt>
+<dd><dl class="first last docutils">
+<dt>fastecdsa.ecdsa.EcdsaError: If the signature or public key are invalid. Invalid signature</dt>
+<dd>in this case means that it has values less than 1 or greater than the curve order.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fastecdsa.keys">
+<span id="fastecdsa-keys"></span><h2>fastecdsa.keys<a class="headerlink" href="#module-fastecdsa.keys" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fastecdsa.keys.gen_keypair">
+<code class="descclassname">fastecdsa.keys.</code><code class="descname">gen_keypair</code><span class="sig-paren">(</span><em>curve</em><span class="sig-paren">)</span><a class="headerlink" href="#fastecdsa.keys.gen_keypair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a keypair that consists of a private key and a public key.</p>
+<p>The private key <span class="math">\(d\)</span> is an integer generated via a cryptographically secure random number
+generator that lies in the range <span class="math">\([1,n)\)</span>, where <span class="math">\(n\)</span> is the curve order. The public
+key <span class="math">\(Q\)</span> is a point on the curve calculated as <span class="math">\(Q = dG\)</span>, where <span class="math">\(G\)</span> is the
+curve&#8217;s base point.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>curve (fastecdsa.curve.Curve): The curve over which the keypair will be calulated.</dd>
+<dt>Returns:</dt>
+<dd>long, fastecdsa.point.Point: Returns a tuple with the private key first and public key
+second.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fastecdsa.keys.gen_private_key">
+<code class="descclassname">fastecdsa.keys.</code><code class="descname">gen_private_key</code><span class="sig-paren">(</span><em>curve</em><span class="sig-paren">)</span><a class="headerlink" href="#fastecdsa.keys.gen_private_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a private key to sign data with.</p>
+<p>The private key <span class="math">\(d\)</span> is an integer generated via a cryptographically secure random number
+generator that lies in the range <span class="math">\([1,n)\)</span>, where <span class="math">\(n\)</span> is the curve order. The specific
+random number generator used is /dev/urandom.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>curve (fastecdsa.curve.Curve): The curve over which the key will be calulated.</dd>
+<dt>Returns:</dt>
+<dd>long: Returns a positive integer smaller than the curve order.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fastecdsa.keys.get_public_key">
+<code class="descclassname">fastecdsa.keys.</code><code class="descname">get_public_key</code><span class="sig-paren">(</span><em>d</em>, <em>curve</em><span class="sig-paren">)</span><a class="headerlink" href="#fastecdsa.keys.get_public_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a public key from a private key.</p>
+<p>The public key <span class="math">\(Q\)</span> is a point on the curve calculated as <span class="math">\(Q = dG\)</span>, where <span class="math">\(d\)</span>
+is the private key and <span class="math">\(G\)</span> is the curve&#8217;s base point.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">d (long): An integer representing the private key.</div>
+<div class="line">curve (fastecdsa.curve.Curve): The curve over which the key will be calulated.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd>fastecdsa.point.Point: The public key, a point on the given curve.``</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fastecdsa.util">
+<span id="fastecdsa-util"></span><h2>fastecdsa.util<a class="headerlink" href="#module-fastecdsa.util" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fastecdsa.util.RFC6979">
+<em class="property">class </em><code class="descclassname">fastecdsa.util.</code><code class="descname">RFC6979</code><span class="sig-paren">(</span><em>msg</em>, <em>x</em>, <em>q</em>, <em>hashfunc</em><span class="sig-paren">)</span><a class="headerlink" href="#fastecdsa.util.RFC6979" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a nonce per RFC6979.</p>
+<p>In order to avoid reusing a nonce with the same key when signing two different messages (which
+leaks the private key) RFC6979 provides a deterministic method for generating nonces. This is
+based on using a pseudo-random function (HMAC) to derive a nonce from the message and private
+key. More info here: <a class="reference external" href="http://tools.ietf.org/html/rfc6979">http://tools.ietf.org/html/rfc6979</a>.</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd><div class="first last line-block">
+<div class="line">msg (string): A message being signed.</div>
+<div class="line">x (long): An ECDSA private key.</div>
+<div class="line">q (long): The order of the generator point of the curve being used to sign the message.</div>
+<div class="line">hashfunc (_hashlib.HASH): The hash function used to compress the message.</div>
+</div>
+</dd>
+</dl>
+<dl class="method">
+<dt id="fastecdsa.util.RFC6979.gen_nonce">
+<code class="descname">gen_nonce</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastecdsa.util.RFC6979.gen_nonce" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http://tools.ietf.org/html/rfc6979#section-3.2">http://tools.ietf.org/html/rfc6979#section-3.2</a></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">fastecdsa</a><ul>
+<li><a class="reference internal" href="#module-fastecdsa.curve">fastecdsa.curve</a></li>
+<li><a class="reference internal" href="#module-fastecdsa.ecdsa">fastecdsa.ecdsa</a></li>
+<li><a class="reference internal" href="#module-fastecdsa.keys">fastecdsa.keys</a></li>
+<li><a class="reference internal" href="#module-fastecdsa.util">fastecdsa.util</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="previous chapter">Installation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/fastecdsa.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">fastecdsa 1.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Anton Kueltz.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
+    </div>
+  </body>
+</html>

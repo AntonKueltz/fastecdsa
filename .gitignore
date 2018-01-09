@@ -2,6 +2,7 @@ build/
 dist/
 venv*/
 .*/
+docgen/
 
 ecdsa
 
