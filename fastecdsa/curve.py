@@ -1,4 +1,4 @@
-# from fastecdsa import curvemath
+from fastecdsa import curvemath
 
 
 class Curve:
