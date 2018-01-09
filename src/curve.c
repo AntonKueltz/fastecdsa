@@ -1,24 +1,24 @@
 #include "curve.h"
 #include <stdlib.h>
 
-Curve * buildCurve(char * p, char * a, char * b, char * q, char * gx, char * gy, int base) {
-    Curve * curve = (Curve *)malloc(sizeof(Curve));
+CurveZZ_p * buildCurveZZ_p(char * p, char * a, char * b, char * q, char * gx, char * gy, int base) {
+    CurveZZ_p * curve = (CurveZZ_p *)malloc(sizeof(CurveZZ_p));
     mpz_init_set_str(curve->p, p, base);
     mpz_init_set_str(curve->a, a, base);
     mpz_init_set_str(curve->b, b, base);
     mpz_init_set_str(curve->q, q, base);
-    curve->g = buildPoint(gx, gy, base);
+    curve->g = buildPointZZ_p(gx, gy, base);
     return curve;
 }
 
-void destroyCurve(Curve * curve) {
+void destroyCurveZZ_p(CurveZZ_p * curve) {
     mpz_clears(curve->p, curve->a, curve->b, curve->q, NULL);
-    destroyPoint(curve->g);
+    destroyPointZZ_p(curve->g);
     free(curve);
 }
 
-Curve * buildP192() {
-    return buildCurve(
+CurveZZ_p * buildP192() {
+    return buildCurveZZ_p(
         "6277101735386680763835789423207666416083908700390324961279",
         "-3",
         "2455155546008943817740293915197451784769108058161191238065",
@@ -29,8 +29,8 @@ Curve * buildP192() {
     );
 }
 
-Curve * buildP224() {
-    return buildCurve(
+CurveZZ_p * buildP224() {
+    return buildCurveZZ_p(
         "26959946667150639794667015087019630673557916260026308143510066298881",
         "-3",
         "18958286285566608000408668544493926415504680968679321075787234672564",
@@ -41,8 +41,8 @@ Curve * buildP224() {
     );
 }
 
-Curve * buildP256() {
-    return buildCurve(
+CurveZZ_p * buildP256() {
+    return buildCurveZZ_p(
         "115792089210356248762697446949407573530086143415290314195533631308867097853951",
         "-3",
         "41058363725152142129326129780047268409114441015993725554835256314039467401291",
@@ -53,8 +53,8 @@ Curve * buildP256() {
     );
 }
 
-Curve * buildP384() {
-    return buildCurve(
+CurveZZ_p * buildP384() {
+    return buildCurveZZ_p(
         "39402006196394479212279040100143613805079739270465446667948293404245721771496870329047266088258938001861606973112319",
         "-3",
         "27580193559959705877849011840389048093056905856361568521428707301988689241309860865136260764883745107765439761230575",
@@ -65,8 +65,8 @@ Curve * buildP384() {
     );
 }
 
-Curve * buildP521() {
-    return buildCurve(
+CurveZZ_p * buildP521() {
+    return buildCurveZZ_p(
         "6864797660130609714981900799081393217269435300143305409394463459185543183397656052122559640661454554977296311391480858037121987999716643812574028291115057151",
         "-3",
         "1093849038073734274511112390766805569936207598951683748994586394495953116150735016013708737573759623248592132296706313309438452531591012912142327488478985984",
@@ -77,8 +77,8 @@ Curve * buildP521() {
     );
 }
 
-Curve * buildSecp256k1() {
-    return buildCurve(
+CurveZZ_p * buildSecp256k1() {
+    return buildCurveZZ_p(
         "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F",
         "0",
         "7",

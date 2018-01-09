@@ -1,4 +1,4 @@
-from distutils.core import setup, Extension, Command
+from setuptools import setup, Extension, Command
 
 
 class TestCommand(Command):
@@ -14,6 +14,22 @@ class TestCommand(Command):
     def run(self):
         from subprocess import call
         call(['python', '-m', 'fastecdsa.test'])
+
+
+class BenchmarkCommand(Command):
+    user_options = []
+    description = "Benchmark this package"
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        from subprocess import call
+        call(['python', '-m', 'fastecdsa.benchmark'])
+
 
 curvemath = Extension(
     'fastecdsa.curvemath',
@@ -33,7 +49,7 @@ _ecdsa = Extension(
 
 setup(
     name='fastecdsa',
-    version='1.2.1',
+    version='1.6.1',
     author='Anton Kueltz',
     author_email='kueltz.anton@gmail.com',
     license='CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',
@@ -43,7 +59,7 @@ setup(
     url='https://github.com/AntonKueltz/fastecdsa',
     packages=['fastecdsa'],
     ext_modules=[curvemath, _ecdsa],
-    cmdclass={'test': TestCommand},
+    cmdclass={'test': TestCommand, 'benchmark': BenchmarkCommand},
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

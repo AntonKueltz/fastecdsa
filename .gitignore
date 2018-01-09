@@ -1,11 +1,13 @@
 build/
 dist/
 venv*/
+.*/
+
 ecdsa
+
 *.o
 *.pyc
 *.so
 *.egg-info
 MANIFEST
-__pycache__
-docs/_*/
+binaryField.*
