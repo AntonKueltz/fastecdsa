@@ -18,9 +18,12 @@ class Point:
             self.curve = curve
 
     def __str__(self):
-        return '({:x},\n {:x})\nOn curve <{}>'.format(self.x, self.y, self.curve.name)
+        return 'X: 0x{:x}\nY: 0x{:x}\n(On curve <{}>)'.format(self.x, self.y, self.curve.name)
 
     def __unicode__(self):
+        return self.__str__()
+
+    def __repr__(self):
         return self.__str__()
 
     def __eq__(self, other):
