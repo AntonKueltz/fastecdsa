@@ -144,7 +144,14 @@ are integers, and public keys are points i.e. integer pairs.
 .. code:: python
 
     from fastecdsa import keys, curve
-
+    
+    """The reason there are two ways to generate a keypair is that generating the public key requires
+    a point multiplication, which can be expensive. That means sometimes you may want to delay
+    generating the public key until it is actually needed."""
+    
+    # generate a keypair (i.e. both keys) for curve P256
+    priv_key, pub_key = keys.gen_keypair(curve.P256)
+    
     # generate a private key for curve P256
     priv_key = keys.gen_private_key(curve.P256)
 
