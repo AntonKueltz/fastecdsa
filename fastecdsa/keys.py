@@ -1,7 +1,5 @@
-from binascii import hexlify, unhexlify, a2b_base64, b2a_base64
+from binascii import hexlify
 from os import urandom
-from struct import pack, unpack
-from textwrap import wrap
 
 
 def gen_keypair(curve):
@@ -72,53 +70,3 @@ def get_public_key(d, curve):
         fastecdsa.point.Point: The public key, a point on the given curve.``
     """
     return d * curve.G
-
-
-def _int_to_bytes(x):
-    bs = ''
-
-    while x:
-        bs = pack('=B', (0xff & x)) + bs
-        x >>= 8
-
-    return bs
-
-
-def encode_keypair(d, Q):
-    header = '-----BEGIN EC PRIVATE KEY-----\n'
-    footer = '\n-----END EC PRIVATE KEY-----'
-
-    d_bytes = _int_to_bytes(d)
-    x_bytes = _int_to_bytes(Q.x)
-    y_bytes = _int_to_bytes(Q.y)
-
-    d_len = pack('=B', len(d_bytes))
-    param_len = pack('=B', len(Q.curve.oid) + 2)
-    oid_len = pack('=B', len(Q.curve.oid))
-    key_data_len = pack('=B', len(x_bytes + y_bytes) + 4)
-    xy_len = pack('=B', len(x_bytes + y_bytes) + 2)
-
-    bit_string = '\x02\x01\x01\x04{}{}\xa0{}\x06{}{}\xa1{}\x03{}\x00\x04{}{}'.format(
-        d_len, d_bytes, param_len, oid_len, Q.curve.oid, key_data_len, xy_len, x_bytes, y_bytes)
-    body = '\x30{}{}'.format(pack('=B', len(bit_string)), bit_string)
-
-    return header + '\n'.join(wrap(b2a_base64(body), 64)) + footer
-
-
-def encode_public_key(Q):
-    header = '-----BEGIN PUBLIC KEY-----\n'
-    footer = '\n-----END PUBLIC KEY-----'
-
-    x_bytes = _int_to_bytes(Q.x)
-    y_bytes = _int_to_bytes(Q.y)
-
-    param_len = pack('=B', len(Q.curve.oid) + 2)
-    oid_len = pack('=B', len(Q.curve.oid))
-    key_data_len = pack('=B', len(x_bytes + y_bytes) + 4)
-    xy_len = pack('=B', len(x_bytes + y_bytes) + 2)
-
-    bit_string = '\x02\x01\x01\xa0{}\x06{}{}\xa1{}\x03{}\x00\x04{}{}'.format(
-        param_len, oid_len, Q.curve.oid, key_data_len, xy_len, x_bytes, y_bytes)
-    body = '\x30{}{}'.format(pack('=B', len(bit_string)), bit_string)
-
-    return header + '\n'.join(wrap(b2a_base64(body), 64)) + footer
