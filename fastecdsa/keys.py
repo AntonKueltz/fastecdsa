@@ -1,4 +1,4 @@
-from binascii import hexlify
+from binascii import a2b_base64, hexlify
 from os import urandom
 
 
@@ -73,7 +73,7 @@ def get_public_key(d, curve):
 
 
 def export_key(key, curve=None, filepath=None):
-    """Export a public or private ket in PEM format.
+    """Export a public or private EC key in PEM format.
 
     Args:
         |   key (fastecdsa.point.Point | long): A public or private EC key
@@ -98,3 +98,29 @@ def export_key(key, curve=None, filepath=None):
         f = open(filepath, 'w')
         f.write(encoded)
         f.close()
+
+
+def import_key(filepath):
+    """Import a public or private EC key in PEM format.
+
+    Args:
+        filepath (str): The location of the key file
+
+    Returns:
+        (long, fastecdsa.point.Point): A (private key, public key) tuple. If a public key was
+        imported then the first value will be None.
+    """
+    from .asn1 import EC_PRIVATE_FOOTER, EC_PUBLIC_FOOTER, decode_key
+
+    f = open(filepath, 'r')
+    header = f.readline().rstrip()
+
+    base64_data = ''
+    line = f.readline().rstrip()
+
+    while line and (line != EC_PRIVATE_FOOTER) and (line != EC_PUBLIC_FOOTER):
+        base64_data += line
+        line = f.readline().rstrip()
+
+    raw_data = a2b_base64(base64_data)
+    return decode_key(raw_data)

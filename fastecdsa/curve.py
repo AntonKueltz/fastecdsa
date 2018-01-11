@@ -16,6 +16,7 @@ class Curve:
         |  q (long): The order of the base point of the curve.
         |  oid (long): The object identifier of the curve.
     """
+    _oid_lookup = {}  # a lookup table for getting curve instances by their object identifier
 
     def __init__(self, name, p, a, b, q, gx, gy, oid=None):
         """Initialize the parameters of an elliptic curve.
@@ -45,9 +46,15 @@ class Curve:
         self.gx = gx
         self.gy = gy
         self.oid = oid
+        self._oid_lookup[oid] = self
 
     def __repr__(self):
         return self.name
+
+    @classmethod
+    def get_curve_by_oid(cls, oid):
+        """Get a curve via it's object identifier."""
+        return cls._oid_lookup.get(oid, None)
 
     def is_point_on_curve(self, P):
         """ Check if a point lies on this curve.
