@@ -5,12 +5,18 @@ from six.moves.urllib.request import urlopen
 import unittest
 
 from .curve import (
-    P192, P224, P256, P384, P521, secp192k1, secp224k1, secp256k1, brainpoolP256r1, brainpoolP384r1,
-    brainpoolP512r1
+    P192, P224, P256, P384, P521, secp192k1, secp224k1, secp256k1, brainpoolP160r1, brainpoolP192r1,
+    brainpoolP224r1, brainpoolP256r1, brainpoolP320r1, brainpoolP384r1, brainpoolP512r1
 )
 from .ecdsa import sign, verify
+from .keys import gen_keypair, get_public_keys_from_sig
 from .point import Point
 from .util import RFC6979
+
+CURVES = [
+    P192, P224, P256, P384, P521, secp192k1, secp224k1, secp256k1, brainpoolP160r1, brainpoolP192r1,
+    brainpoolP224r1, brainpoolP256r1, brainpoolP320r1, brainpoolP384r1, brainpoolP512r1
+]
 
 
 class TestPrimeFieldCurve(unittest.TestCase):
@@ -149,13 +155,8 @@ class TestPrimeFieldCurve(unittest.TestCase):
         self.assertEqual(R, expected)
 
     def test_arbitrary_arithmetic(self):
-        curves = [
-            P192, P224, P256, P384, P521, secp192k1, secp224k1, secp256k1, brainpoolP256r1,
-            brainpoolP384r1, brainpoolP512r1
-        ]
-
         for _ in range(100):
-            curve = choice(curves)
+            curve = choice(CURVES)
             a, b = randint(0, curve.q), randint(0, curve.q)
             c = (a + b) % curve.q
             P, Q = a * curve.G, b * curve.G
@@ -558,6 +559,22 @@ class TestBrainpoolECDH(unittest.TestCase):
             int('7DB71C3DEF63212841C463E881BDCF055523BD368240E6C3143BD8DEF8B3'
                 'B3223B95E0F53082FF5E412F4222537A43DF1C6D25729DDB51620A832BE6A26680A2', 16)
         )
+
+
+class TestKeyRecovery(unittest.TestCase):
+    def test_key_recovery(self):
+        for curve in CURVES:
+            d, Q = gen_keypair(curve)
+            msg = 'https://crypto.stackexchange.com/questions/18105/how-does-recovering-the-' \
+                  'public-key-from-an-ecdsa-signature-work'
+            sig = sign(msg, d, curve=curve)
+
+            try:
+                Qs = get_public_keys_from_sig(sig, msg, curve=curve, hashfunc=sha256)
+                assert Q in Qs
+            # TODO - fix these curves
+            except ValueError as ve:
+                print('{} not supported - {}'.format(curve, ve))
 
 
 if __name__ == '__main__':

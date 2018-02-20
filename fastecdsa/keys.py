@@ -1,5 +1,11 @@
 from binascii import a2b_base64, hexlify
+from hashlib import sha256
 from os import urandom
+
+from .curve import P256
+from .ecdsa import verify
+from .point import Point
+from .util import mod_sqrt
 
 
 def gen_keypair(curve):
@@ -67,9 +73,43 @@ def get_public_key(d, curve):
         |  curve (fastecdsa.curve.Curve): The curve over which the key will be calulated.
 
     Returns:
-        fastecdsa.point.Point: The public key, a point on the given curve.``
+        fastecdsa.point.Point: The public key, a point on the given curve.
     """
     return d * curve.G
+
+
+def get_public_keys_from_sig(sig, msg, curve=P256, hashfunc=sha256):
+    """Recover the public keys that can verify a signature / message pair.
+
+    Args:
+        |  sig (long, long): A ECDSA signature.
+        |  msg (str): The message corresponding to the signature.
+        |  curve (fastecdsa.curve.Curve): The curve to be used to sign the message.
+        |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
+
+    Returns:
+        (fastecdsa.point.Point, fastecdsa.point.Point): The public keys that can verify the
+                                                        signature for the message.
+    """
+    r, s = sig
+    rinv = pow(r, curve.q - 2, curve.q)
+
+    z = int(hashfunc(msg.encode()).hexdigest(), 16)
+    hash_bit_length = hashfunc().digest_size * 8
+    if curve.p.bit_length() < hash_bit_length:
+        z >>= (hash_bit_length - curve.p.bit_length())
+
+    y_squared = (r * r * r + curve.a * r + curve.b) % curve.p
+    y1, y2 = mod_sqrt(y_squared, curve.p)
+    R1, R2 = Point(r, y1, curve=curve), Point(r, y2, curve=curve)
+
+    Qs = rinv * (s * R1 - z * curve.G), rinv * (s * R2 - z * curve.G)
+    for Q in Qs:
+        if not verify(sig, msg, Q, curve=curve, hashfunc=hashfunc):
+            raise ValueError('Could not recover public key, is the signature ({}) a valid '
+                             'signature for the message ({}) over the given curve ({}) using the '
+                             'given hash function ({})?'.format(sig, msg, curve, hashfunc))
+    return Qs
 
 
 def export_key(key, curve=None, filepath=None):

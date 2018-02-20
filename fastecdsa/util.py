@@ -80,3 +80,23 @@ class RFC6979:
 
             k = hmac.new(k, v + b'\x00', self.hashfunc).digest()
             v = hmac.new(k, v, self.hashfunc).digest()
+
+
+def mod_sqrt(a, p):
+    """Compute the square root of :math:`a \pmod{p}`
+
+    In other words, find a value :math:`x` such that :math:`x^2 \equiv a \pmod{p}`.
+
+    Args:
+        |  a (long): The value whose root to take.
+        |  p (long): The prime whose field to perform the square root in.
+
+    Returns:
+        (long, long): the two values of :math:`x` satisfying :math:`x^2 \equiv a pmod{p}`.
+    """
+    if p % 4 == 3:
+        k = (p - 3) / 4
+        x = pow(a, k + 1, p)
+        return x, (-x % p)
+
+    raise ValueError('Only primes congruent to 3 mod 4 are supported.')
