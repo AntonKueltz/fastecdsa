@@ -95,7 +95,7 @@ def mod_sqrt(a, p):
         (long, long): the two values of :math:`x` satisfying :math:`x^2 \equiv a pmod{p}`.
     """
     if p % 4 == 3:
-        k = (p - 3) / 4
+        k = (p - 3) // 4
         x = pow(a, k + 1, p)
         return x, (-x % p)
 
