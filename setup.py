@@ -49,7 +49,7 @@ _ecdsa = Extension(
 
 setup(
     name='fastecdsa',
-    version='1.6.1',
+    version='1.6.2',
     author='Anton Kueltz',
     author_email='kueltz.anton@gmail.com',
     license='CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',
