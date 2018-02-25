@@ -84,21 +84,21 @@ class RFC6979:
 
 def _tonelli_shanks(n, p):
     """A generic algorithm for computng modular square roots."""
-    Q, S = p-1, 0
+    Q, S = p - 1, 0
     while Q % 2 == 0:
         Q, S = Q // 2, S + 1
 
     z = 2
-    while pow(z, (p-1) // 2, p) != (-1 % p):
+    while pow(z, (p - 1) // 2, p) != (-1 % p):
         z += 1
 
-    M, c, t, R = S, pow(z, Q, p), pow(n, Q, p), pow(n, (Q+1) // 2, p)
+    M, c, t, R = S, pow(z, Q, p), pow(n, Q, p), pow(n, (Q + 1) // 2, p)
     while t != 1:
         for i in range(1, M):
             if pow(t, 2**i, p) == 1:
                 break
 
-        b = pow(c, 2**(M-i-1), p)
+        b = pow(c, 2**(M - i - 1), p)
         M, c, t, R = i, pow(b, 2, p), (t * b * b) % p, (R * b) % p
 
     return R, -R % p
