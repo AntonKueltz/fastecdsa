@@ -84,7 +84,7 @@ def get_public_keys_from_sig(sig, msg, curve=P256, hashfunc=sha256):
     Args:
         |  sig (long, long): A ECDSA signature.
         |  msg (str): The message corresponding to the signature.
-        |  curve (fastecdsa.curve.Curve): The curve to be used to sign the message.
+        |  curve (fastecdsa.curve.Curve): The curve used to sign the message.
         |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
 
     Returns:
@@ -96,8 +96,8 @@ def get_public_keys_from_sig(sig, msg, curve=P256, hashfunc=sha256):
 
     z = int(hashfunc(msg.encode()).hexdigest(), 16)
     hash_bit_length = hashfunc().digest_size * 8
-    if curve.p.bit_length() < hash_bit_length:
-        z >>= (hash_bit_length - curve.p.bit_length())
+    if curve.q.bit_length() < hash_bit_length:
+        z >>= (hash_bit_length - curve.q.bit_length())
 
     y_squared = (r * r * r + curve.a * r + curve.b) % curve.p
     y1, y2 = mod_sqrt(y_squared, curve.p)

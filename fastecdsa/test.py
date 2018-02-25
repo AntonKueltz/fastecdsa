@@ -569,12 +569,8 @@ class TestKeyRecovery(unittest.TestCase):
                   'public-key-from-an-ecdsa-signature-work'
             sig = sign(msg, d, curve=curve)
 
-            try:
-                Qs = get_public_keys_from_sig(sig, msg, curve=curve, hashfunc=sha256)
-                assert Q in Qs
-            # TODO - fix these curves
-            except ValueError as ve:
-                print('{} not supported - {}'.format(curve, ve))
+            Qs = get_public_keys_from_sig(sig, msg, curve=curve, hashfunc=sha256)
+            assert Q in Qs
 
 
 if __name__ == '__main__':
