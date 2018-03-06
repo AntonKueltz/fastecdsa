@@ -4,7 +4,9 @@ venv*/
 .*/
 docgen/
 
-ecdsa
+src/ecdsa
+src/Makefile
+src/test.c
 
 *.o
 *.pyc
