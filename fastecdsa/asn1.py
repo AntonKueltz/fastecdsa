@@ -17,11 +17,6 @@ EC_PUBLIC_FOOTER = '-----END PUBLIC KEY-----'
 
 ASN1_PARSED_DATA = []
 
-import sys
-if sys.version_info[0] == 2:
-    to_str = lambda x: x
-else:
-    to_str = lambda x: x.decode('ascii')
 
 def _int_bytelen(x):
     length = 0
@@ -115,7 +110,7 @@ def encode_keypair(d, Q):
 
     sequence = version + private_key + parameters + public_key
     ec_private_key = _asn1_structure(SEQUENCE, sequence)
-    b64_data = '\n'.join(wrap(to_str(b2a_base64(ec_private_key)), 64))
+    b64_data = '\n'.join(wrap(b2a_base64(ec_private_key).decode(), 64))
 
     return EC_PRIVATE_HEADER + '\n' + b64_data + '\n' + EC_PRIVATE_FOOTER
 
@@ -132,7 +127,7 @@ def encode_public_key(Q):
 
     sequence = parameters + public_key
     ec_public_key = _asn1_structure(SEQUENCE, sequence)
-    b64_data = '\n'.join(wrap(to_str(b2a_base64(ec_public_key)), 64))
+    b64_data = '\n'.join(wrap(b2a_base64(ec_public_key).decode(), 64))
 
     return EC_PUBLIC_HEADER + '\n' + b64_data + '\n' + EC_PUBLIC_FOOTER
 

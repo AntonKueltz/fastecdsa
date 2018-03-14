@@ -152,15 +152,15 @@ def import_key(filepath):
     """
     from .asn1 import EC_PRIVATE_FOOTER, EC_PUBLIC_FOOTER, decode_key
 
-    f = open(filepath, 'r')
-    header = f.readline().rstrip()
+    with open(filepath, 'r') as f:
+        header = f.readline().rstrip()
 
-    base64_data = ''
-    line = f.readline().rstrip()
-
-    while line and (line != EC_PRIVATE_FOOTER) and (line != EC_PUBLIC_FOOTER):
-        base64_data += line
+        base64_data = ''
         line = f.readline().rstrip()
 
-    raw_data = a2b_base64(base64_data)
-    return decode_key(raw_data)
+        while line and (line != EC_PRIVATE_FOOTER) and (line != EC_PUBLIC_FOOTER):
+            base64_data += line
+            line = f.readline().rstrip()
+
+        raw_data = a2b_base64(base64_data)
+        return decode_key(raw_data)
