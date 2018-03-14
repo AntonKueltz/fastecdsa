@@ -1,4 +1,5 @@
 from hashlib import sha1, sha224, sha256, sha384, sha512
+from os import remove
 from random import choice, randint
 from re import findall, DOTALL
 from six.moves.urllib.request import urlopen
@@ -9,7 +10,7 @@ from .curve import (
     brainpoolP224r1, brainpoolP256r1, brainpoolP320r1, brainpoolP384r1, brainpoolP512r1
 )
 from .ecdsa import sign, verify
-from .keys import gen_keypair, get_public_keys_from_sig
+from .keys import export_key, gen_keypair, get_public_keys_from_sig, import_key
 from .point import Point
 from .util import RFC6979
 
@@ -561,6 +562,24 @@ class TestBrainpoolECDH(unittest.TestCase):
         )
 
 
+class TestAsn1(unittest.TestCase):
+    def test_generate_and_parse_pem(self):
+        d, Q = gen_keypair(P256)
+        export_key(d, curve=P256, filepath='p256.key')
+        export_key(Q, curve=P256, filepath='p256.pub')
+
+        parsed_d, parsed_Q = import_key('p256.key')
+        self.assertEqual(parsed_d, d)
+        self.assertEqual(parsed_Q, Q)
+
+        parsed_d, parsed_Q = import_key('p256.pub')
+        self.assertTrue(parsed_d is None)
+        self.assertEqual(parsed_Q, Q)
+
+        remove('p256.key')
+        remove('p256.pub')
+
+
 class TestKeyRecovery(unittest.TestCase):
     def test_key_recovery(self):
         for curve in CURVES:
@@ -570,7 +589,7 @@ class TestKeyRecovery(unittest.TestCase):
             sig = sign(msg, d, curve=curve)
 
             Qs = get_public_keys_from_sig(sig, msg, curve=curve, hashfunc=sha256)
-            assert Q in Qs
+            self.assertTrue(Q in Qs)
 
 
 if __name__ == '__main__':
