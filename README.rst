@@ -241,6 +241,7 @@ Acknowledgements
 ----------------
 Thanks to those below for contributing improvements:
 
+- clouds56
 - targon
 
 .. _GMP: https://gmplib.org/
