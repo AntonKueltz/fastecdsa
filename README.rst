@@ -16,7 +16,7 @@ Security
 --------
 I am not aware of any current issues. There is no nonce reuse, no branching on secret material,
 and all points are validated before any operations are performed on them. Timing side challenges
-are mitigated via Montgomery point multiplication. Nonces are generated per RFC6979. The default
+are mitigated via Montgomery point multiplication. Nonces are generated per RFC6979_. The default
 curve used throughout the package is P256 which provides 128 bits of security. If you require a
 higher level of security you can specify the curve parameter in a method to use a curve over a
 bigger field e.g. P384. All that being said, crypto is tricky and I'm not beyond making mistakes.
@@ -144,14 +144,14 @@ are integers, and public keys are points i.e. integer pairs.
 .. code:: python
 
     from fastecdsa import keys, curve
-    
+
     """The reason there are two ways to generate a keypair is that generating the public key requires
     a point multiplication, which can be expensive. That means sometimes you may want to delay
     generating the public key until it is actually needed."""
-    
+
     # generate a keypair (i.e. both keys) for curve P256
     priv_key, pub_key = keys.gen_keypair(curve.P256)
-    
+
     # generate a private key for curve P256
     priv_key = keys.gen_private_key(curve.P256)
 
@@ -237,10 +237,40 @@ standard python operators (:code:`+` and :code:`*` respectively):
     # Joint Scalar Multiplication
     R = d * S + e * T
 
+Importing and Exporting Keys
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can also export keys as files, ASN.1 encoded and formatted per RFC5480_ and RFC5915_. Both
+private keys and public keys can be exported as follows:
+
+.. code:: python
+
+    from fastecdsa.keys import export_key, gen_keypair
+
+    d, Q = gen_keypair(P256)
+    # save the private key to disk
+    export_key(d, curve=P256, filepath='/path/to/exported/p256.key')
+    # save the public key to disk
+    export_key(Q, curve=P256, filepath='/path/to/exported/p256.pub')
+
+Keys stored in this format can also be imported. The import function will figure out if the key
+is a public or private key and parse it accordingly:
+
+.. code:: python
+
+    from fastecdsa.keys import import_key
+
+    # if the file is a private key then parsed_d is a long and parsed_Q is a Point object
+    # if the file is a public key then parsed_d will be None
+    parsed_d, parsed_Q = import_key('/path/to/file.key')
+
 Acknowledgements
 ----------------
 Thanks to those below for contributing improvements:
 
+- clouds56
 - targon
 
 .. _GMP: https://gmplib.org/
+.. _RFC5480: https://tools.ietf.org/html/rfc5480
+.. _RFC5915: https://tools.ietf.org/html/rfc5915
+.. _RFC6979: https://tools.ietf.org/html/rfc6979
