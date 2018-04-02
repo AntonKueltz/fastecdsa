@@ -102,14 +102,26 @@ Performance
 
 Curves over Prime Fields
 ~~~~~~~~~~~~~~~~~~~~~~~~
-Currently it does basic point multiplication significantly faster than the :code:`ecdsa`
-package. You can see the times for 1,000 signature and verification operations below,
-:code:`fast.py` corresponding to this package and :code:`regular.py` corresponding
-to :code:`ecdsa` package.
+Currently it does elliptic curve arithmetic significantly faster than the :code:`ecdsa`
+package. You can see the times for 1,000 signature and verification operations over
+various curves below. These were run on an early 2014 MacBook Air with a 1.4 GHz Intel
+Core i5.
 
-.. image:: http://i.imgur.com/oNOfnG6.png?1
-
-As you can see, this package in this case is ~25x faster.
++-----------+------------------------+--------------------+---------+
+| Curve     | :code:`fastecdsa` time | :code:`ecdsa` time | Speedup |
++-----------+------------------------+--------------------+---------+
+| P192      | 3.62s                  | 1m35.49s           | ~26x    |
++-----------+------------------------+--------------------+---------+
+| P224      | 4.50s                  | 2m13.42s           | ~29x    |
++-----------+------------------------+--------------------+---------+
+| P256      | 6.15s                  | 2m52.43s           | ~28x    |
++-----------+------------------------+--------------------+---------+
+| P384      | 12.11s                 | 6m21.01s           | ~31x    | 
++-----------+------------------------+--------------------+---------+
+| P521      | 22.21s                 | 11m39.53s          | ~31x    |
++-----------+------------------------+--------------------+---------+
+| secp256k1 | 5.92s                  | 2m57.19s           | ~30x    |
++-----------+------------------------+--------------------+---------+
 
 Benchmarking
 ~~~~~~~~~~~~
