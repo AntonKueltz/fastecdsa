@@ -1,9 +1,11 @@
 fastecdsa
 =========
-.. image:: https://travis-ci.org/AntonKueltz/fastecdsa.svg?branch=master
+.. image:: https://img.shields.io/travis/AntonKueltz/fastecdsa.svg
+    :alt: Travis
     :target: https://travis-ci.org/AntonKueltz/fastecdsa
-.. image:: https://badge.fury.io/py/fastecdsa.svg
-    :target: https://badge.fury.io/py/fastecdsa
+.. image:: https://img.shields.io/pypi/v/fastecdsa.svg
+    :alt: PyPI
+    :target: https://pypi.org/project/fastecdsa/
 
 .. contents::
 
