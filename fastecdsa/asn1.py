@@ -97,9 +97,14 @@ def _asn1_public_key(Q):
 
 
 def encode_keypair(d, Q):
-    """Encode an EC keypair as described in RFC 5915
+    """Encode an EC keypair as described in `RFC 5915 <https://tools.ietf.org/html/rfc5915.html>`_.
 
-    https://tools.ietf.org/html/rfc5915.html
+    Args:
+        | d (long): An ECDSA private key.
+        | Q (fastecdsa.point.Point): The ECDSA public key.
+
+    Returns:
+        str: The ASCII armored encoded EC keypair.
     """
     version = _asn1_ecversion()
     private_key = _asn1_private_key(d, Q.curve)
@@ -116,9 +121,13 @@ def encode_keypair(d, Q):
 
 
 def encode_public_key(Q):
-    """Encode an EC public key as described in RFC 5480
+    """Encode an EC public key as described in `RFC 5480 <https://tools.ietf.org/html/rfc5480>`_.
 
-    https://tools.ietf.org/html/rfc5480
+    Args:
+        Q (fastecdsa.point.Point): The ECDSA public key.
+
+    Returns:
+        str: The ASCII armored encoded EC public key.
     """
     algorithm = _asn1_ecpublickey()
     oid = _asn1_oid(Q.curve)
@@ -164,9 +173,15 @@ def _parse_asn1_structure(data):
 
 
 def decode_key(pemdata):
-    """Decode an EC key as described in RFC 5915 and RFC 5480
+    """Decode an EC key as described in `RFC 5915 <https://tools.ietf.org/html/rfc5915.html>`_ and
+    `RFC 5480 <https://tools.ietf.org/html/rfc5480>`_.
 
-    https://tools.ietf.org/html/rfc5915.html
+    Args:
+        pemdata (bytes): A sequence of bytes representing an encoded EC key.
+
+    Returns:
+        (long, fastecdsa.point.Point): A private key, public key tuple. If the encoded key was a
+        public key the first entry in the tuple is None.
     """
     from .curve import Curve
     from .point import Point

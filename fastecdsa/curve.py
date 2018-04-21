@@ -77,7 +77,7 @@ class Curve:
 
     @property
     def G(self):
-        """ The base point of the curve.
+        """The base point of the curve.
 
         For the purposes of ECDSA this point is multiplied by a private key to obtain the
         corresponding public key. Make a property to avoid cyclic dependency of Point on Curve
