@@ -14,6 +14,7 @@ fastecdsa.curve
 .. automodule:: fastecdsa.curve
     :members:
     :show-inheritance:
+    :special-members:
 
 fastecdsa.ecdsa
 ---------------
@@ -30,11 +31,12 @@ fastecdsa.keys
     :show-inheritance:
 
 fastecdsa.point
---------------
+---------------
 
 .. automodule:: fastecdsa.point
     :members:
     :show-inheritance:
+    :special-members:
 
 fastecdsa.util
 --------------
