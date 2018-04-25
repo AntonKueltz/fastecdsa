@@ -1,6 +1,13 @@
 fastecdsa
 =========
 
+fastecdsa.asn1
+---------------
+
+.. automodule:: fastecdsa.asn1
+    :members:
+    :show-inheritance:
+
 fastecdsa.curve
 ---------------
 
@@ -19,6 +26,13 @@ fastecdsa.keys
 --------------
 
 .. automodule:: fastecdsa.keys
+    :members:
+    :show-inheritance:
+
+fastecdsa.point
+--------------
+
+.. automodule:: fastecdsa.point
     :members:
     :show-inheritance:
 
