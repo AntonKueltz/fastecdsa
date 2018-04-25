@@ -105,7 +105,7 @@ def _tonelli_shanks(n, p):
 
 
 def mod_sqrt(a, p):
-    """Compute the square root of :math:`a \pmod{p}`
+    """Compute the square root of :math:`a \bmod{p}`
 
     In other words, find a value :math:`x` such that :math:`x^2 \equiv a \pmod{p}`.
 
@@ -114,7 +114,7 @@ def mod_sqrt(a, p):
         |  p (long): The prime whose field to perform the square root in.
 
     Returns:
-        (long, long): the two values of :math:`x` satisfying :math:`x^2 \equiv a pmod{p}`.
+        (long, long): the two values of :math:`x` satisfying :math:`x^2 \equiv a \pmod{p}`.
     """
     if p % 4 == 3:
         k = (p - 3) // 4
