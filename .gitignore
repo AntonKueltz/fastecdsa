@@ -2,7 +2,7 @@ build/
 dist/
 venv*/
 .*/
-docgen/
+docs/_*/
 
 src/ecdsa
 src/Makefile
