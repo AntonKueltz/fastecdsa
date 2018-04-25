@@ -1,11 +1,16 @@
 fastecdsa
 =========
-.. image:: https://img.shields.io/travis/AntonKueltz/fastecdsa.svg
-    :alt: Travis
-    :target: https://travis-ci.org/AntonKueltz/fastecdsa
 .. image:: https://img.shields.io/pypi/v/fastecdsa.svg
-    :alt: PyPI
     :target: https://pypi.org/project/fastecdsa/
+    :alt: PyPI
+
+.. image:: https://img.shields.io/travis/AntonKueltz/fastecdsa.svg
+    :target: https://travis-ci.org/AntonKueltz/fastecdsa
+    :alt: Travis
+
+.. image:: https://readthedocs.org/projects/fastecdsa/badge/?version=latest
+    :target: http://fastecdsa.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 .. contents::
 
@@ -118,7 +123,7 @@ Core i5.
 +-----------+------------------------+--------------------+---------+
 | P256      | 6.15s                  | 2m52.43s           | ~28x    |
 +-----------+------------------------+--------------------+---------+
-| P384      | 12.11s                 | 6m21.01s           | ~31x    | 
+| P384      | 12.11s                 | 6m21.01s           | ~31x    |
 +-----------+------------------------+--------------------+---------+
 | P521      | 22.21s                 | 11m39.53s          | ~31x    |
 +-----------+------------------------+--------------------+---------+
