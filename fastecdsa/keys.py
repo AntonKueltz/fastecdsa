@@ -133,7 +133,7 @@ def export_key(key, curve=None, filepath=None):
         encoded = encode_keypair(key, pubkey)
 
     if filepath is None:
-        print(encoded)
+        return encoded
     else:
         f = open(filepath, 'w')
         f.write(encoded)
