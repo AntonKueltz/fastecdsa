@@ -27,15 +27,19 @@ class Point:
             |  y (long): The y coordinate of the point.
             |  curve (:class:`Curve`): The curve that the point lies on.
         """
-        if not curve.is_point_on_curve((x, y)):
-            raise ValueError('(x, y) coordinates are not on curve <{}>'.format(curve.name))
+        if not (x == 0 and y == 1 and curve is None) and not curve.is_point_on_curve((x, y)):
+            raise ValueError(
+                'coordinates are not on curve <{}>\n\tx={:x}\n\ty={:x}'.format(curve.name, x, y))
         else:
             self.x = x
             self.y = y
             self.curve = curve
 
     def __str__(self):
-        return 'X: 0x{:x}\nY: 0x{:x}\n(On curve <{}>)'.format(self.x, self.y, self.curve.name)
+        if self == self.IDENTITY_ELEMENT:
+            return '<POINT AT INFINITY>'
+        else:
+            return 'X: 0x{:x}\nY: 0x{:x}\n(On curve <{}>)'.format(self.x, self.y, self.curve.name)
 
     def __unicode__(self):
         return self.__str__()
@@ -56,7 +60,11 @@ class Point:
         Returns:
             :class:`Point`: A point :math:`R` such that :math:`R = P + Q`
         """
-        if self.curve is not other.curve:
+        if self == self.IDENTITY_ELEMENT:
+            return other
+        elif other == self.IDENTITY_ELEMENT:
+            return self
+        elif self.curve is not other.curve:
             raise CurveMismatchError(self.curve, other.curve)
         else:
             x, y = curvemath.add(
@@ -95,6 +103,11 @@ class Point:
         Returns:
             :class:`Point`: A point :math:`R` such that :math:`R = P - Q`
         """
+        if self == other:
+            return self.IDENTITY_ELEMENT
+        elif other == self.IDENTITY_ELEMENT:
+            return self
+
         negative = Point(other.x, -other.y % other.curve.p, other.curve)
         return self.__add__(negative)
 
@@ -114,6 +127,9 @@ class Point:
         except ValueError:
             raise TypeError('Curve point multiplication must be by an integer')
         else:
+            if d == 0:
+                return self.IDENTITY_ELEMENT
+
             x, y = curvemath.mul(
                 str(self.x),
                 str(self.y),
@@ -149,4 +165,10 @@ class Point:
         Returns:
             :class:`Point`: A point :math:`R = (P_x, -P_y)`
         """
+        if self == self.IDENTITY_ELEMENT:
+            return self
+
         return Point(self.x, -self.y % self.curve.p, self.curve)
+
+
+Point.IDENTITY_ELEMENT = Point(0, 1, curve=None)  # also known as the point at infinity
