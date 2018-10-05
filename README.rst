@@ -102,7 +102,8 @@ Any hash function in the :code:`hashlib` module (:code:`md5, sha1, sha224, sha25
 will work, as will any hash function that implements the same interface / core functionality as the
 those in :code:`hashlib`. For instance, if you wish to use SHA3 as the hash function the
 :code:`pysha3` package will work with this library as long as it is at version >=1.0b1 (as previous
-versions didn't work with the :code:`hmac` module which is used in nonce generation).
+versions didn't work with the :code:`hmac` module which is used in nonce generation). Note
+that :code:`sha3_224, sha3_256, sha3_384, sha3_512` are all in :code:`hashlib` as of python3.6.
 
 Performance
 -----------
@@ -298,6 +299,7 @@ Thanks to those below for contributing improvements:
 
 - clouds56
 - targon
+- boneyard93501
 
 .. _GMP: https://gmplib.org/
 .. _RFC5480: https://tools.ietf.org/html/rfc5480
