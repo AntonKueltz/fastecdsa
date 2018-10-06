@@ -43,15 +43,16 @@ if exist "C:\Users\%username%\AppData\Local\Programs\Common\Microsoft\Visual C++
 	copy gmp.h "C:\Users\User\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\VC\include\gmp.h"
 	cd ..
 	)
-	
-aria2c.exe  https://github.com/AntonKueltz/fastecdsa/archive/master.zip 
+
+REM have to be replaced to https://github.com/AntonKueltz/fastecdsa/archive/master.zip  if commited	
+aria2c.exe  https://github.com/shikuk/fastecdsa/archive/master.zip
 "C:\Program Files (x86)\WinRAR\WinRAR.exe" x fastecdsa-master.zip 
 cd fastecdsa-master
 python setup.py build
 python setup.py install
 
-cd ..
-python test.py
+cd..
+python fastecdsa-master\test.py
 
 :exit
 exit /b 1
