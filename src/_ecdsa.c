@@ -5,7 +5,7 @@
 
 void signZZ_p(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_p * curve) {
     mpz_t e, kinv;
-
+	int orderBits, digestBits;
     // R = k * G, r = R[x]
     PointZZ_p R;
     pointZZ_pMul(&R, curve->g, k, curve);
@@ -14,8 +14,8 @@ void signZZ_p(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_p * curve) 
 
     // convert digest to integer (digest is computed as hex in ecdsa.py)
     mpz_init_set_str(e, msg, 16);
-    int orderBits = mpz_sizeinbase(curve->q, 2);
-    int digestBits = strlen(msg) * 4;
+    orderBits = mpz_sizeinbase(curve->q, 2);
+    digestBits = strlen(msg) * 4;
 
     if(digestBits > orderBits) {
         mpz_fdiv_q_2exp(e, e, digestBits - orderBits);
@@ -36,12 +36,14 @@ void signZZ_p(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_p * curve) 
 int verifyZZ_p(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve) {
     mpz_t e, w, u1, u2;
     PointZZ_p tmp;
+	int orderBits, digestBits, equal;
+
     mpz_inits(w, u1, u2, tmp.x, tmp.y, NULL);
 
     // convert digest to integer (digest is computed as hex in ecdsa.py)
     mpz_init_set_str(e, msg, 16);
-    int orderBits = mpz_sizeinbase(curve->q, 2);
-    int digestBits = strlen(msg) * 4;
+    orderBits = mpz_sizeinbase(curve->q, 2);
+    digestBits = strlen(msg) * 4;
 
     if(digestBits > orderBits) {
         mpz_fdiv_q_2exp(e, e, digestBits - orderBits);
@@ -56,7 +58,7 @@ int verifyZZ_p(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve) {
     pointZZ_pShamirsTrick(&tmp, curve->g, u1, Q, u2, curve);
     mpz_mod(tmp.x, tmp.x, curve->q);
 
-    int equal = (mpz_cmp(tmp.x, sig->r) == 0);
+    equal = (mpz_cmp(tmp.x, sig->r) == 0);
     mpz_clears(e, w, u1, u2, tmp.x, tmp.y, NULL);
     return equal;
 }
@@ -67,14 +69,17 @@ int verifyZZ_p(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve) {
  ******************************************************************************/
 static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
     char * msg, * d, * k, * p, * a, * b, * q, * gx, * gy;
-
+	char * resultR;
+	char * resultS; 
+    mpz_t privKey, nonce;
+    Sig sig;
+	CurveZZ_p * curve;
+	PyObject * ret;
     if (!PyArg_ParseTuple(args, "sssssssss", &msg, &d, &k, &p, &a, &b, &q, &gx, &gy)) {
         return NULL;
     }
 
-    mpz_t privKey, nonce;
-    CurveZZ_p * curve = buildCurveZZ_p(p, a, b, q, gx, gy, 10);
-    Sig sig;
+    curve = buildCurveZZ_p(p, a, b, q, gx, gy, 10);
 
     mpz_init_set_str(privKey, d, 10);
     mpz_init_set_str(nonce, k, 10);
@@ -82,11 +87,11 @@ static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
     signZZ_p(&sig, msg, privKey, nonce, curve);
     destroyCurveZZ_p(curve);
 
-    char * resultR = mpz_get_str(NULL, 10, sig.r);
-    char * resultS = mpz_get_str(NULL, 10, sig.s);
+    resultR = mpz_get_str(NULL, 10, sig.r);
+    resultS = mpz_get_str(NULL, 10, sig.s);
     mpz_clears(sig.r, sig.s, privKey, NULL);
 
-    PyObject * ret = Py_BuildValue("ss", resultR, resultS);
+    ret = Py_BuildValue("ss", resultR, resultS);
     free(resultR);
     free(resultS);
     return ret;
@@ -95,19 +100,21 @@ static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
 
 static PyObject * _ecdsa_verify(PyObject *self, PyObject *args) {
     char * r, * s, * msg, * qx, * qy, * p, * a, * b, * q, * gx, * gy;
-
+    Sig sig;
+	CurveZZ_p * curve;
+    int valid = 0;
+	PointZZ_p * Q;
+	
     if (!PyArg_ParseTuple(args, "sssssssssss", &r, &s, &msg, &qx, &qy, &p, &a, &b, &q, &gx, &gy)) {
         return NULL;
     }
 
-    Sig sig;
     mpz_init_set_str(sig.r, r, 10);
     mpz_init_set_str(sig.s, s, 10);
 
-    CurveZZ_p * curve = buildCurveZZ_p(p, a, b, q, gx, gy, 10);
-    int valid = 0;
+    curve = buildCurveZZ_p(p, a, b, q, gx, gy, 10);
 
-    PointZZ_p * Q = buildPointZZ_p(qx, qy, 10);
+    Q = buildPointZZ_p(qx, qy, 10);
     valid = verifyZZ_p(&sig, msg, Q, curve);
 
     destroyCurveZZ_p(curve);
