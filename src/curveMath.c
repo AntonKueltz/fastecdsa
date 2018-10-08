@@ -74,7 +74,7 @@ void pointZZ_pAdd(PointZZ_p * rop, const PointZZ_p * op1, const PointZZ_p * op2,
 void pointZZ_pMul(PointZZ_p * rop, const PointZZ_p * point, const mpz_t scalar, const CurveZZ_p * curve) {
     PointZZ_p R0, R1, tmp;
     int dbits, i;
-	mpz_inits(R1.x, R1.y, tmp.x, tmp.y, NULL);
+    mpz_inits(R1.x, R1.y, tmp.x, tmp.y, NULL);
     mpz_init_set(R0.x, point->x);
     mpz_init_set(R0.y, point->y);
     pointZZ_pDouble(&R1, point, curve);
@@ -107,10 +107,10 @@ void pointZZ_pMul(PointZZ_p * rop, const PointZZ_p * point, const mpz_t scalar, 
 
 
 void pointZZ_pShamirsTrick(PointZZ_p * rop, const PointZZ_p * point1, const mpz_t scalar1,
-    const PointZZ_p * point2, const mpz_t scalar2, const CurveZZ_p * curve)
+const PointZZ_p * point2, const mpz_t scalar2, const CurveZZ_p * curve)
 {
     PointZZ_p sum, tmp;
-	int scalar1Bits, scalar2Bits, l;
+    int scalar1Bits, scalar2Bits, l;
     mpz_inits(sum.x, sum.y, tmp.x, tmp.y, NULL);
     pointZZ_pAdd(&sum, point1, point2, curve);
 
@@ -152,18 +152,18 @@ void pointZZ_pShamirsTrick(PointZZ_p * rop, const PointZZ_p * point1, const mpz_
 
 
 /******************************************************************************
- PYTHON BINDINGS
- ******************************************************************************/
+PYTHON BINDINGS
+******************************************************************************/
 static PyObject * curvemath_mul(PyObject *self, PyObject *args) {
     char * x, * y, * d, * p, * a, * b, * q, * gx, * gy;
-	char * resultX;
-	char * resultY;
-	CurveZZ_p * curve;
-	PointZZ_p * point;
+    char * resultX;
+    char * resultY;
+    CurveZZ_p * curve;
+    PointZZ_p * point;
     PointZZ_p result;
     mpz_t scalar;
-	PyObject * ret;
-	
+    PyObject * ret;
+    
     if (!PyArg_ParseTuple(args, "sssssssss", &x, &y, &d, &p, &a, &b, &q, &gx, &gy)) {
         return NULL;
     }
@@ -189,13 +189,13 @@ static PyObject * curvemath_mul(PyObject *self, PyObject *args) {
 static PyObject * curvemath_add(PyObject *self, PyObject *args) {
     char * px, * py, * qx, * qy, * p, * a, * b, * q, * gx, * gy;
     PointZZ_p result;
-	CurveZZ_p * curve;
-	PointZZ_p * P;
-	PointZZ_p * Q;
-	char * resultX;
-	char * resultY;
-	PyObject * ret;
-	
+    CurveZZ_p * curve;
+    PointZZ_p * P;
+    PointZZ_p * Q;
+    char * resultX;
+    char * resultY;
+    PyObject * ret;
+    
     if (!PyArg_ParseTuple(args, "ssssssssss", &px, &py, &qx, &qy, &p, &a, &b, &q, &gx, &gy)) {
         return NULL;
     }

@@ -52,7 +52,8 @@ python setup.py build
 python setup.py install
 
 cd..
-python fastecdsa-master\test.py
+
+python -m fastecdsa.test
 
 :exit
 exit /b 1

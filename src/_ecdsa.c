@@ -5,7 +5,7 @@
 
 void signZZ_p(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_p * curve) {
     mpz_t e, kinv;
-	int orderBits, digestBits;
+    int orderBits, digestBits;
     // R = k * G, r = R[x]
     PointZZ_p R;
     pointZZ_pMul(&R, curve->g, k, curve);
@@ -36,7 +36,7 @@ void signZZ_p(Sig * sig, char * msg, mpz_t d, mpz_t k, const CurveZZ_p * curve) 
 int verifyZZ_p(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve) {
     mpz_t e, w, u1, u2;
     PointZZ_p tmp;
-	int orderBits, digestBits, equal;
+    int orderBits, digestBits, equal;
 
     mpz_inits(w, u1, u2, tmp.x, tmp.y, NULL);
 
@@ -65,16 +65,16 @@ int verifyZZ_p(Sig * sig, char * msg, PointZZ_p * Q, const CurveZZ_p * curve) {
 
 
 /******************************************************************************
- PYTHON BINDINGS
- ******************************************************************************/
+PYTHON BINDINGS
+******************************************************************************/
 static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
     char * msg, * d, * k, * p, * a, * b, * q, * gx, * gy;
-	char * resultR;
-	char * resultS; 
+    char * resultR;
+    char * resultS; 
     mpz_t privKey, nonce;
     Sig sig;
-	CurveZZ_p * curve;
-	PyObject * ret;
+    CurveZZ_p * curve;
+    PyObject * ret;
     if (!PyArg_ParseTuple(args, "sssssssss", &msg, &d, &k, &p, &a, &b, &q, &gx, &gy)) {
         return NULL;
     }
@@ -101,10 +101,10 @@ static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
 static PyObject * _ecdsa_verify(PyObject *self, PyObject *args) {
     char * r, * s, * msg, * qx, * qy, * p, * a, * b, * q, * gx, * gy;
     Sig sig;
-	CurveZZ_p * curve;
+    CurveZZ_p * curve;
     int valid = 0;
-	PointZZ_p * Q;
-	
+    PointZZ_p * Q;
+    
     if (!PyArg_ParseTuple(args, "sssssssssss", &r, &s, &msg, &qx, &qy, &p, &a, &b, &q, &gx, &gy)) {
         return NULL;
     }
