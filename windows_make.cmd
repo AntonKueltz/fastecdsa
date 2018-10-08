@@ -3,10 +3,16 @@ if not exist  aria2c.exe (
 	goto :exit
 	)
 
-if not exist  "C:\Program Files (x86)\WinRAR\WinRAR.exe" (
+if exist  "C:\Program Files (x86)\" (
+	set programfiles = "C:\Program Files (x86)\" 
+	) else ( set programfiles = "C:\Program Files\" )
+	
+
+if not exist  "%programfiles%\WinRAR\WinRAR.exe" (
 	echo "Need some tool to extract bz2 and zip archives"
 	goto :exit
-	)
+	) else ( set unrar="%programfiles%\WinRAR\WinRAR.exe")
+
 	
 if exist "C:\Users\%username%\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\VC\bin\cl.exe" (
 	goto :getyasm
@@ -27,26 +33,26 @@ if exist "C:\Users\%username%\AppData\Local\Programs\Common\Microsoft\Visual C++
 	goto :make_mpir
 	) else (	
 	aria2c.exe  http://www.mpir.org/mpir-2.6.0.tar.bz2 
-	"C:\Program Files (x86)\WinRAR\WinRAR.exe" x mpir-2.6.0.tar.bz2 mpir-2.6.0
+	%unrar% x mpir-2.6.0.tar.bz2 mpir-2.6.0
 	)
 
 :make_mpir	
-	if not exist "C:\Users\User\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\VC\lib\gmp.lib" (
+	if not exist "C:\Users\%username%\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\VC\lib\gmp.lib" (
 	cd mpir-2.6.0\win
 	call "C:\Users\%username%\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\vcvarsall.bat" 
 	call configure.bat ABI 32
 	call make.bat 
 	REM make check
 	call gen_mpir_h.bat
-	copy mpir.lib "C:\Users\User\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\VC\lib\gmp.lib"
+	copy mpir.lib "C:\Users\%username%\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\VC\lib\gmp.lib"
 	cd ..
-	copy gmp.h "C:\Users\User\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\VC\include\gmp.h"
+	copy gmp.h "C:\Users\%username%\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\VC\include\gmp.h"
 	cd ..
 	)
 
 REM have to be replaced to https://github.com/AntonKueltz/fastecdsa/archive/master.zip  if commited	
 aria2c.exe  https://github.com/shikuk/fastecdsa/archive/master.zip
-"C:\Program Files (x86)\WinRAR\WinRAR.exe" x fastecdsa-master.zip 
+%unrar% x fastecdsa-master.zip 
 cd fastecdsa-master
 python setup.py build
 python setup.py install
