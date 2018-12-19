@@ -94,7 +94,7 @@ def get_public_keys_from_sig(sig, msg, curve=P256, hashfunc=sha256):
     r, s = sig
     rinv = pow(r, curve.q - 2, curve.q)
 
-    z = int(hashfunc(msg.encode()).hexdigest(), 16)
+    z = int(hashfunc(msg).hexdigest(), 16)
     hash_bit_length = hashfunc().digest_size * 8
     if curve.q.bit_length() < hash_bit_length:
         z >>= (hash_bit_length - curve.q.bit_length())

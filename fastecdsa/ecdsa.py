@@ -19,7 +19,7 @@ def sign(msg, d, curve=P256, hashfunc=sha256):
     refer to http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf for more information.
 
     Args:
-        |  msg (str): A message to be signed.
+        |  msg (bytes): A message to be signed.
         |  d (long): The ECDSA private key of the signer.
         |  curve (fastecdsa.curve.Curve): The curve to be used to sign the message.
         |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
@@ -28,7 +28,7 @@ def sign(msg, d, curve=P256, hashfunc=sha256):
     rfc6979 = RFC6979(msg, d, curve.q, hashfunc)
     k = rfc6979.gen_nonce()
 
-    hashed = hashfunc(msg.encode()).hexdigest()
+    hashed = hashfunc(msg).hexdigest()
     r, s = _ecdsa.sign(
         hashed,
         str(d),
@@ -51,7 +51,7 @@ def verify(sig, msg, Q, curve=P256, hashfunc=sha256):
 
     Args:
         |  sig (long, long): The signature for the message.
-        |  msg (str): A message to be signed.
+        |  msg (bytes): A message to be signed.
         |  Q (fastecdsa.point.Point): The ECDSA public key of the signer.
         |  curve (fastecdsa.curve.Curve): The curve to be used to sign the message.
         |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
@@ -77,7 +77,7 @@ def verify(sig, msg, Q, curve=P256, hashfunc=sha256):
         raise EcdsaError(
             'Invalid Signature: s is not a positive integer smaller than the curve order')
 
-    hashed = hashfunc(msg.encode()).hexdigest()
+    hashed = hashfunc(msg).hexdigest()
     return _ecdsa.verify(
         str(r),
         str(s),

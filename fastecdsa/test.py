@@ -5,14 +5,14 @@ from re import findall, DOTALL
 from six.moves.urllib.request import urlopen
 import unittest
 
-from .curve import (
+from fastecdsa.curve import (
     P192, P224, P256, P384, P521, secp192k1, secp224k1, secp256k1, brainpoolP160r1, brainpoolP192r1,
     brainpoolP224r1, brainpoolP256r1, brainpoolP320r1, brainpoolP384r1, brainpoolP512r1
 )
-from .ecdsa import sign, verify
-from .keys import export_key, gen_keypair, get_public_keys_from_sig, import_key
-from .point import Point
-from .util import RFC6979
+from fastecdsa.ecdsa import sign, verify
+from fastecdsa.keys import export_key, gen_keypair, get_public_keys_from_sig, import_key
+from fastecdsa.point import Point
+from fastecdsa.util import RFC6979
 
 CURVES = [
     P192, P224, P256, P384, P521, secp192k1, secp224k1, secp256k1, brainpoolP160r1, brainpoolP192r1,
@@ -169,7 +169,7 @@ class TestPrimeFieldCurve(unittest.TestCase):
 
 class TestNonceGeneration(unittest.TestCase):
     def test_rfc_6979(self):
-        msg = 'sample'
+        msg = b'sample'
         x = 0x09A4D6792295A7F730FC3F2B49CBC0F62E862272F
         q = 0x4000000000000000000020108A2E0CC0D99F8A5EF
 
@@ -202,11 +202,11 @@ class TestPrimeFieldECDSA(unittest.TestCase):
             0x61340C88C3AAEBEB4F6D667F672CA9759A6CCAA9FA8811313039EE4A35471D32,
             0x6D7F147DAC089441BB2E2FE8F7A3FA264B9C475098FDCF6E00D7C996E1B8B7EB,
         )
-        sig = sign('sample', d, curve=P256, hashfunc=sha1)
+        sig = sign(b'sample', d, curve=P256, hashfunc=sha1)
         self.assertEqual(sig, expected)
 
         Q = d * P256.G
-        self.assertTrue(verify(sig, 'sample', Q, curve=P256, hashfunc=sha1))
+        self.assertTrue(verify(sig, b'sample', Q, curve=P256, hashfunc=sha1))
 
     """ case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 """
     def test_ecdsa_P256_SHA224_sign(self):
@@ -215,11 +215,11 @@ class TestPrimeFieldECDSA(unittest.TestCase):
             0x53B2FFF5D1752B2C689DF257C04C40A587FABABB3F6FC2702F1343AF7CA9AA3F,
             0xB9AFB64FDC03DC1A131C7D2386D11E349F070AA432A4ACC918BEA988BF75C74C
         )
-        sig = sign('sample', d, curve=P256, hashfunc=sha224)
+        sig = sign(b'sample', d, curve=P256, hashfunc=sha224)
         self.assertEqual(sig, expected)
 
         Q = d * P256.G
-        self.assertTrue(verify(sig, 'sample', Q, curve=P256, hashfunc=sha224))
+        self.assertTrue(verify(sig, b'sample', Q, curve=P256, hashfunc=sha224))
 
     """ case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 """
     def test_ecdsa_P256_SHA2_sign(self):
@@ -228,11 +228,11 @@ class TestPrimeFieldECDSA(unittest.TestCase):
             0xEFD48B2AACB6A8FD1140DD9CD45E81D69D2C877B56AAF991C34D0EA84EAF3716,
             0xF7CB1C942D657C41D436C7A1B6E29F65F3E900DBB9AFF4064DC4AB2F843ACDA8
         )
-        sig = sign('sample', d, curve=P256, hashfunc=sha256)
+        sig = sign(b'sample', d, curve=P256, hashfunc=sha256)
         self.assertEqual(sig, expected)
 
         Q = d * P256.G
-        self.assertTrue(verify(sig, 'sample', Q, curve=P256, hashfunc=sha256))
+        self.assertTrue(verify(sig, b'sample', Q, curve=P256, hashfunc=sha256))
 
     """ case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 """
     def test_ecdsa_P256_SHA384_sign(self):
@@ -241,11 +241,11 @@ class TestPrimeFieldECDSA(unittest.TestCase):
             0x0EAFEA039B20E9B42309FB1D89E213057CBF973DC0CFC8F129EDDDC800EF7719,
             0x4861F0491E6998B9455193E34E7B0D284DDD7149A74B95B9261F13ABDE940954
         )
-        sig = sign('sample', d, curve=P256, hashfunc=sha384)
+        sig = sign(b'sample', d, curve=P256, hashfunc=sha384)
         self.assertEqual(sig, expected)
 
         Q = d * P256.G
-        self.assertTrue(verify(sig, 'sample', Q, curve=P256, hashfunc=sha384))
+        self.assertTrue(verify(sig, b'sample', Q, curve=P256, hashfunc=sha384))
 
     """ case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 """
     def test_ecdsa_P256_SHA512_sign(self):
@@ -254,11 +254,11 @@ class TestPrimeFieldECDSA(unittest.TestCase):
             0x8496A60B5E9B47C825488827E0495B0E3FA109EC4568FD3F8D1097678EB97F00,
             0x2362AB1ADBE2B8ADF9CB9EDAB740EA6049C028114F2460F96554F61FAE3302FE
         )
-        sig = sign('sample', d, curve=P256, hashfunc=sha512)
+        sig = sign(b'sample', d, curve=P256, hashfunc=sha512)
         self.assertEqual(sig, expected)
 
         Q = d * P256.G
-        self.assertTrue(verify(sig, 'sample', Q, curve=P256, hashfunc=sha512))
+        self.assertTrue(verify(sig, b'sample', Q, curve=P256, hashfunc=sha512))
 
     """ case taken from https://www.nsa.gov/ia/_files/ecdsa.pdf """
     def test_ecdsa_P256_verify(self):
@@ -267,7 +267,7 @@ class TestPrimeFieldECDSA(unittest.TestCase):
             0xd8a12ba61d599235f67d9cb4d58f1783d3ca43e78f0a5abaa624079936c0c3a9,
             curve=P256
         )
-        msg = 'This is only a test message. It is 48 bytes long'
+        msg = b'This is only a test message. It is 48 bytes long'
         sig = (
             0x7214bc9647160bbd39ff2f80533f5dc6ddd70ddf86bb815661e805d5d4e6f27c,
             0x7d1ff961980f961bdaa3233b6209f4013317d3e3f9e1493592dbeaa1af2bc367
@@ -304,7 +304,7 @@ class TestP192ECDSA(unittest.TestCase):
 
         for test in findall(test_regex, curve_tests):
             h = hash_lookup[test[0]]
-            msg = test[1]
+            msg = test[1].encode()
             k = int(test[2], 16)
             r = int(test[3], 16)
             s = int(test[4], 16)
@@ -336,7 +336,7 @@ class TestP224ECDSA(unittest.TestCase):
 
         for test in findall(test_regex, curve_tests):
             h = hash_lookup[test[0]]
-            msg = test[1]
+            msg = test[1].encode()
             k = int(test[2], 16)
             r = int(test[3], 16)
             s = int(test[4], 16)
@@ -368,7 +368,7 @@ class TestP256ECDSA(unittest.TestCase):
 
         for test in findall(test_regex, curve_tests):
             h = hash_lookup[test[0]]
-            msg = test[1]
+            msg = test[1].encode()
             k = int(test[2], 16)
             r = int(test[3], 16)
             s = int(test[4], 16)
@@ -402,7 +402,7 @@ class TestP384ECDSA(unittest.TestCase):
 
         for test in findall(test_regex, curve_tests):
             h = hash_lookup[test[0]]
-            msg = test[1]
+            msg = test[1].encode()
             k = int(test[2] + test[3], 16)
             r = int(test[4] + test[5], 16)
             s = int(test[6] + test[7], 16)
@@ -436,7 +436,7 @@ class TestP521ECDSA(unittest.TestCase):
 
         for test in findall(test_regex, curve_tests):
             h = hash_lookup[test[0]]
-            msg = test[1]
+            msg = test[1].encode()
             k = int(test[2] + test[3] + test[4], 16)
             r = int(test[5] + test[6] + test[7], 16)
             s = int(test[8] + test[9] + test[10], 16)
@@ -584,8 +584,8 @@ class TestKeyRecovery(unittest.TestCase):
     def test_key_recovery(self):
         for curve in CURVES:
             d, Q = gen_keypair(curve)
-            msg = 'https://crypto.stackexchange.com/questions/18105/how-does-recovering-the-' \
-                  'public-key-from-an-ecdsa-signature-work'
+            msg = b'https://crypto.stackexchange.com/questions/18105/how-does-recovering-the-' \
+                  b'public-key-from-an-ecdsa-signature-work'
             sig = sign(msg, d, curve=curve)
 
             Qs = get_public_keys_from_sig(sig, msg, curve=curve, hashfunc=sha256)

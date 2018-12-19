@@ -198,7 +198,7 @@ Some basic usage is shown below:
     from fastecdsa import curve, ecdsa, keys
     from hashlib import sha384
 
-    m = "a message to sign via ECDSA"  # some message
+    m = b"a message to sign via ECDSA"  # some message
 
     ''' use default curve and hash function (P256 and SHA2) '''
     private_key = keys.gen_private_key(curve.P256)

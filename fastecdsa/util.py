@@ -54,7 +54,7 @@ class RFC6979:
 
     def gen_nonce(self):
         """ http://tools.ietf.org/html/rfc6979#section-3.2 """
-        h1 = self.hashfunc(self.msg.encode())
+        h1 = self.hashfunc(self.msg)
         hash_size = h1.digest_size
         h1 = h1.digest()
         key_and_msg = self._int2octets(self.x) + self._bits2octets(h1)
