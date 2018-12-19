@@ -11,8 +11,8 @@ PARAMETERS = b'\xa0'
 PUBLIC_KEY = b'\xa1'
 
 # Values for DER signature encoding
-DER_PREFIX=b"\x30"
-MARKER=b"\x02"
+DER_PREFIX = b"\x30"
+MARKER = b"\x02"
 
 EC_PRIVATE_HEADER = '-----BEGIN EC PRIVATE KEY-----'
 EC_PRIVATE_FOOTER = '-----END EC PRIVATE KEY-----'
@@ -41,7 +41,7 @@ def _int_to_bytes(x):
 
     return bs
 
-    
+
 def _bytes_to_int(bytestr):
     """Make an integer from a big endian bytestring."""
     value = 0
@@ -154,7 +154,7 @@ def encode_public_key(Q):
 
 
 def der_encode_signature(r, s):
-    """Encode an EC signature in serialized DER format 
+    """Encode an EC signature in serialized DER format
 
     Args:
         r, s
@@ -170,7 +170,7 @@ def der_encode_signature(r, s):
     if s_bytes[0] & 0x80:
         s_bytes = b"\x00" + s_bytes
     r_s = MARKER + pack('B', len(r_bytes)) + r_bytes + MARKER + pack('B', len(s_bytes)) + s_bytes
-    return DER_PREFIX +  pack('B', len(r_s)) + r_s
+    return DER_PREFIX + pack('B', len(r_s)) + r_s
 
 
 class InvalidDerSignature(Exception):
@@ -179,10 +179,10 @@ class InvalidDerSignature(Exception):
 
 def der_decode_signature(sig):
     """Decode an EC signature from strict serialized DER format https://www.itu.int/rec/T-REC-X.690/en
-      
+
        Returns (r,s)
     """
-    if (len(sig) < 8): 
+    if (len(sig) < 8):
         raise InvalidDerSignature("bytestring too small")
     if (sig[0] != 0x30):
         raise InvalidDerSignature("missing \\x30 marker")
@@ -210,7 +210,7 @@ def der_decode_signature(sig):
         raise InvalidDerSignature("invalid s value")
     if (length_s > 1 and (sig[length_r + 6] == 0x00) and not (sig[length_r + 7] & 0x80)):
         raise InvalidDerSignature("invalid s value")
-    r_data, s_data = sig[4:4+length_r], sig[6+length_r:] 
+    r_data, s_data = sig[4:4 + length_r], sig[6 + length_r:]
     return _bytes_to_int(r_data), _bytes_to_int(s_data)
 
 
