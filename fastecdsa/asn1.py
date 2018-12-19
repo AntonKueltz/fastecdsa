@@ -10,6 +10,10 @@ SEQUENCE = b'\x30'
 PARAMETERS = b'\xa0'
 PUBLIC_KEY = b'\xa1'
 
+# Values for DER signature encoding
+DER_PREFIX=b"\x30"
+MARKER=b"\x02"
+
 EC_PRIVATE_HEADER = '-----BEGIN EC PRIVATE KEY-----'
 EC_PRIVATE_FOOTER = '-----END EC PRIVATE KEY-----'
 EC_PUBLIC_HEADER = '-----BEGIN PUBLIC KEY-----'
@@ -36,6 +40,14 @@ def _int_to_bytes(x):
         x >>= 8
 
     return bs
+
+    
+def _bytes_to_int(bytestr):
+    """Make an integer from a big endian bytestring."""
+    value = 0
+    for b in bytestr:
+        value = value * 256 + b
+    return (value)
 
 
 def _asn1_len(data):
@@ -139,6 +151,67 @@ def encode_public_key(Q):
     b64_data = '\n'.join(wrap(b2a_base64(ec_public_key).decode(), 64))
 
     return EC_PUBLIC_HEADER + '\n' + b64_data + '\n' + EC_PUBLIC_FOOTER
+
+
+def der_encode_signature(r, s):
+    """Encode an EC signature in serialized DER format 
+
+    Args:
+        r, s
+
+    Returns:
+        bytes: The DER encoded signature
+
+    """
+    r_bytes = _int_to_bytes(r)
+    if r_bytes[0] & 0x80:
+        r_bytes = b"\x00" + r_bytes
+    s_bytes = _int_to_bytes(s)
+    if s_bytes[0] & 0x80:
+        s_bytes = b"\x00" + s_bytes
+    r_s = MARKER + pack('B', len(r_bytes)) + r_bytes + MARKER + pack('B', len(s_bytes)) + s_bytes
+    return DER_PREFIX +  pack('B', len(r_s)) + r_s
+
+
+class InvalidDerSignature(Exception):
+    pass
+
+
+def der_decode_signature(sig):
+    """Decode an EC signature from strict serialized DER format https://www.itu.int/rec/T-REC-X.690/en
+      
+       Returns (r,s)
+    """
+    if (len(sig) < 8): 
+        raise InvalidDerSignature("bytestring too small")
+    if (sig[0] != 0x30):
+        raise InvalidDerSignature("missing \\x30 marker")
+    if (sig[1] != len(sig) - 2):
+        raise InvalidDerSignature("invalid length")
+    length_r = sig[3]
+    if (5 + length_r >= len(sig)):
+        raise InvalidDerSignature("invalid length")
+    length_s = sig[5 + length_r]
+    if (length_r + length_s + 6 != len(sig)):
+        raise InvalidDerSignature("invalid length")
+    if (sig[2] != 0x02):
+        raise InvalidDerSignature("invalid r marker")
+    if (length_r == 0):
+        raise InvalidDerSignature("invalid r value")
+    if (sig[4] & 0x80):
+        raise InvalidDerSignature("invalid r value")
+    if (length_r > 1 and (sig[4] == 0x00) and not(sig[5] & 0x80)):
+        raise InvalidDerSignature("invalid r value")
+    if (sig[length_r + 4] != 0x02):
+        raise InvalidDerSignature("invalid s marker")
+    if (length_s == 0):
+        raise InvalidDerSignature("invalid s value")
+    if (sig[length_r + 6] & 0x80):
+        raise InvalidDerSignature("invalid s value")
+    if (length_s > 1 and (sig[length_r + 6] == 0x00) and not (sig[length_r + 7] & 0x80)):
+        raise InvalidDerSignature("invalid s value")
+    r_data, s_data = sig[4:4+length_r], sig[6+length_r:] 
+    return _bytes_to_int(r_data), _bytes_to_int(s_data)
 
 
 def _parse_asn1_length(data):
