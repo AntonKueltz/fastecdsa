@@ -608,7 +608,7 @@ class TestSignatureDERencoding(unittest.TestCase):
         with self.assertRaises(InvalidDerSignature):
             der_decode_signature(b"\x30\x06\x02\x01\x01\x03\x01\x02")  # invalid length of s
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"\x30\x06\x03\x01\x01\x02\x01\x02")  # invalid integer market for r
+            der_decode_signature(b"\x30\x06\x03\x01\x01\x02\x01\x02")  # invalid INTEGER marker for r
         with self.assertRaises(InvalidDerSignature):
             der_decode_signature(b"\x30\x06\x02\x00\x02\x01\x02")  # length of r is 0
         with self.assertRaises(InvalidDerSignature):
@@ -616,13 +616,13 @@ class TestSignatureDERencoding(unittest.TestCase):
         with self.assertRaises(InvalidDerSignature):
             der_decode_signature(b"\x30\x07\x02\x02\x00\x01\x02\x01\x02")  # value of r starts with a zero byte
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"\x30\x06\x02\x01\x01\x03\x01\x02")  # invalid integer market for s
+            der_decode_signature(b"\x30\x06\x02\x01\x01\x03\x01\x02")  # invalid INTEGER marker for s
         with self.assertRaises(InvalidDerSignature):
             der_decode_signature(b"\x30\x06\x02\x01\x01\x02\x00")  # value of s is 0
         with self.assertRaises(InvalidDerSignature):
             der_decode_signature(b"\x30\x06\x02\x01\x01\x02\x01\x81")  # value of s is negative
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"\x30\x07\x02\x01\x01\x02\x02\x00\x02")  # value of s is starts with a zero byte
+            der_decode_signature(b"\x30\x07\x02\x01\x01\x02\x02\x00\x02")  # value of s starts with a zero byte
 
         self.assertEqual(der_decode_signature(b"\x30\x06\x02\x01\x01\x02\x01\x02"), (1, 2))
         self.assertEqual(der_decode_signature(b"0\x08\x02\x02\x00\x80\x02\x02\x00\x80"), (128, 128))  # verify zero bytes
