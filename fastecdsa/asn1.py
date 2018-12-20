@@ -150,8 +150,8 @@ def encode_public_key(Q):
 
 
 def der_encode_signature(r, s):
-    """Encode an EC signature in serialized DER format as described in 
-       https://tools.ietf.org/html/rfc2459 (section 7.2.2) and as detailed by 
+    """Encode an EC signature in serialized DER format as described in
+       https://tools.ietf.org/html/rfc2459 (section 7.2.2) and as detailed by
        bip-0066
 
     Args:
@@ -176,8 +176,8 @@ class InvalidDerSignature(Exception):
 
 
 def der_decode_signature(sig):
-    """Encode an EC signature in serialized DER format as described in 
-       https://tools.ietf.org/html/rfc2459 (section 7.2.2) and as detailed by 
+    """Encode an EC signature in serialized DER format as described in
+       https://tools.ietf.org/html/rfc2459 (section 7.2.2) and as detailed by
        bip-0066
 
        Returns (r,s)
