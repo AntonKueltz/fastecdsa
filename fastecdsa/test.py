@@ -5,16 +5,14 @@ from re import findall, DOTALL
 from six.moves.urllib.request import urlopen
 import unittest
 
-from fastecdsa.curve import (
+from .curve import (
     P192, P224, P256, P384, P521, secp192k1, secp224k1, secp256k1, brainpoolP160r1, brainpoolP192r1,
     brainpoolP224r1, brainpoolP256r1, brainpoolP320r1, brainpoolP384r1, brainpoolP512r1
 )
-from fastecdsa.ecdsa import sign, verify
-from fastecdsa.keys import export_key, gen_keypair, get_public_keys_from_sig, import_key
-from fastecdsa.point import Point
-from fastecdsa.util import RFC6979
-from fastecdsa.asn1 import der_encode_signature, InvalidDerSignature,\
-    der_decode_signature
+from .ecdsa import sign, verify
+from .keys import export_key, gen_keypair, get_public_keys_from_sig, import_key
+from .point import Point
+from .util import RFC6979
 
 CURVES = [
     P192, P224, P256, P384, P521, secp192k1, secp224k1, secp256k1, brainpoolP160r1, brainpoolP192r1,
