@@ -153,7 +153,7 @@ def indexbytes(buf, idx):
     """ Python2 and 3 compatibility for indexing bytes. Same as six.indexbytes"""
     if idx >= len(buf):
         raise IndexError("string index out of range")
-    return ord(buf[idx:idx+1])
+    return ord(buf[idx:idx + 1])
 
 
 def der_encode_signature(r, s):
