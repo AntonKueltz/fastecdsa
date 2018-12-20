@@ -122,3 +122,28 @@ def mod_sqrt(a, p):
         return x, (-x % p)
     else:
         return _tonelli_shanks(a, p)
+
+
+def msg_bytes(msg):
+    """Return bytes in a consistent way for a given message.
+
+    The message is expected to be either a string, bytes, or an array of bytes.
+
+    Args:
+        |  msg (str|bytes|bytearray): The data to transform.
+
+    Returns:
+        bytes: The byte encoded data.
+
+    Raises:
+        ValueError: If the data cannot be encoded as bytes.
+    """
+    if isinstance(msg, bytes):
+        return msg
+    elif isinstance(msg, str) or isinstance(msg, unicode):
+        return msg.encode()
+    elif isinstance(msg, bytearray):
+        return bytes(msg)
+    else:
+        raise ValueError('Msg "{}" of type {} cannot be converted to bytes'.format(
+            msg, type(msg)))

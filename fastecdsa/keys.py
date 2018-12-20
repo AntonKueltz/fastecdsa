@@ -5,7 +5,7 @@ from os import urandom
 from .curve import P256
 from .ecdsa import verify
 from .point import Point
-from .util import mod_sqrt
+from .util import mod_sqrt, msg_bytes
 
 
 def gen_keypair(curve):
@@ -83,7 +83,7 @@ def get_public_keys_from_sig(sig, msg, curve=P256, hashfunc=sha256):
 
     Args:
         |  sig (long, long): A ECDSA signature.
-        |  msg (str): The message corresponding to the signature.
+        |  msg (str|bytes|bytearray): The message corresponding to the signature.
         |  curve (fastecdsa.curve.Curve): The curve used to sign the message.
         |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
 
@@ -94,7 +94,7 @@ def get_public_keys_from_sig(sig, msg, curve=P256, hashfunc=sha256):
     r, s = sig
     rinv = pow(r, curve.q - 2, curve.q)
 
-    z = int(hashfunc(msg.encode()).hexdigest(), 16)
+    z = int(hashfunc(msg_bytes(msg)).hexdigest(), 16)
     hash_bit_length = hashfunc().digest_size * 8
     if curve.q.bit_length() < hash_bit_length:
         z >>= (hash_bit_length - curve.q.bit_length())
