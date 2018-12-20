@@ -10,10 +10,6 @@ SEQUENCE = b'\x30'
 PARAMETERS = b'\xa0'
 PUBLIC_KEY = b'\xa1'
 
-# Values for DER signature encoding
-DER_PREFIX = b"\x30"
-MARKER = b"\x02"
-
 EC_PRIVATE_HEADER = '-----BEGIN EC PRIVATE KEY-----'
 EC_PRIVATE_FOOTER = '-----END EC PRIVATE KEY-----'
 EC_PUBLIC_HEADER = '-----BEGIN PUBLIC KEY-----'
@@ -154,7 +150,9 @@ def encode_public_key(Q):
 
 
 def der_encode_signature(r, s):
-    """Encode an EC signature in serialized DER format
+    """Encode an EC signature in serialized DER format as described in 
+       https://tools.ietf.org/html/rfc2459 (section 7.2.2) and as detailed by 
+       bip-0066
 
     Args:
         r, s
@@ -169,8 +167,8 @@ def der_encode_signature(r, s):
     s_bytes = _int_to_bytes(s)
     if s_bytes[0] & 0x80:
         s_bytes = b"\x00" + s_bytes
-    r_s = MARKER + pack('B', len(r_bytes)) + r_bytes + MARKER + pack('B', len(s_bytes)) + s_bytes
-    return DER_PREFIX + pack('B', len(r_s)) + r_s
+    r_s = INTEGER + pack('B', len(r_bytes)) + r_bytes + INTEGER + pack('B', len(s_bytes)) + s_bytes
+    return SEQUENCE + pack('B', len(r_s)) + r_s
 
 
 class InvalidDerSignature(Exception):
@@ -178,14 +176,16 @@ class InvalidDerSignature(Exception):
 
 
 def der_decode_signature(sig):
-    """Decode an EC signature from strict serialized DER format https://www.itu.int/rec/T-REC-X.690/en
+    """Encode an EC signature in serialized DER format as described in 
+       https://tools.ietf.org/html/rfc2459 (section 7.2.2) and as detailed by 
+       bip-0066
 
        Returns (r,s)
     """
     if (len(sig) < 8):
         raise InvalidDerSignature("bytestring too small")
-    if (sig[0] != 0x30):
-        raise InvalidDerSignature("missing \\x30 marker")
+    if (sig[0] != ord(SEQUENCE)):
+        raise InvalidDerSignature("missing SEQUENCE marker")
     if (sig[1] != len(sig) - 2):
         raise InvalidDerSignature("invalid length")
     length_r = sig[3]
@@ -194,7 +194,7 @@ def der_decode_signature(sig):
     length_s = sig[5 + length_r]
     if (length_r + length_s + 6 != len(sig)):
         raise InvalidDerSignature("invalid length")
-    if (sig[2] != 0x02):
+    if (sig[2] != ord(INTEGER)):
         raise InvalidDerSignature("invalid r marker")
     if (length_r == 0):
         raise InvalidDerSignature("invalid r value")
@@ -202,7 +202,7 @@ def der_decode_signature(sig):
         raise InvalidDerSignature("invalid r value")
     if (length_r > 1 and (sig[4] == 0x00) and not(sig[5] & 0x80)):
         raise InvalidDerSignature("invalid r value")
-    if (sig[length_r + 4] != 0x02):
+    if (sig[length_r + 4] != ord(INTEGER)):
         raise InvalidDerSignature("invalid s marker")
     if (length_s == 0):
         raise InvalidDerSignature("invalid s value")
