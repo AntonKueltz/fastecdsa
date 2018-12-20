@@ -28,11 +28,11 @@ def gen_keypair(curve):
     return private_key, public_key
 
 
-def gen_private_key(curve):
+def gen_private_key(curve, randfunc=urandom):
     """Generate a private key to sign data with.
 
     The private key :math:`d` is an integer generated via a cryptographically secure random number
-    generator that lies in the range :math:`[1,n)`, where :math:`n` is the curve order. The specific
+    generator that lies in the range :math:`[1,n)`, where :math:`n` is the curve order. The default
     random number generator used is /dev/urandom.
 
     Args:
@@ -48,15 +48,15 @@ def gen_private_key(curve):
         order >>= 1
         order_bits += 1
 
-    order_bytes = (order_bits + 7) // 8  # urandom only takes bytes
+    order_bytes = (order_bits + 7) // 8  # randfunc only takes bytes
     extra_bits = order_bytes * 8 - order_bits  # bits to shave off after getting bytes
 
-    rand = int(hexlify(urandom(order_bytes)), 16)
+    rand = int(hexlify(randfunc(order_bytes)), 16)
     rand >>= extra_bits
 
     # no modding by group order or we'll introduce biases
     while rand >= curve.q:
-        rand = int(hexlify(urandom(order_bytes)), 16)
+        rand = int(hexlify(randfunc(order_bytes)), 16)
         rand >>= extra_bits
 
     return rand
