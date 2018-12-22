@@ -20,7 +20,7 @@ class RFC6979:
     def __init__(self, msg, x, q, hashfunc):
         self.x = x
         self.q = q
-        self.msg = msg
+        self.msg = msg_bytes(msg)
         self.qlen = len(bin(q)) - 2  # -2 for the leading '0b'
         self.rlen = ((self.qlen + 7) // 8) * 8
         self.hashfunc = hashfunc
@@ -54,7 +54,7 @@ class RFC6979:
 
     def gen_nonce(self):
         """ http://tools.ietf.org/html/rfc6979#section-3.2 """
-        h1 = self.hashfunc(self.msg.encode())
+        h1 = self.hashfunc(self.msg)
         hash_size = h1.digest_size
         h1 = h1.digest()
         key_and_msg = self._int2octets(self.x) + self._bits2octets(h1)
