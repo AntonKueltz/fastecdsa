@@ -38,6 +38,14 @@ def _int_to_bytes(x):
     return bs
 
 
+def _bytes_to_int(bytestr):
+    """Make an integer from a big endian bytestring."""
+    value = 0
+    for i in range(len(bytestr)):
+        value = value * 256 + indexbytes(bytestr, i)
+    return (value)
+
+
 def _asn1_len(data):
     # https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf
     # section 8.1.3.3
@@ -139,6 +147,78 @@ def encode_public_key(Q):
     b64_data = '\n'.join(wrap(b2a_base64(ec_public_key).decode(), 64))
 
     return EC_PUBLIC_HEADER + '\n' + b64_data + '\n' + EC_PUBLIC_FOOTER
+
+
+def indexbytes(buf, idx):
+    """ Python2 and 3 compatibility for indexing bytes. Same as six.indexbytes"""
+    if idx >= len(buf):
+        raise IndexError("string index out of range")
+    return ord(buf[idx:idx + 1])
+
+
+def der_encode_signature(r, s):
+    """Encode an EC signature in serialized DER format as described in
+       https://tools.ietf.org/html/rfc2459 (section 7.2.2) and as detailed by
+       bip-0066
+
+    Args:
+        r, s
+
+    Returns:
+        bytes: The DER encoded signature
+
+    """
+    r_bytes = _int_to_bytes(r)
+    if indexbytes(r_bytes, 0) & 0x80:
+        r_bytes = b"\x00" + r_bytes
+    s_bytes = _int_to_bytes(s)
+    if indexbytes(s_bytes, 0) & 0x80:
+        s_bytes = b"\x00" + s_bytes
+    r_s = INTEGER + pack('B', len(r_bytes)) + r_bytes + INTEGER + pack('B', len(s_bytes)) + s_bytes
+    return SEQUENCE + pack('B', len(r_s)) + r_s
+
+
+class InvalidDerSignature(Exception):
+    pass
+
+
+def der_decode_signature(sig):
+    """Decode an EC signature from serialized DER format as described in
+       https://tools.ietf.org/html/rfc2459 (section 7.2.2) and as detailed by
+       bip-0066
+
+       Returns (r,s)
+    """
+    if len(sig) < 8:
+        raise InvalidDerSignature("bytestring too small")
+    if indexbytes(sig, 0) != ord(SEQUENCE):
+        raise InvalidDerSignature("missing SEQUENCE marker")
+    if indexbytes(sig, 1) != len(sig) - 2:
+        raise InvalidDerSignature("invalid length")
+    length_r = indexbytes(sig, 3)
+    if 5 + length_r >= len(sig):
+        raise InvalidDerSignature("invalid length")
+    length_s = indexbytes(sig, 5 + length_r)
+    if length_r + length_s + 6 != len(sig):
+        raise InvalidDerSignature("invalid length")
+    if indexbytes(sig, 2) != ord(INTEGER):
+        raise InvalidDerSignature("invalid r marker")
+    if length_r == 0:
+        raise InvalidDerSignature("invalid r value")
+    if indexbytes(sig, 4) & 0x80:
+        raise InvalidDerSignature("invalid r value")
+    if (length_r > 1 and (indexbytes(sig, 4) == 0x00) and not (indexbytes(sig, 5) & 0x80)):
+        raise InvalidDerSignature("invalid r value")
+    if indexbytes(sig, length_r + 4) != ord(INTEGER):
+        raise InvalidDerSignature("invalid s marker")
+    if length_s == 0:
+        raise InvalidDerSignature("invalid s value")
+    if indexbytes(sig, length_r + 6) & 0x80:
+        raise InvalidDerSignature("invalid s value")
+    if (length_s > 1 and (indexbytes(sig, length_r + 6) == 0x00) and not (indexbytes(sig, length_r + 7) & 0x80)):
+        raise InvalidDerSignature("invalid s value")
+    r_data, s_data = sig[4:4 + length_r], sig[6 + length_r:]
+    return _bytes_to_int(r_data), _bytes_to_int(s_data)
 
 
 def _parse_asn1_length(data):
