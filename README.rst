@@ -297,9 +297,10 @@ Acknowledgements
 ----------------
 Thanks to those below for contributing improvements:
 
-- clouds56
-- targon
 - boneyard93501
+- clouds56
+- sirk390
+- targon
 
 .. _GMP: https://gmplib.org/
 .. _RFC5480: https://tools.ietf.org/html/rfc5480
