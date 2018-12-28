@@ -37,7 +37,9 @@ def gen_private_key(curve, randfunc=urandom):
 
     Args:
         curve (fastecdsa.curve.Curve): The curve over which the key will be calulated.
-
+        randfunc (function): A function taking one argument 'n' and returning a bytestring
+                             of n random bytes suitable for cryptographic use.
+                             The default is "os.urandom"
     Returns:
         long: Returns a positive integer smaller than the curve order.
     """
