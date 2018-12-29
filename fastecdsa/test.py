@@ -10,7 +10,7 @@ from .curve import (
     brainpoolP224r1, brainpoolP256r1, brainpoolP320r1, brainpoolP384r1, brainpoolP512r1
 )
 from .ecdsa import sign, verify
-from .keys import export_key, gen_keypair, get_public_keys_from_sig, import_key
+from .keys import export_key, gen_keypair, get_public_keys_from_sig, import_key, gen_private_key
 from .point import Point
 from .util import RFC6979
 
@@ -624,4 +624,4 @@ class TestKeyRecovery(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main(defaultTest="TestKeys")
+    unittest.main()
