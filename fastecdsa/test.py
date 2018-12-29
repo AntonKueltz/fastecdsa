@@ -574,7 +574,7 @@ class TestKeys(unittest.TestCase):
                 self.pos = 0
 
             def __call__(self, nb):
-                result = self.values[self.pos:self.pos+nb]
+                result = self.values[self.pos:self.pos + nb]
                 self.pos += nb
                 return result
         self.assertEqual(gen_private_key(FakeCurve(2), randfunc=FakeRandom(b"\x00")), 0)
