@@ -11,9 +11,10 @@ from .curve import (
 )
 from .ecdsa import sign, verify
 from .keys import export_key, gen_keypair, get_public_keys_from_sig, import_key
-from .point import Point
+from .point import Point, InvalidSEC1PublicKey
 from .util import RFC6979
 from .asn1 import der_encode_signature, InvalidDerSignature, der_decode_signature
+from binascii import unhexlify, hexlify
 
 CURVES = [
     P192, P224, P256, P384, P521, secp192k1, secp224k1, secp256k1, brainpoolP160r1, brainpoolP192r1,
@@ -197,6 +198,7 @@ class TestNonceGeneration(unittest.TestCase):
 
 class TestPrimeFieldECDSA(unittest.TestCase):
     """ case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 """
+
     def test_ecdsa_P256_SHA1_sign(self):
         d = 0xC9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721
         expected = (
@@ -210,6 +212,7 @@ class TestPrimeFieldECDSA(unittest.TestCase):
         self.assertTrue(verify(sig, 'sample', Q, curve=P256, hashfunc=sha1))
 
     """ case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 """
+
     def test_ecdsa_P256_SHA224_sign(self):
         d = 0xC9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721
         expected = (
@@ -223,6 +226,7 @@ class TestPrimeFieldECDSA(unittest.TestCase):
         self.assertTrue(verify(sig, 'sample', Q, curve=P256, hashfunc=sha224))
 
     """ case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 """
+
     def test_ecdsa_P256_SHA2_sign(self):
         d = 0xC9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721
         expected = (
@@ -236,6 +240,7 @@ class TestPrimeFieldECDSA(unittest.TestCase):
         self.assertTrue(verify(sig, 'sample', Q, curve=P256, hashfunc=sha256))
 
     """ case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 """
+
     def test_ecdsa_P256_SHA384_sign(self):
         d = 0xC9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721
         expected = (
@@ -249,6 +254,7 @@ class TestPrimeFieldECDSA(unittest.TestCase):
         self.assertTrue(verify(sig, 'sample', Q, curve=P256, hashfunc=sha384))
 
     """ case taken from http://tools.ietf.org/html/rfc6979#appendix-A.2.5 """
+
     def test_ecdsa_P256_SHA512_sign(self):
         d = 0xC9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721
         expected = (
@@ -262,6 +268,7 @@ class TestPrimeFieldECDSA(unittest.TestCase):
         self.assertTrue(verify(sig, 'sample', Q, curve=P256, hashfunc=sha512))
 
     """ case taken from https://www.nsa.gov/ia/_files/ecdsa.pdf """
+
     def test_ecdsa_P256_verify(self):
         Q = Point(
             0x8101ece47464a6ead70cf69a6e2bd3d88691a3262d22cba4f7635eaff26680a8,
@@ -627,6 +634,71 @@ class TestSignatureDERencoding(unittest.TestCase):
         self.assertEqual(der_decode_signature(b"\x30\x06\x02\x01\x01\x02\x01\x02"), (1, 2))
         self.assertEqual(der_decode_signature(b"0\x08\x02\x02\x00\x80\x02\x02\x00\x80"), (128, 128))  # verify zero bytes
         self.assertEqual(der_decode_signature(b"0\x08\x02\x02\x03\xE8\x02\x02\x03\xE8"), (1000, 1000))  # verify byte order
+
+
+class TestEncodePublicKey(unittest.TestCase):
+    def test_SEC1_encode_public_key(self):
+        # 1/ PrivateKey generated using openssl "openssl ecparam -name secp256k1 -genkey -out ec-priv.pem"
+        # 2/ Printed using "openssl ec -in ec-priv.pem -text -noout" and converted to numeric using "asn1._bytes_to_int"
+        priv_key = 7002880736699640265110069622773736733141182416793484574964618597954446769264
+        pubkey_compressed = hexlify((secp256k1.G * priv_key).encode())
+        pubkey_uncompressed = hexlify((secp256k1.G * priv_key).encode(compressed=False))
+        # 3/ PublicKey extracted using "openssl ec -in ec-priv.pem -pubout -out ec-pub.pem"
+        # 4/ Encoding verified using openssl "openssl ec -in ec-pub.pem -pubin -text -noout -conv_form compressed"
+        self.assertEqual(pubkey_compressed, b'02e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f35835062')
+        self.assertEqual(pubkey_uncompressed, b'04e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f3583506'
+                                              b'23dad76df888abde5ed0cc5af1b83968edffcae5d70bedb24fdc18bb5f79499d0')
+        # Same with P256 Curve
+        priv_P256 = 807015861248675637760562792774171551137308512372870683367415858378856470633
+        pubkey_compressed = hexlify((P256.G * priv_P256).encode())
+        pubkey_uncompressed = hexlify((P256.G * priv_P256).encode(compressed=False))
+        self.assertEqual(pubkey_compressed, b'0212c9ddf64b0d1f1d91d9bd729abfb880079fa889d66604cc0b78c9cbc271824c')
+        self.assertEqual(pubkey_uncompressed, b'0412c9ddf64b0d1f1d91d9bd729abfb880079fa889d66604cc0b78c9cbc271824'
+                                              b'c9a7d581bcf2aba680b53cedbade03be62fe95869da04a168a458f369ac6a823e')
+        # And secp192k1 Curve
+        priv_secp192k1 = 5345863567856687638748079156318679969014620278806295592453
+        pubkey_compressed = hexlify((secp192k1.G * priv_secp192k1).encode())
+        pubkey_uncompressed = hexlify((secp192k1.G * priv_secp192k1).encode(compressed=False))
+        self.assertEqual(pubkey_compressed, b'03a3bec5fba6d13e51fb55bd88dd097cb9b04f827bc151d22d')
+        self.assertEqual(pubkey_uncompressed, b'04a3bec5fba6d13e51fb55bd88dd097cb9b04f827bc151d22'
+                                              b'df07a73819149e8d903aa983e52ab1cff38f0d381f940d361')
+
+    def test_SEC1_decode_public_key(self):
+        expected_public = Point(x=0xe5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f35835062,
+                                y=0x3dad76df888abde5ed0cc5af1b83968edffcae5d70bedb24fdc18bb5f79499d0,
+                                curve=secp256k1)
+        public_from_compressed = Point.decode(secp256k1,
+                                                   unhexlify(b'02e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f35835062'))
+        public_from_uncompressed = Point.decode(secp256k1,
+                                                     unhexlify(b'04e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f3583506'
+                                                               b'23dad76df888abde5ed0cc5af1b83968edffcae5d70bedb24fdc18bb5f79499d0'))
+        # Same values as in "test_SEC1_encode_public_key", verified using openssl
+        self.assertEqual(public_from_compressed, expected_public)
+        self.assertEqual(public_from_uncompressed, expected_public)
+        with self.assertRaises(InvalidSEC1PublicKey) as e:
+            Point.decode(secp256k1, b'\x02')  # invalid compressed length
+        self.assertEqual(e.exception.args[0], "A compressed public key must be 33 bytes long")
+        with self.assertRaises(InvalidSEC1PublicKey) as e:
+            Point.decode(secp256k1, b'\x04')  # invalid uncompressed length
+        self.assertEqual(e.exception.args[0], "An uncompressed public key must be 65 bytes long")
+        with self.assertRaises(InvalidSEC1PublicKey) as e:
+            # invalid prefix value
+            Point.decode(secp256k1, unhexlify(b'05e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f35835062'))
+        self.assertEqual(e.exception.args[0], "Wrong key format")
+        # With P256, same values as in "test_SEC1_encode_public_key", verified using openssl
+        expected_P256 = Point(x=0x12c9ddf64b0d1f1d91d9bd729abfb880079fa889d66604cc0b78c9cbc271824c,
+                              y=0x9a7d581bcf2aba680b53cedbade03be62fe95869da04a168a458f369ac6a823e,
+                              curve=P256)
+        public_from_compressed = Point.decode(P256,
+                                                   unhexlify(b'0212c9ddf64b0d1f1d91d9bd729abfb880079fa889d66604cc0b78c9cbc271824c'))
+        self.assertEqual(public_from_compressed, expected_P256)
+        # With P256, same values as in "test_SEC1_encode_public_key", verified using openssl
+        expected_secp192k1 = Point(x=0xa3bec5fba6d13e51fb55bd88dd097cb9b04f827bc151d22d,
+                                   y=0xf07a73819149e8d903aa983e52ab1cff38f0d381f940d361,
+                                   curve=secp192k1)
+        public_from_compressed = Point.decode(secp192k1,
+                                                   unhexlify(b'03a3bec5fba6d13e51fb55bd88dd097cb9b04f827bc151d22d'))
+        self.assertEqual(public_from_compressed, expected_secp192k1)
 
 
 class TestKeyRecovery(unittest.TestCase):

@@ -1,11 +1,17 @@
 from fastecdsa import curvemath
 from .curve import P256
+from .asn1 import _int_to_bytes, _int_bytelen, _bytes_to_int
+from .util import mod_sqrt
 
 
 class CurveMismatchError(Exception):
     def __init__(self, curve1, curve2):
         self.msg = 'Tried to add points on two different curves <{}> & <{}>'.format(
             curve1.name, curve2.name)
+
+
+class InvalidSEC1PublicKey(Exception):
+    pass
 
 
 class Point:
@@ -16,6 +22,7 @@ class Point:
         |  y (long): The y coordinate of the point.
         |  curve (:class:`Curve`): The curve that the point lies on.
     """
+
     def __init__(self, x, y, curve=P256):
         """Initialize a point on an elliptic curve.
 
@@ -34,6 +41,61 @@ class Point:
             self.x = x
             self.y = y
             self.curve = curve
+
+    @classmethod
+    def decode(cls, curve, key):
+        """ Decode a public key as described in http://www.secg.org/SEC1-Ver-1.0.pdf
+            in sections 2.3.3/2.3.4
+
+                compressed:     04 + x_bytes + y_bytes
+                uncompressed:   02 or 03 + x_bytes
+
+        Args:
+            curve (Curve): Curve to use when decoding the public key
+            key (bytes): public key encoded using the SEC1 format
+
+        Returns:
+            Point: The decoded public key
+
+        Raises:
+            InvalidSEC1PublicKey
+        """
+        bytelen = _int_bytelen(curve.q)
+        if key.startswith(b'\x04'):        # uncompressed key
+            if len(key) != bytelen*2+1:
+                raise InvalidSEC1PublicKey('An uncompressed public key must be %d bytes long' % (bytelen*2+1))
+            x, y = _bytes_to_int(key[1:bytelen+1]), _bytes_to_int(key[bytelen+1:])
+        else:                              # compressed key
+            if len(key) != bytelen+1:
+                raise InvalidSEC1PublicKey('A compressed public key must be %d bytes long' % (bytelen+1))
+            x = _bytes_to_int(key[1:])
+            root = mod_sqrt(curve.evaluate(x), curve.p)[0]
+            if key.startswith(b'\x03'):    # odd root
+                y = root if root % 2 == 1 else -root % curve.p
+            elif key.startswith(b'\x02'):  # even root
+                y = root if root % 2 == 0 else -root % curve.p
+            else:
+                raise InvalidSEC1PublicKey('Wrong key format')
+        return cls(x, y, curve=curve)
+
+    def encode(self, compressed=True):
+        """ Encode a public key as described in http://www.secg.org/SEC1-Ver-1.0.pdf
+            in sections 2.3.3/2.3.4
+                compressed:     04 + x_bytes + y_bytes
+                uncompressed:   02 or 03 + x_bytes
+        Args:
+            compressed (bool): Set to False if you want an uncompressed format
+
+        Returns:
+            bytes: The SEC1 encoded public key
+        """
+        bytelen = _int_bytelen(self.curve.q)
+        if compressed:
+            if self.y & 1:  # odd root
+                return b'\x03' + _int_to_bytes(self.x).rjust(bytelen, b'\x00')
+            else:           # even root
+                return b'\x02' + _int_to_bytes(self.x).rjust(bytelen, b'\x00')
+        return b'\x04' + _int_to_bytes(self.x).rjust(bytelen, b'\x00') + _int_to_bytes(self.y).rjust(bytelen, b'\x00')
 
     def __str__(self):
         if self == self.IDENTITY_ELEMENT:
