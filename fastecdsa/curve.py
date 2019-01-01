@@ -76,7 +76,7 @@ class Curve:
 
     def evaluate(self, x):
         """ Evaluate the elliptic curve polynomial at 'x'
-        
+
         Args:
             x (int): The position to evaluate the polynomial at
 

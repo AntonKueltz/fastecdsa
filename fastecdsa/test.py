@@ -668,10 +668,10 @@ class TestEncodePublicKey(unittest.TestCase):
                                 y=0x3dad76df888abde5ed0cc5af1b83968edffcae5d70bedb24fdc18bb5f79499d0,
                                 curve=secp256k1)
         public_from_compressed = Point.decode(secp256k1,
-                                                   unhexlify(b'02e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f35835062'))
+                                              unhexlify(b'02e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f35835062'))
         public_from_uncompressed = Point.decode(secp256k1,
-                                                     unhexlify(b'04e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f3583506'
-                                                               b'23dad76df888abde5ed0cc5af1b83968edffcae5d70bedb24fdc18bb5f79499d0'))
+                                                unhexlify(b'04e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f3583506'
+                                                          b'23dad76df888abde5ed0cc5af1b83968edffcae5d70bedb24fdc18bb5f79499d0'))
         # Same values as in "test_SEC1_encode_public_key", verified using openssl
         self.assertEqual(public_from_compressed, expected_public)
         self.assertEqual(public_from_uncompressed, expected_public)
@@ -690,14 +690,14 @@ class TestEncodePublicKey(unittest.TestCase):
                               y=0x9a7d581bcf2aba680b53cedbade03be62fe95869da04a168a458f369ac6a823e,
                               curve=P256)
         public_from_compressed = Point.decode(P256,
-                                                   unhexlify(b'0212c9ddf64b0d1f1d91d9bd729abfb880079fa889d66604cc0b78c9cbc271824c'))
+                                              unhexlify(b'0212c9ddf64b0d1f1d91d9bd729abfb880079fa889d66604cc0b78c9cbc271824c'))
         self.assertEqual(public_from_compressed, expected_P256)
         # With P256, same values as in "test_SEC1_encode_public_key", verified using openssl
         expected_secp192k1 = Point(x=0xa3bec5fba6d13e51fb55bd88dd097cb9b04f827bc151d22d,
                                    y=0xf07a73819149e8d903aa983e52ab1cff38f0d381f940d361,
                                    curve=secp192k1)
         public_from_compressed = Point.decode(secp192k1,
-                                                   unhexlify(b'03a3bec5fba6d13e51fb55bd88dd097cb9b04f827bc151d22d'))
+                                              unhexlify(b'03a3bec5fba6d13e51fb55bd88dd097cb9b04f827bc151d22d'))
         self.assertEqual(public_from_compressed, expected_secp192k1)
 
 

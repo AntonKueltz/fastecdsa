@@ -62,12 +62,12 @@ class Point:
         """
         bytelen = _int_bytelen(curve.q)
         if key.startswith(b'\x04'):        # uncompressed key
-            if len(key) != bytelen*2+1:
-                raise InvalidSEC1PublicKey('An uncompressed public key must be %d bytes long' % (bytelen*2+1))
-            x, y = _bytes_to_int(key[1:bytelen+1]), _bytes_to_int(key[bytelen+1:])
+            if len(key) != bytelen * 2 + 1:
+                raise InvalidSEC1PublicKey('An uncompressed public key must be %d bytes long' % (bytelen * 2 + 1))
+            x, y = _bytes_to_int(key[1:bytelen + 1]), _bytes_to_int(key[bytelen + 1:])
         else:                              # compressed key
-            if len(key) != bytelen+1:
-                raise InvalidSEC1PublicKey('A compressed public key must be %d bytes long' % (bytelen+1))
+            if len(key) != bytelen + 1:
+                raise InvalidSEC1PublicKey('A compressed public key must be %d bytes long' % (bytelen + 1))
             x = _bytes_to_int(key[1:])
             root = mod_sqrt(curve.evaluate(x), curve.p)[0]
             if key.startswith(b'\x03'):    # odd root
