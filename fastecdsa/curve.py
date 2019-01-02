@@ -61,7 +61,7 @@ class Curve:
     @classmethod
     def get_curve_by_name(cls, name):
         """Get a curve via its name."""
-        return cls._name_lookup.get(oid, None)
+        return cls._name_lookup.get(name, None)
 
     def is_point_on_curve(self, P):
         """ Check if a point lies on this curve.
