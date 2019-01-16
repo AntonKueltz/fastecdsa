@@ -1,5 +1,3 @@
-
-
 class Curve:
     """Representation of an elliptic curve.
 
@@ -81,7 +79,7 @@ class Curve:
             x (int): The position to evaluate the polynomial at
 
         Returns:
-            int: the value of (x^3 + ax + b) mod p
+            int: the value of :math:`(x^3 + ax + b) \bmod{p}`
         """
         return (x ** 3 + self.a * x + self.b) % self.p
 

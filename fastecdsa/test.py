@@ -1,3 +1,4 @@
+from binascii import unhexlify, hexlify
 from hashlib import sha1, sha224, sha256, sha384, sha512
 from os import remove
 from random import choice, randint
@@ -10,11 +11,11 @@ from .curve import (
     brainpoolP224r1, brainpoolP256r1, brainpoolP320r1, brainpoolP384r1, brainpoolP512r1
 )
 from .ecdsa import sign, verify
+from .encoding.rfc2459 import InvalidDerSignature, RFC2459
+from .encoding.sec1 import InvalidSEC1PublicKey, decode as sec1_decode, encode as sec1_encode
 from .keys import export_key, gen_keypair, get_public_keys_from_sig, import_key
-from .point import Point, InvalidSEC1PublicKey
+from .point import Point
 from .util import RFC6979
-from .asn1 import der_encode_signature, InvalidDerSignature, der_decode_signature
-from binascii import unhexlify, hexlify
 
 CURVES = [
     P192, P224, P256, P384, P521, secp192k1, secp224k1, secp256k1, brainpoolP160r1, brainpoolP192r1,
@@ -590,50 +591,54 @@ class TestAsn1(unittest.TestCase):
 
 class TestSignatureDERencoding(unittest.TestCase):
     def test_encode_der_signature(self):
-        self.assertEqual(der_encode_signature(r=1, s=2), b"\x30"  # SEQUENCE
-                                                         b"\x06"  # Length of Sequence
-                                                         b"\x02"  # INTEGER
-                                                         b"\x01"  # Length of r
-                                                         b"\x01"  # r
-                                                         b"\x02"  # INTEGER
-                                                         b"\x01"  # Length of s
-                                                         b"\x02")  # s
+        rfc2459 = RFC2459()
+        self.assertEqual(rfc2459.encode_signature(r=1, s=2), b"\x30"  # SEQUENCE
+                                                             b"\x06"  # Length of Sequence
+                                                             b"\x02"  # INTEGER
+                                                             b"\x01"  # Length of r
+                                                             b"\x01"  # r
+                                                             b"\x02"  # INTEGER
+                                                             b"\x01"  # Length of s
+                                                             b"\x02")  # s
 
         # Check that we add a zero byte when the number's highest bit is set
-        self.assertEqual(der_encode_signature(r=128, s=128),
+        self.assertEqual(rfc2459.encode_signature(r=128, s=128),
                          b"0\x08\x02\x02\x00\x80\x02\x02\x00\x80")
 
     def test_decode_der_signature(self):
+        rfc2459 = RFC2459()
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"")  # length to shot
+            rfc2459.decode_signature(b"")  # length to shot
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"\x31\x06\x02\x01\x01\x02\x01\x02")  # invalid SEQUENCE marker
+            rfc2459.decode_signature(b"\x31\x06\x02\x01\x01\x02\x01\x02")  # invalid SEQUENCE marker
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"\x30\x07\x02\x01\x01\x02\x01\x02")  # invalid length
+            rfc2459.decode_signature(b"\x30\x07\x02\x01\x01\x02\x01\x02")  # invalid length
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"\x30\x06\x02\x03\x01\x02\x01\x02")  # invalid length of r
+            rfc2459.decode_signature(b"\x30\x06\x02\x03\x01\x02\x01\x02")  # invalid length of r
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"\x30\x06\x02\x01\x01\x03\x01\x02")  # invalid length of s
+            rfc2459.decode_signature(b"\x30\x06\x02\x01\x01\x03\x01\x02")  # invalid length of s
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"\x30\x06\x03\x01\x01\x02\x01\x02")  # invalid INTEGER marker for r
+            rfc2459.decode_signature(b"\x30\x06\x03\x01\x01\x02\x01\x02")  # invalid INTEGER marker for r
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"\x30\x06\x02\x00\x02\x01\x02")  # length of r is 0
+            rfc2459.decode_signature(b"\x30\x06\x02\x00\x02\x01\x02")  # length of r is 0
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"\x30\x06\x02\x01\x81\x02\x01\x02")  # value of r is negative
+            rfc2459.decode_signature(b"\x30\x06\x02\x01\x81\x02\x01\x02")  # value of r is negative
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"\x30\x07\x02\x02\x00\x01\x02\x01\x02")  # value of r starts with a zero byte
+            rfc2459.decode_signature(b"\x30\x07\x02\x02\x00\x01\x02\x01\x02")  # value of r starts with a zero byte
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"\x30\x06\x02\x01\x01\x03\x01\x02")  # invalid INTEGER marker for s
+            rfc2459.decode_signature(b"\x30\x06\x02\x01\x01\x03\x01\x02")  # invalid INTEGER marker for s
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"\x30\x06\x02\x01\x01\x02\x00")  # value of s is 0
+            rfc2459.decode_signature(b"\x30\x06\x02\x01\x01\x02\x00")  # value of s is 0
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"\x30\x06\x02\x01\x01\x02\x01\x81")  # value of s is negative
+            rfc2459.decode_signature(b"\x30\x06\x02\x01\x01\x02\x01\x81")  # value of s is negative
         with self.assertRaises(InvalidDerSignature):
-            der_decode_signature(b"\x30\x07\x02\x01\x01\x02\x02\x00\x02")  # value of s starts with a zero byte
+            rfc2459.decode_signature(b"\x30\x07\x02\x01\x01\x02\x02\x00\x02")  # value of s starts with a zero byte
 
-        self.assertEqual(der_decode_signature(b"\x30\x06\x02\x01\x01\x02\x01\x02"), (1, 2))
-        self.assertEqual(der_decode_signature(b"0\x08\x02\x02\x00\x80\x02\x02\x00\x80"), (128, 128))  # verify zero bytes
-        self.assertEqual(der_decode_signature(b"0\x08\x02\x02\x03\xE8\x02\x02\x03\xE8"), (1000, 1000))  # verify byte order
+        self.assertEqual(rfc2459.decode_signature(b"\x30\x06\x02\x01\x01\x02\x01\x02"), (1, 2))
+        self.assertEqual(rfc2459.decode_signature(b"0\x08\x02\x02\x00\x80\x02\x02\x00\x80"),
+                         (128, 128))  # verify zero bytes
+        self.assertEqual(rfc2459.decode_signature(b"0\x08\x02\x02\x03\xE8\x02\x02\x03\xE8"),
+                         (1000, 1000))  # verify byte order
 
 
 class TestEncodePublicKey(unittest.TestCase):
@@ -641,8 +646,8 @@ class TestEncodePublicKey(unittest.TestCase):
         # 1/ PrivateKey generated using openssl "openssl ecparam -name secp256k1 -genkey -out ec-priv.pem"
         # 2/ Printed using "openssl ec -in ec-priv.pem -text -noout" and converted to numeric using "asn1._bytes_to_int"
         priv_key = 7002880736699640265110069622773736733141182416793484574964618597954446769264
-        pubkey_compressed = hexlify((secp256k1.G * priv_key).encode())
-        pubkey_uncompressed = hexlify((secp256k1.G * priv_key).encode(compressed=False))
+        pubkey_compressed = hexlify(sec1_encode(secp256k1.G * priv_key))
+        pubkey_uncompressed = hexlify(sec1_encode(secp256k1.G * priv_key, compressed=False))
         # 3/ PublicKey extracted using "openssl ec -in ec-priv.pem -pubout -out ec-pub.pem"
         # 4/ Encoding verified using openssl "openssl ec -in ec-pub.pem -pubin -text -noout -conv_form compressed"
         self.assertEqual(pubkey_compressed, b'02e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f35835062')
@@ -650,15 +655,15 @@ class TestEncodePublicKey(unittest.TestCase):
                                               b'23dad76df888abde5ed0cc5af1b83968edffcae5d70bedb24fdc18bb5f79499d0')
         # Same with P256 Curve
         priv_P256 = 807015861248675637760562792774171551137308512372870683367415858378856470633
-        pubkey_compressed = hexlify((P256.G * priv_P256).encode())
-        pubkey_uncompressed = hexlify((P256.G * priv_P256).encode(compressed=False))
+        pubkey_compressed = hexlify(sec1_encode(P256.G * priv_P256))
+        pubkey_uncompressed = hexlify(sec1_encode(P256.G * priv_P256, compressed=False))
         self.assertEqual(pubkey_compressed, b'0212c9ddf64b0d1f1d91d9bd729abfb880079fa889d66604cc0b78c9cbc271824c')
         self.assertEqual(pubkey_uncompressed, b'0412c9ddf64b0d1f1d91d9bd729abfb880079fa889d66604cc0b78c9cbc271824'
                                               b'c9a7d581bcf2aba680b53cedbade03be62fe95869da04a168a458f369ac6a823e')
         # And secp192k1 Curve
         priv_secp192k1 = 5345863567856687638748079156318679969014620278806295592453
-        pubkey_compressed = hexlify((secp192k1.G * priv_secp192k1).encode())
-        pubkey_uncompressed = hexlify((secp192k1.G * priv_secp192k1).encode(compressed=False))
+        pubkey_compressed = hexlify(sec1_encode(secp192k1.G * priv_secp192k1))
+        pubkey_uncompressed = hexlify(sec1_encode(secp192k1.G * priv_secp192k1, compressed=False))
         self.assertEqual(pubkey_compressed, b'03a3bec5fba6d13e51fb55bd88dd097cb9b04f827bc151d22d')
         self.assertEqual(pubkey_uncompressed, b'04a3bec5fba6d13e51fb55bd88dd097cb9b04f827bc151d22'
                                               b'df07a73819149e8d903aa983e52ab1cff38f0d381f940d361')
@@ -667,37 +672,37 @@ class TestEncodePublicKey(unittest.TestCase):
         expected_public = Point(x=0xe5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f35835062,
                                 y=0x3dad76df888abde5ed0cc5af1b83968edffcae5d70bedb24fdc18bb5f79499d0,
                                 curve=secp256k1)
-        public_from_compressed = Point.decode(secp256k1,
-                                              unhexlify(b'02e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f35835062'))
-        public_from_uncompressed = Point.decode(secp256k1,
-                                                unhexlify(b'04e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f3583506'
-                                                          b'23dad76df888abde5ed0cc5af1b83968edffcae5d70bedb24fdc18bb5f79499d0'))
+        public_from_compressed = sec1_decode(
+            secp256k1, unhexlify(b'02e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f35835062'))
+        public_from_uncompressed = sec1_decode(
+            secp256k1, unhexlify(b'04e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f3583506'
+                                 b'23dad76df888abde5ed0cc5af1b83968edffcae5d70bedb24fdc18bb5f79499d0'))
         # Same values as in "test_SEC1_encode_public_key", verified using openssl
         self.assertEqual(public_from_compressed, expected_public)
         self.assertEqual(public_from_uncompressed, expected_public)
         with self.assertRaises(InvalidSEC1PublicKey) as e:
-            Point.decode(secp256k1, b'\x02')  # invalid compressed length
+            sec1_decode(secp256k1, b'\x02')  # invalid compressed length
         self.assertEqual(e.exception.args[0], "A compressed public key must be 33 bytes long")
         with self.assertRaises(InvalidSEC1PublicKey) as e:
-            Point.decode(secp256k1, b'\x04')  # invalid uncompressed length
+            sec1_decode(secp256k1, b'\x04')  # invalid uncompressed length
         self.assertEqual(e.exception.args[0], "An uncompressed public key must be 65 bytes long")
         with self.assertRaises(InvalidSEC1PublicKey) as e:
             # invalid prefix value
-            Point.decode(secp256k1, unhexlify(b'05e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f35835062'))
+            sec1_decode(secp256k1, unhexlify(b'05e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f35835062'))
         self.assertEqual(e.exception.args[0], "Wrong key format")
         # With P256, same values as in "test_SEC1_encode_public_key", verified using openssl
         expected_P256 = Point(x=0x12c9ddf64b0d1f1d91d9bd729abfb880079fa889d66604cc0b78c9cbc271824c,
                               y=0x9a7d581bcf2aba680b53cedbade03be62fe95869da04a168a458f369ac6a823e,
                               curve=P256)
-        public_from_compressed = Point.decode(P256,
-                                              unhexlify(b'0212c9ddf64b0d1f1d91d9bd729abfb880079fa889d66604cc0b78c9cbc271824c'))
+        public_from_compressed = sec1_decode(
+            P256, unhexlify(b'0212c9ddf64b0d1f1d91d9bd729abfb880079fa889d66604cc0b78c9cbc271824c'))
         self.assertEqual(public_from_compressed, expected_P256)
         # With P256, same values as in "test_SEC1_encode_public_key", verified using openssl
         expected_secp192k1 = Point(x=0xa3bec5fba6d13e51fb55bd88dd097cb9b04f827bc151d22d,
                                    y=0xf07a73819149e8d903aa983e52ab1cff38f0d381f940d361,
                                    curve=secp192k1)
-        public_from_compressed = Point.decode(secp192k1,
-                                              unhexlify(b'03a3bec5fba6d13e51fb55bd88dd097cb9b04f827bc151d22d'))
+        public_from_compressed = sec1_decode(secp192k1,
+                                             unhexlify(b'03a3bec5fba6d13e51fb55bd88dd097cb9b04f827bc151d22d'))
         self.assertEqual(public_from_compressed, expected_secp192k1)
 
 
@@ -714,5 +719,4 @@ class TestKeyRecovery(unittest.TestCase):
 
 
 if __name__ == '__main__':
-
     unittest.main()
