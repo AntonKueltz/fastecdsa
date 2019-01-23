@@ -4,8 +4,7 @@ from os import urandom
 
 from .curve import P256
 from .ecdsa import verify
-from .encoding.rfc5480 import RFC5480
-from .encoding.rfc5915 import RFC5915
+from .encoding.pem import PEMEncoder
 from .point import Point
 from .util import mod_sqrt, msg_bytes
 
@@ -114,7 +113,7 @@ def get_public_keys_from_sig(sig, msg, curve=P256, hashfunc=sha256):
     return Qs
 
 
-def export_key(key, curve=None, filepath=None, encoder=None):
+def export_key(key, curve=None, filepath=None, encoder=PEMEncoder):
     """Export a public or private EC key in PEM format.
 
     Args:
@@ -126,10 +125,7 @@ def export_key(key, curve=None, filepath=None, encoder=None):
     """
     # encode a public key
     if isinstance(key, Point):
-        # default to RFC5480 for public keys
-        if encoder is None:
-            encoder = RFC5480
-        encoded = encoder().encode_public_key(key)
+        encoded = encoder.encode_public_key(key)
 
     # throw error for ambiguous private keys
     elif curve is None:
@@ -137,13 +133,10 @@ def export_key(key, curve=None, filepath=None, encoder=None):
 
     # encode a private key
     else:
-        # default to RFC5915 for private keys
-        if encoder is None:
-            encoder = RFC5915
-
         pubkey = key * curve.G
-        encoded = encoder().encode_private_key(key, Q=pubkey)
+        encoded = encoder.encode_private_key(key, Q=pubkey)
 
+    # return binary data or write to file
     if filepath is None:
         return encoded
     else:
@@ -152,7 +145,7 @@ def export_key(key, curve=None, filepath=None, encoder=None):
         f.close()
 
 
-def import_key(filepath, decoder=RFC5915):
+def import_key(filepath, decoder=PEMEncoder):
     """Import a public or private EC key in PEM format.
 
     Args:
@@ -166,4 +159,4 @@ def import_key(filepath, decoder=RFC5915):
     with open(filepath, 'r') as f:
         data = f.read()
 
-    return decoder().decode_private_key(data)
+    return decoder.decode_private_key(data)
