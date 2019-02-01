@@ -293,6 +293,32 @@ is a public or private key and parse it accordingly:
     # if the file is a public key then parsed_d will be None
     parsed_d, parsed_Q = import_key('/path/to/file.key')
 
+Other encoding formats can also be specified, such as SEC1_ for public keys. This is done using
+classes found in the :code:`fastecdsa.encoding` package, and passing them as keyword args to
+the key functions:
+
+.. code:: python
+
+    from fastecdsa.encoding.sec1 import SEC1Encoder
+    from fastecdsa.keys import export_key, gen_keypair
+
+    d, Q = gen_keypair(P256)
+    export_key(d, curve=P256, filepath='/path/to/exported/p256.key', encoder=SEC1Encoder)
+    parsed_d, parsed_Q = import_key('/path/to/file.key', decoder=SEC1Encoder)
+
+Encoding Signatures
+~~~~~~~~~~~~~~~~~~~
+DER encoding of ECDSA signatures as defined in RFC2459_ is also supported. The
+:code:`fastecdsa.encoding.der` provides the :code:`DEREncoder` class which encodes signatures:
+
+.. code:: python
+
+    from fastecdsa.encoding.der import DEREncoder
+
+    r, s = 0xdeadc0de, 0xbadc0de
+    encoded = DEREncoder.encode_signature(r, s)
+    decoded_r, decoded_s = DEREncoder.decode_signature(encoded)
+
 Acknowledgements
 ----------------
 Thanks to those below for contributing improvements:
@@ -303,6 +329,8 @@ Thanks to those below for contributing improvements:
 - targon
 
 .. _GMP: https://gmplib.org/
+.. _RFC2459: https://tools.ietf.org/html/rfc2459
 .. _RFC5480: https://tools.ietf.org/html/rfc5480
 .. _RFC5915: https://tools.ietf.org/html/rfc5915
 .. _RFC6979: https://tools.ietf.org/html/rfc6979
+.. _SEC1: http://www.secg.org/sec1-v2.pdf
