@@ -302,11 +302,11 @@ the key functions:
 
     from fastecdsa.curve import P256
     from fastecdsa.encoding.sec1 import SEC1Encoder
-    from fastecdsa.keys import export_key, gen_keypair
+    from fastecdsa.keys import export_key, gen_keypair, import_key
 
     _, Q = gen_keypair(P256)
     export_key(Q, curve=P256, filepath='/path/to/exported/p256.key', encoder=SEC1Encoder)
-    _, parsed_Q = import_key('/path/to/file.key', decoder=SEC1Encoder)
+    _, parsed_Q = import_key('/path/to/exported/p256.key', decoder=SEC1Encoder)
 
 Encoding Signatures
 ~~~~~~~~~~~~~~~~~~~
