@@ -145,11 +145,12 @@ def export_key(key, curve=None, filepath=None, encoder=PEMEncoder):
         f.close()
 
 
-def import_key(filepath, decoder=PEMEncoder):
+def import_key(filepath, curve=None, public=False, decoder=PEMEncoder):
     """Import a public or private EC key in PEM format.
 
     Args:
         |  filepath (str): The location of the key file
+        |  public (bool): Indicates if the key file is a public key
         |  decoder (fastecdsa.encoding.KeyEncoder): The class used to parse the key
 
     Returns:
@@ -159,4 +160,7 @@ def import_key(filepath, decoder=PEMEncoder):
     with open(filepath, 'r') as f:
         data = f.read()
 
-    return decoder.decode_private_key(data)
+    if public:
+        return decoder.decode_public_key(data, curve)
+    else:
+        return decoder.decode_private_key(data)
