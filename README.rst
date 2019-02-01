@@ -274,7 +274,7 @@ private keys and public keys can be exported as follows:
 
 .. code:: python
 
-    from fastecdsa.curves import P256
+    from fastecdsa.curve import P256
     from fastecdsa.keys import export_key, gen_keypair
 
     d, Q = gen_keypair(P256)
@@ -300,7 +300,7 @@ the key functions:
 
 .. code:: python
 
-    from fastecdsa.curves import P256
+    from fastecdsa.curve import P256
     from fastecdsa.encoding.sec1 import SEC1Encoder
     from fastecdsa.keys import export_key, gen_keypair
 
