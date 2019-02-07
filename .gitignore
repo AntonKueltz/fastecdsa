@@ -9,7 +9,7 @@ src/Makefile
 src/test.c
 
 *.o
-*.pyc
+*.py[cdo]
 *.so
 *.egg-info
 MANIFEST

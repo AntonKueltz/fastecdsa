@@ -73,13 +73,14 @@ void pointZZ_pAdd(PointZZ_p * rop, const PointZZ_p * op1, const PointZZ_p * op2,
 
 void pointZZ_pMul(PointZZ_p * rop, const PointZZ_p * point, const mpz_t scalar, const CurveZZ_p * curve) {
     PointZZ_p R0, R1, tmp;
+    int dbits, i;
+
     mpz_inits(R1.x, R1.y, tmp.x, tmp.y, NULL);
     mpz_init_set(R0.x, point->x);
     mpz_init_set(R0.y, point->y);
     pointZZ_pDouble(&R1, point, curve);
 
-    int dbits = mpz_sizeinbase(scalar, 2), i;
-
+    dbits = mpz_sizeinbase(scalar, 2);
     for(i = dbits - 2; i >= 0; i--) {
         if(mpz_tstbit(scalar, i)) {
             mpz_set(tmp.x, R0.x);
@@ -109,12 +110,14 @@ void pointZZ_pShamirsTrick(PointZZ_p * rop, const PointZZ_p * point1, const mpz_
     const PointZZ_p * point2, const mpz_t scalar2, const CurveZZ_p * curve)
 {
     PointZZ_p sum, tmp;
+    int scalar1Bits, scalar2Bits, l;
+
     mpz_inits(sum.x, sum.y, tmp.x, tmp.y, NULL);
     pointZZ_pAdd(&sum, point1, point2, curve);
 
-    int scalar1Bits = mpz_sizeinbase(scalar1, 2);
-    int scalar2Bits = mpz_sizeinbase(scalar2, 2);
-    int l = (scalar1Bits > scalar2Bits ? scalar1Bits : scalar2Bits) - 1;
+    scalar1Bits = mpz_sizeinbase(scalar1, 2);
+    scalar2Bits = mpz_sizeinbase(scalar2, 2);
+    l = (scalar1Bits > scalar2Bits ? scalar1Bits : scalar2Bits) - 1;
 
     if(mpz_tstbit(scalar1, l) && mpz_tstbit(scalar2, l)) {
         mpz_set(rop->x, sum.x);
@@ -153,45 +156,51 @@ void pointZZ_pShamirsTrick(PointZZ_p * rop, const PointZZ_p * point1, const mpz_
  PYTHON BINDINGS
  ******************************************************************************/
 static PyObject * curvemath_mul(PyObject *self, PyObject *args) {
-    char * x, * y, * d, * p, * a, * b, * q, * gx, * gy;
+    char * x, * y, * d, * p, * a, * b, * q, * gx, * gy, * resultX, * resultY;
+    CurveZZ_p * curve;
+    PointZZ_p result, * point;
+    mpz_t scalar;
+    PyObject * ret;
 
     if (!PyArg_ParseTuple(args, "sssssssss", &x, &y, &d, &p, &a, &b, &q, &gx, &gy)) {
         return NULL;
     }
 
-    PointZZ_p result;
-    mpz_t scalar;
-    mpz_init_set_str(scalar, d, 10);
-    CurveZZ_p * curve = buildCurveZZ_p(p, a, b, q, gx, gy, 10);;
 
-    PointZZ_p * point = buildPointZZ_p(x, y, 10);
+    mpz_init_set_str(scalar, d, 10);
+    curve = buildCurveZZ_p(p, a, b, q, gx, gy, 10);;
+
+    point = buildPointZZ_p(x, y, 10);
     pointZZ_pMul(&result, point, scalar, curve);
     destroyPointZZ_p(point);
     destroyCurveZZ_p(curve);
 
-    char * resultX = mpz_get_str(NULL, 10, result.x);
-    char * resultY = mpz_get_str(NULL, 10, result.y);
+    resultX = mpz_get_str(NULL, 10, result.x);
+    resultY = mpz_get_str(NULL, 10, result.y);
     mpz_clears(result.x, result.y, scalar, NULL);
 
-    PyObject * ret = Py_BuildValue("ss", resultX, resultY);
+    ret = Py_BuildValue("ss", resultX, resultY);
     free(resultX);
     free(resultY);
     return ret;
 }
 
 static PyObject * curvemath_add(PyObject *self, PyObject *args) {
-    char * px, * py, * qx, * qy, * p, * a, * b, * q, * gx, * gy;
+    char * px, * py, * qx, * qy, * p, * a, * b, * q, * gx, * gy, * resultX, * resultY;
+    PointZZ_p result, * P, * Q;
+    CurveZZ_p * curve;
+    PyObject * ret;
 
     if (!PyArg_ParseTuple(args, "ssssssssss", &px, &py, &qx, &qy, &p, &a, &b, &q, &gx, &gy)) {
         return NULL;
     }
 
-    PointZZ_p result;
-    mpz_inits(result.x, result.y, NULL);
-    CurveZZ_p * curve = buildCurveZZ_p(p, a, b, q, gx, gy, 10);;
 
-    PointZZ_p * P = buildPointZZ_p(px, py, 10);
-    PointZZ_p * Q = buildPointZZ_p(qx, qy, 10);
+    mpz_inits(result.x, result.y, NULL);
+    curve = buildCurveZZ_p(p, a, b, q, gx, gy, 10);;
+
+    P = buildPointZZ_p(px, py, 10);
+    Q = buildPointZZ_p(qx, qy, 10);
 
     if(pointZZ_pEqual(P, Q)) {
         pointZZ_pDouble(&result, P, curve);
@@ -204,11 +213,11 @@ static PyObject * curvemath_add(PyObject *self, PyObject *args) {
     destroyPointZZ_p(Q);
     destroyCurveZZ_p(curve);
 
-    char * resultX = mpz_get_str(NULL, 10, result.x);
-    char * resultY = mpz_get_str(NULL, 10, result.y);
+    resultX = mpz_get_str(NULL, 10, result.x);
+    resultY = mpz_get_str(NULL, 10, result.y);
     mpz_clears(result.x, result.y, NULL);
 
-    PyObject * ret = Py_BuildValue("ss", resultX, resultY);
+    ret = Py_BuildValue("ss", resultX, resultY);
     free(resultX);
     free(resultY);
     return ret;
