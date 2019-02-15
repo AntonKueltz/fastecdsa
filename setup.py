@@ -1,4 +1,4 @@
-from setuptools import setup, Extension, Command
+from setuptools import find_packages, setup, Extension, Command
 
 
 class TestCommand(Command):
@@ -57,7 +57,7 @@ setup(
     description='Fast elliptic curve digital signatures',
     long_description=''.join(open('README.rst', 'r').readlines()),
     url='https://github.com/AntonKueltz/fastecdsa',
-    packages=['fastecdsa', 'fastecdsa.encoding'],
+    packages=find_packages(),
     ext_modules=[curvemath, _ecdsa],
     cmdclass={'test': TestCommand, 'benchmark': BenchmarkCommand},
     classifiers=[
