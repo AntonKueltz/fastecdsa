@@ -1,6 +1,3 @@
-from fastecdsa import curvemath
-
-
 class Curve:
     """Representation of an elliptic curve.
 
@@ -74,6 +71,17 @@ class Curve:
         left = y * y
         right = (x * x * x) + (self.a * x) + self.b
         return (left - right) % self.p == 0
+
+    def evaluate(self, x):
+        """ Evaluate the elliptic curve polynomial at 'x'
+
+        Args:
+            x (int): The position to evaluate the polynomial at
+
+        Returns:
+            int: the value of :math:`(x^3 + ax + b) \bmod{p}`
+        """
+        return (x ** 3 + self.a * x + self.b) % self.p
 
     @property
     def G(self):

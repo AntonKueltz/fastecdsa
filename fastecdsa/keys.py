@@ -4,8 +4,9 @@ from os import urandom
 
 from .curve import P256
 from .ecdsa import verify
+from .encoding.pem import PEMEncoder
 from .point import Point
-from .util import mod_sqrt
+from .util import mod_sqrt, msg_bytes
 
 
 def gen_keypair(curve):
@@ -85,7 +86,7 @@ def get_public_keys_from_sig(sig, msg, curve=P256, hashfunc=sha256):
 
     Args:
         |  sig (long, long): A ECDSA signature.
-        |  msg (str): The message corresponding to the signature.
+        |  msg (str|bytes|bytearray): The message corresponding to the signature.
         |  curve (fastecdsa.curve.Curve): The curve used to sign the message.
         |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
 
@@ -96,7 +97,7 @@ def get_public_keys_from_sig(sig, msg, curve=P256, hashfunc=sha256):
     r, s = sig
     rinv = pow(r, curve.q - 2, curve.q)
 
-    z = int(hashfunc(msg.encode()).hexdigest(), 16)
+    z = int(hashfunc(msg_bytes(msg)).hexdigest(), 16)
     hash_bit_length = hashfunc().digest_size * 8
     if curve.q.bit_length() < hash_bit_length:
         z >>= (hash_bit_length - curve.q.bit_length())
@@ -114,7 +115,7 @@ def get_public_keys_from_sig(sig, msg, curve=P256, hashfunc=sha256):
     return Qs
 
 
-def export_key(key, curve=None, filepath=None):
+def export_key(key, curve=None, filepath=None, encoder=PEMEncoder):
     """Export a public or private EC key in PEM format.
 
     Args:
@@ -122,18 +123,22 @@ def export_key(key, curve=None, filepath=None):
         |   curve (fastecdsa.curve.Curve): The curve corresponding to the key (required if the
             key is a private key)
         |   filepath (str): Where to save the exported key. If None the key is simply printed.
+        |   encoder (fastecdsa.encoding.KeyEncoder): The class used to encode the key
     """
-    from .point import Point
-    from .asn1 import encode_keypair, encode_public_key
-
+    # encode a public key
     if isinstance(key, Point):
-        encoded = encode_public_key(key)
+        encoded = encoder.encode_public_key(key)
+
+    # throw error for ambiguous private keys
     elif curve is None:
-        raise ValueError('curve paramter cannot be \'None\' when exporting a private key')
+        raise ValueError('curve parameter cannot be \'None\' when exporting a private key')
+
+    # encode a private key
     else:
         pubkey = key * curve.G
-        encoded = encode_keypair(key, pubkey)
+        encoded = encoder.encode_private_key(key, Q=pubkey)
 
+    # return binary data or write to file
     if filepath is None:
         return encoded
     else:
@@ -142,27 +147,22 @@ def export_key(key, curve=None, filepath=None):
         f.close()
 
 
-def import_key(filepath):
+def import_key(filepath, curve=None, public=False, decoder=PEMEncoder):
     """Import a public or private EC key in PEM format.
 
     Args:
-        filepath (str): The location of the key file
+        |  filepath (str): The location of the key file
+        |  public (bool): Indicates if the key file is a public key
+        |  decoder (fastecdsa.encoding.KeyEncoder): The class used to parse the key
 
     Returns:
         (long, fastecdsa.point.Point): A (private key, public key) tuple. If a public key was
         imported then the first value will be None.
     """
-    from .asn1 import EC_PRIVATE_FOOTER, EC_PUBLIC_FOOTER, decode_key
-
     with open(filepath, 'r') as f:
-        header = f.readline().rstrip()
+        data = f.read()
 
-        base64_data = ''
-        line = f.readline().rstrip()
-
-        while line and (line != EC_PRIVATE_FOOTER) and (line != EC_PUBLIC_FOOTER):
-            base64_data += line
-            line = f.readline().rstrip()
-
-        raw_data = a2b_base64(base64_data)
-        return decode_key(raw_data)
+    if public:
+        return decoder.decode_public_key(data, curve)
+    else:
+        return decoder.decode_private_key(data)

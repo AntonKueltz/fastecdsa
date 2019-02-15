@@ -16,6 +16,7 @@ class Point:
         |  y (long): The y coordinate of the point.
         |  curve (:class:`Curve`): The curve that the point lies on.
     """
+
     def __init__(self, x, y, curve=P256):
         """Initialize a point on an elliptic curve.
 

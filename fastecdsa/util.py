@@ -20,7 +20,7 @@ class RFC6979:
     def __init__(self, msg, x, q, hashfunc):
         self.x = x
         self.q = q
-        self.msg = msg
+        self.msg = msg_bytes(msg)
         self.qlen = len(bin(q)) - 2  # -2 for the leading '0b'
         self.rlen = ((self.qlen + 7) // 8) * 8
         self.hashfunc = hashfunc
@@ -54,7 +54,7 @@ class RFC6979:
 
     def gen_nonce(self):
         """ http://tools.ietf.org/html/rfc6979#section-3.2 """
-        h1 = self.hashfunc(self.msg.encode())
+        h1 = self.hashfunc(self.msg)
         hash_size = h1.digest_size
         h1 = h1.digest()
         key_and_msg = self._int2octets(self.x) + self._bits2octets(h1)
@@ -122,3 +122,28 @@ def mod_sqrt(a, p):
         return x, (-x % p)
     else:
         return _tonelli_shanks(a, p)
+
+
+def msg_bytes(msg):
+    """Return bytes in a consistent way for a given message.
+
+    The message is expected to be either a string, bytes, or an array of bytes.
+
+    Args:
+        |  msg (str|bytes|bytearray): The data to transform.
+
+    Returns:
+        bytes: The byte encoded data.
+
+    Raises:
+        ValueError: If the data cannot be encoded as bytes.
+    """
+    if isinstance(msg, bytes):
+        return msg
+    elif isinstance(msg, str) or isinstance(msg, unicode):
+        return msg.encode()
+    elif isinstance(msg, bytearray):
+        return bytes(msg)
+    else:
+        raise ValueError('Msg "{}" of type {} cannot be converted to bytes'.format(
+            msg, type(msg)))
