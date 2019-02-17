@@ -11,8 +11,6 @@ class EcdsaError(Exception):
     def __init__(self, msg):
         self.msg = msg
 
-def sign_hash(hash, d, curve=P256, hashfunc=sha256):
-  return sign(hash, d, curve, hashfunc)
 
 def sign(msg, d, curve=P256, hashfunc=sha256, prehashed=False):
     """Sign a message using the elliptic curve digital signature algorithm.
@@ -32,9 +30,9 @@ def sign(msg, d, curve=P256, hashfunc=sha256, prehashed=False):
 
     # add a prehash option
     if not prehashed:
-      hashed = hashfunc(msg_bytes(msg)).hexdigest()
+        hashed = hashfunc(msg_bytes(msg)).hexdigest()
     else:
-      hashed = msg
+        hashed = msg
 
     r, s = _ecdsa.sign(
         hashed,
