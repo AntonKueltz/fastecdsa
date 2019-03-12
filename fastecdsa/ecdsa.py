@@ -12,7 +12,7 @@ class EcdsaError(Exception):
         self.msg = msg
 
 
-def sign(msg, d, curve=P256, hashfunc=sha256):
+def sign(msg, d, curve=P256, hashfunc=sha256, prehashed=False):
     """Sign a message using the elliptic curve digital signature algorithm.
 
     The elliptic curve signature algorithm is described in full in FIPS 186-4 Section 6. Please
@@ -28,7 +28,12 @@ def sign(msg, d, curve=P256, hashfunc=sha256):
     rfc6979 = RFC6979(msg, d, curve.q, hashfunc)
     k = rfc6979.gen_nonce()
 
-    hashed = hashfunc(msg_bytes(msg)).hexdigest()
+    # add a prehash option
+    if not prehashed:
+        hashed = hashfunc(msg_bytes(msg)).hexdigest()
+    else:
+        hashed = msg
+
     r, s = _ecdsa.sign(
         hashed,
         str(d),
