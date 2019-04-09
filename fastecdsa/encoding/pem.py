@@ -124,7 +124,7 @@ class PEMEncoder(KeyEncoder):
             elif value_type == OBJECT_IDENTIFIER and curve is None:
                 curve = Curve.get_curve_by_oid(value)
             elif value_type == BIT_STRING:
-                value = value.lstrip(b'\x00\x04')
+                value = value[2:]  # strip off b'\x00\x04'
                 x = int(hexlify(value[:len(value) // 2]), 16)
                 y = int(hexlify(value[len(value) // 2:]), 16)
 

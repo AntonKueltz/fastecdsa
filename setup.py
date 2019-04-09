@@ -49,7 +49,7 @@ _ecdsa = Extension(
 
 setup(
     name='fastecdsa',
-    version='1.7.1',
+    version='1.7.2',
     author='Anton Kueltz',
     author_email='kueltz.anton@gmail.com',
     license='CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',
@@ -69,6 +69,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX :: Linux',
     ],
