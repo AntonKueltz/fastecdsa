@@ -23,13 +23,6 @@ fastecdsa.encoding
     :members:
     :show-inheritance:
 
-fastecdsa.encoding.asn1
------------------------
-
-.. automodule:: fastecdsa.encoding.asn1
-    :members:
-    :show-inheritance:
-
 fastecdsa.encoding.der
 ----------------------
 
