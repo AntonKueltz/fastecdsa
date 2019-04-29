@@ -22,6 +22,7 @@ class PEMEncoder(KeyEncoder):
     @staticmethod
     def _parse_ascii_armored_base64(data):
         """Convert an ASCII armored key to raw binary data"""
+        data = data.strip()
         lines = (line for line in data.split('\n'))
         header = next(lines).rstrip()
 
