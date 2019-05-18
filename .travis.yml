@@ -10,7 +10,7 @@ before_install:
 install:
   - pip install pycodestyle
 before_script:
-  - pycodestyle --max-line-length=200 --ignore=E402 */*.py
+  - pycodestyle --max-line-length=200 --ignore=E402,W605 */*.py
   - pip install -e .
 script:
   - python -m fastecdsa.test
