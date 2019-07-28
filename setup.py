@@ -1,21 +1,6 @@
 from setuptools import find_packages, setup, Extension, Command
 
 
-class TestCommand(Command):
-    user_options = []
-    description = "Run all tests"
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        from subprocess import call
-        call(['python', '-m', 'fastecdsa.test'])
-
-
 class BenchmarkCommand(Command):
     user_options = []
     description = "Benchmark this package"
@@ -48,18 +33,8 @@ _ecdsa = Extension(
 )
 
 setup(
-    name='fastecdsa',
-    version='1.7.3',
     author='Anton Kueltz',
     author_email='kueltz.anton@gmail.com',
-    license='CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',
-    keywords='elliptic curve cryptography ecdsa ecc',
-    description='Fast elliptic curve digital signatures',
-    long_description=''.join(open('README.rst', 'r').readlines()),
-    url='https://github.com/AntonKueltz/fastecdsa',
-    packages=find_packages(),
-    ext_modules=[curvemath, _ecdsa],
-    cmdclass={'test': TestCommand, 'benchmark': BenchmarkCommand},
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
@@ -70,7 +45,20 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX :: Linux',
     ],
+    cmdclass={'benchmark': BenchmarkCommand},
+    description='Fast elliptic curve digital signatures',
+    ext_modules=[curvemath, _ecdsa],
+    install_requires=['six'],
+    keywords='elliptic curve cryptography ecdsa ecc',
+    license='CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',
+    long_description=''.join(open('README.rst', 'r').readlines()),
+    name='fastecdsa',
+    packages=find_packages(),
+    tests_require=['pytest', 'pytest-cov'],
+    url='https://github.com/AntonKueltz/fastecdsa',
+    version='1.7.4',
 )

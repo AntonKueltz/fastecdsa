@@ -10,9 +10,9 @@ python:
 before_install:
   - sudo apt-get install python-dev libgmp3-dev
 install:
-  - pip install pycodestyle
+  - pip install pycodestyle pytest pytest-cov
 before_script:
   - pycodestyle --max-line-length=200 --ignore=E402,W605 */*.py
   - pip install -e .
 script:
-  - python -m fastecdsa.test
+  - pytest --cov=fastecdsa
