@@ -35,6 +35,14 @@ Python Versions Supported
 The initial release of this package was targeted at python2.7. Earlier versions may work but have
 no guarantee of correctness or stability. As of release 1.2.1+ python3 is now supported as well.
 
+Operating Systems Supported
+---------------------------
+This package is targeted at the Linux and MacOS operating systems. Due to the the dependency on
+the GMP C library building this package on Windows is difficult and no official support or
+distributions are provided for Windows OSes. See
+[issue #11](https://github.com/AntonKueltz/fastecdsa/issues/11) for what users have done to get
+things building.
+
 Supported Primitives
 --------------------
 Curves over Prime Fields
