@@ -39,9 +39,8 @@ Operating Systems Supported
 ---------------------------
 This package is targeted at the Linux and MacOS operating systems. Due to the the dependency on
 the GMP C library building this package on Windows is difficult and no official support or
-distributions are provided for Windows OSes. See
-[issue #11](https://github.com/AntonKueltz/fastecdsa/issues/11) for what users have done to get
-things building.
+distributions are provided for Windows OSes. See issue11_ for what users have done to get things
+building.
 
 Supported Primitives
 --------------------
@@ -339,6 +338,7 @@ Thanks to those below for contributing improvements:
 - sirk390
 - targon
 
+.. _issue11: https://github.com/AntonKueltz/fastecdsa/issues/11
 .. _GMP: https://gmplib.org/
 .. _RFC2459: https://tools.ietf.org/html/rfc2459
 .. _RFC5480: https://tools.ietf.org/html/rfc5480
