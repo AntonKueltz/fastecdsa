@@ -21,7 +21,13 @@ digital signatures.
 
 Security
 --------
-I am not aware of any current issues. There is no nonce reuse, no branching on secret material,
+Current Issues
+~~~~~~~~~~~~~~
+* Minerva - see issue #40
+
+Overview
+~~~~~~~~
+There is no nonce reuse, no branching on secret material,
 and all points are validated before any operations are performed on them. Timing side challenges
 are mitigated via Montgomery point multiplication. Nonces are generated per RFC6979_. The default
 curve used throughout the package is P256 which provides 128 bits of security. If you require a
