@@ -21,7 +21,13 @@ digital signatures.
 
 Security
 --------
-I am not aware of any current issues. There is no nonce reuse, no branching on secret material,
+Current Issues
+~~~~~~~~~~~~~~
+* Minerva - see issue #40
+
+Overview
+~~~~~~~~
+There is no nonce reuse, no branching on secret material,
 and all points are validated before any operations are performed on them. Timing side challenges
 are mitigated via Montgomery point multiplication. Nonces are generated per RFC6979_. The default
 curve used throughout the package is P256 which provides 128 bits of security. If you require a
@@ -34,6 +40,13 @@ Python Versions Supported
 -------------------------
 The initial release of this package was targeted at python2.7. Earlier versions may work but have
 no guarantee of correctness or stability. As of release 1.2.1+ python3 is now supported as well.
+
+Operating Systems Supported
+---------------------------
+This package is targeted at the Linux and MacOS operating systems. Due to the the dependency on
+the GMP C library building this package on Windows is difficult and no official support or
+distributions are provided for Windows OSes. See issue11_ for what users have done to get things
+building.
 
 Supported Primitives
 --------------------
@@ -331,6 +344,7 @@ Thanks to those below for contributing improvements:
 - sirk390
 - targon
 
+.. _issue11: https://github.com/AntonKueltz/fastecdsa/issues/11
 .. _GMP: https://gmplib.org/
 .. _RFC2459: https://tools.ietf.org/html/rfc2459
 .. _RFC5480: https://tools.ietf.org/html/rfc5480
