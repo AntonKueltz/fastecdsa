@@ -67,6 +67,8 @@ class Point:
             return self
         elif self.curve is not other.curve:
             raise CurveMismatchError(self.curve, other.curve)
+        elif self == -other:
+            return self.IDENTITY_ELEMENT
         else:
             x, y = curvemath.add(
                 str(self.x),

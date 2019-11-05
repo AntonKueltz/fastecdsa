@@ -58,7 +58,7 @@ setup(
     long_description=''.join(open('README.rst', 'r').readlines()),
     name='fastecdsa',
     packages=find_packages(),
-    tests_require=['pytest', 'pytest-cov'],
+    tests_require=['pytest'],
     url='https://github.com/AntonKueltz/fastecdsa',
     version='1.7.4',
 )
