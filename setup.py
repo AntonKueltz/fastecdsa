@@ -60,5 +60,5 @@ setup(
     packages=find_packages(),
     tests_require=['pytest'],
     url='https://github.com/AntonKueltz/fastecdsa',
-    version='1.7.4',
+    version='1.7.5',
 )
