@@ -1,4 +1,3 @@
-from six import indexbytes
 from struct import pack
 
 
@@ -25,6 +24,6 @@ def int_to_bytes(x):
 def bytes_to_int(bytestr):
     """Make an integer from a big endian bytestring."""
     value = 0
-    for i in range(len(bytestr)):
-        value = value * 256 + indexbytes(bytestr, i)
+    for byte_intval in bytestr:
+        value = value * 256 + byte_intval
     return value

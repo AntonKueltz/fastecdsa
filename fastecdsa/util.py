@@ -1,6 +1,5 @@
 from binascii import hexlify
 import hmac
-from six import text_type
 from struct import pack
 
 
@@ -141,7 +140,7 @@ def msg_bytes(msg):
     """
     if isinstance(msg, bytes):
         return msg
-    elif isinstance(msg, str) or isinstance(msg, text_type):
+    elif isinstance(msg, str):
         return msg.encode()
     elif isinstance(msg, bytearray):
         return bytes(msg)

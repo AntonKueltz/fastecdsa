@@ -1,6 +1,6 @@
 from hashlib import sha1, sha224, sha256, sha384, sha512
 from re import findall, DOTALL
-from six.moves.urllib.request import urlopen
+from urllib.request import urlopen
 from unittest import TestCase
 
 from ..curve import P192, P224, P256, P384, P521

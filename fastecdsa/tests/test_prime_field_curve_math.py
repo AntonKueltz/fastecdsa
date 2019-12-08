@@ -149,8 +149,8 @@ class TestPrimeFieldCurve(TestCase):
             P, Q = a * curve.G, b * curve.G
             R = c * curve.G
             pq_sum, qp_sum = P + Q, Q + P
-            self.assertEquals(pq_sum, qp_sum)
-            self.assertEquals(qp_sum, R)
+            self.assertEqual(pq_sum, qp_sum)
+            self.assertEqual(qp_sum, R)
 
     def test_point_at_infinity_arithmetic(self):
         for curve in CURVES:
@@ -158,5 +158,5 @@ class TestPrimeFieldCurve(TestCase):
             b = curve.q - a
             P, Q = a * curve.G, b * curve.G
 
-            self.assertEquals(P + Q, Point.IDENTITY_ELEMENT)
-            self.assertEquals((P + Q) + P, P)
+            self.assertEqual(P + Q, Point.IDENTITY_ELEMENT)
+            self.assertEqual((P + Q) + P, P)
