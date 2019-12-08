@@ -12,7 +12,8 @@ class BenchmarkCommand(Command):
         pass
 
     def run(self):
-        from subprocess import call
+        from subprocess import call, PIPE
+        call(['python', 'setup.py', 'build_ext', '--inplace'], stdout=PIPE) 
         call(['python', '-m', 'fastecdsa.benchmark'])
 
 
