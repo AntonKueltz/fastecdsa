@@ -1,5 +1,5 @@
 from setuptools import find_packages, setup, Extension, Command
-
+from sys import executable
 
 class BenchmarkCommand(Command):
     user_options = []
@@ -13,8 +13,8 @@ class BenchmarkCommand(Command):
 
     def run(self):
         from subprocess import call, PIPE
-        call(['python', 'setup.py', 'build_ext', '--inplace'], stdout=PIPE) 
-        call(['python', '-m', 'fastecdsa.benchmark'])
+        call([executable, 'setup.py', 'build_ext', '--inplace'], stdout=PIPE)
+        call([executable, '-m', 'fastecdsa.benchmark'])
 
 
 curvemath = Extension(
