@@ -39,7 +39,8 @@ issue or email me if you see any security issue or risk with this library.
 Python Versions Supported
 -------------------------
 The initial release of this package was targeted at python2.7. Earlier versions may work but have
-no guarantee of correctness or stability. As of release 1.2.1+ python3 is now supported as well.
+no guarantee of correctness or stability. As of release 1.2.1+ python3 is supported as well. Due to
+python2's EOL on January 1st 2020 release 2.x of this package only supports python3.5+.
 
 Operating Systems Supported
 ---------------------------
