@@ -1,5 +1,7 @@
 from struct import pack, unpack
 
+from ..curve import Curve
+from ..point import Point
 from .util import int_bytelen, int_to_bytes
 
 INTEGER = b'\x02'
@@ -11,7 +13,7 @@ PARAMETERS = b'\xa0'
 PUBLIC_KEY = b'\xa1'
 
 
-def _asn1_len(data):
+def _asn1_len(data: bytes) -> bytes:
     # https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf
     # section 8.1.3.3
     dlen = len(data)
@@ -29,34 +31,34 @@ def _asn1_len(data):
         return pack('=B', 0x80 | len(encoded)) + encoded
 
 
-def asn1_structure(data_type, data):
+def asn1_structure(data_type: bytes, data: bytes) -> bytes:
     return data_type + _asn1_len(data) + data
 
 
-def asn1_private_key(d, curve):
+def asn1_private_key(d: int, curve: Curve) -> bytes:
     d_bytes = int_to_bytes(d)
     padding = b'\x00' * (int_bytelen(curve.q) - len(d_bytes))
     return asn1_structure(OCTET_STRING, padding + d_bytes)
 
 
-def asn1_ecversion(version=1):
+def asn1_ecversion(version=1) -> bytes:
     version_bytes = int_to_bytes(version)
     return asn1_structure(INTEGER, version_bytes)
 
 
-def asn1_ecpublickey():
+def asn1_ecpublickey() -> bytes:
     # via RFC 5480 - The "unrestricted" algorithm identifier is:
     # id-ecPublicKey OBJECT IDENTIFIER ::= {
     #   iso(1) member-body(2) us(840) ansi-X9-62(10045) keyType(2) 1 }
     return asn1_structure(OBJECT_IDENTIFIER, b'\x2A\x86\x48\xCE\x3D\x02\x01')
 
 
-def asn1_oid(curve):
+def asn1_oid(curve: Curve) -> bytes:
     oid_bytes = curve.oid
     return asn1_structure(OBJECT_IDENTIFIER, oid_bytes)
 
 
-def asn1_public_key(Q):
+def asn1_public_key(Q: Point) -> bytes:
     p_len = int_bytelen(Q.curve.p)
 
     x_bytes = int_to_bytes(Q.x)
@@ -69,7 +71,7 @@ def asn1_public_key(Q):
     return asn1_structure(BIT_STRING, key_bytes)
 
 
-def parse_asn1_length(data):
+def parse_asn1_length(data: bytes) -> (int, bytes, bytes):
     (initial_byte,) = unpack('=B', data[:1])
     data = data[1:]
 

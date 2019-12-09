@@ -1,15 +1,15 @@
-from binascii import a2b_base64, hexlify
+from binascii import hexlify
 from hashlib import sha256
 from os import urandom
 
-from .curve import P256
+from .curve import Curve, P256
 from .ecdsa import verify
 from .encoding.pem import PEMEncoder
 from .point import Point
 from .util import mod_sqrt, msg_bytes
 
 
-def gen_keypair(curve):
+def gen_keypair(curve: Curve) -> (int, Point):
     """Generate a keypair that consists of a private key and a public key.
 
     The private key :math:`d` is an integer generated via a cryptographically secure random number
@@ -21,7 +21,7 @@ def gen_keypair(curve):
         curve (fastecdsa.curve.Curve): The curve over which the keypair will be calulated.
 
     Returns:
-        long, fastecdsa.point.Point: Returns a tuple with the private key first and public key
+        int, fastecdsa.point.Point: Returns a tuple with the private key first and public key
         second.
     """
     private_key = gen_private_key(curve)
@@ -29,7 +29,7 @@ def gen_keypair(curve):
     return private_key, public_key
 
 
-def gen_private_key(curve, randfunc=urandom):
+def gen_private_key(curve: Curve, randfunc=urandom) -> int:
     """Generate a private key to sign data with.
 
     The private key :math:`d` is an integer generated via a cryptographically secure random number
@@ -42,7 +42,7 @@ def gen_private_key(curve, randfunc=urandom):
                                 of n random bytes suitable for cryptographic use.
                                 The default is "os.urandom"
     Returns:
-        long: Returns a positive integer smaller than the curve order.
+        int: Returns a positive integer smaller than the curve order.
     """
     order_bits = 0
     order = curve.q
@@ -65,7 +65,7 @@ def gen_private_key(curve, randfunc=urandom):
     return rand
 
 
-def get_public_key(d, curve):
+def get_public_key(d: int, curve: Curve) -> Point:
     """Generate a public key from a private key.
 
     The public key :math:`Q` is a point on the curve calculated as :math:`Q = dG`, where :math:`d`
@@ -81,11 +81,11 @@ def get_public_key(d, curve):
     return d * curve.G
 
 
-def get_public_keys_from_sig(sig, msg, curve=P256, hashfunc=sha256):
+def get_public_keys_from_sig(sig: (int, int), msg, curve: Curve = P256, hashfunc=sha256) -> (Point, Point):
     """Recover the public keys that can verify a signature / message pair.
 
     Args:
-        |  sig (long, long): A ECDSA signature.
+        |  sig (int, int): A ECDSA signature.
         |  msg (str|bytes|bytearray): The message corresponding to the signature.
         |  curve (fastecdsa.curve.Curve): The curve used to sign the message.
         |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
@@ -115,15 +115,15 @@ def get_public_keys_from_sig(sig, msg, curve=P256, hashfunc=sha256):
     return Qs
 
 
-def export_key(key, curve=None, filepath=None, encoder=PEMEncoder):
+def export_key(key, curve: Curve = None, filepath: str = None, encoder=PEMEncoder):
     """Export a public or private EC key in PEM format.
 
     Args:
-        |   key (fastecdsa.point.Point | long): A public or private EC key
+        |   key (fastecdsa.point.Point | int): A public or private EC key
         |   curve (fastecdsa.curve.Curve): The curve corresponding to the key (required if the
             key is a private key)
         |   filepath (str): Where to save the exported key. If None the key is simply printed.
-        |   encoder (fastecdsa.encoding.KeyEncoder): The class used to encode the key
+        |   encoder (type): The class used to encode the key
     """
     # encode a public key
     if isinstance(key, Point):
@@ -147,7 +147,7 @@ def export_key(key, curve=None, filepath=None, encoder=PEMEncoder):
         f.close()
 
 
-def import_key(filepath, curve=None, public=False, decoder=PEMEncoder):
+def import_key(filepath: str, curve: Curve = None, public: bool = False, decoder=PEMEncoder):
     """Import a public or private EC key in PEM format.
 
     Args:

@@ -20,7 +20,7 @@ class PEMEncoder(KeyEncoder):
     ASN1_PARSED_DATA = []
 
     @staticmethod
-    def _parse_ascii_armored_base64(data):
+    def _parse_ascii_armored_base64(data: str) -> bytes:
         """Convert an ASCII armored key to raw binary data"""
         data = data.strip()
         lines = (line for line in data.split('\n'))
@@ -36,7 +36,7 @@ class PEMEncoder(KeyEncoder):
         return a2b_base64(base64_data)
 
     @staticmethod
-    def _parse_asn1_structure(data):
+    def _parse_asn1_structure(data: bytes):
         """Recursively parse ASN.1 data"""
         data_type = data[:1]
         length, data, remaining = parse_asn1_length(data[1:])
@@ -50,7 +50,7 @@ class PEMEncoder(KeyEncoder):
             PEMEncoder._parse_asn1_structure(remaining)
 
     @staticmethod
-    def encode_public_key(Q):
+    def encode_public_key(Q: Point) -> str:
         """Encode an EC public key as described in `RFC 5480 <https://tools.ietf.org/html/rfc5480>`_.
 
         Returns:
@@ -68,7 +68,7 @@ class PEMEncoder(KeyEncoder):
         return EC_PUBLIC_HEADER + '\n' + b64_data + '\n' + EC_PUBLIC_FOOTER
 
     @staticmethod
-    def encode_private_key(d, Q=None, curve=None):
+    def encode_private_key(d: int, Q: Point = None, curve: Curve = None) -> str:
         """Encode an EC keypair as described in `RFC 5915 <https://tools.ietf.org/html/rfc5915.html>`_.
 
         Args:
@@ -98,13 +98,13 @@ class PEMEncoder(KeyEncoder):
         return EC_PRIVATE_HEADER + '\n' + b64_data + '\n' + EC_PRIVATE_FOOTER
 
     @staticmethod
-    def decode_public_key(pemdata, curve=None):
+    def decode_public_key(pemdata: str, curve: Curve = None) -> Point:
         """Delegate to private key decoding but return only the public key"""
         _, Q = PEMEncoder.decode_private_key(pemdata)
         return Q
 
     @staticmethod
-    def decode_private_key(pemdata):
+    def decode_private_key(pemdata: str) -> (int, Point):
         """Decode an EC key as described in `RFC 5915 <https://tools.ietf.org/html/rfc5915.html>`_ and
         `RFC 5480 <https://tools.ietf.org/html/rfc5480>`_.
 

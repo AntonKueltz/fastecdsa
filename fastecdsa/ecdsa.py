@@ -1,10 +1,12 @@
-from binascii import hexlify
-from hashlib import sha256  # Python standard lib SHA2 is already in C
+from hashlib import sha256
+from typing import TypeVar
 
 from fastecdsa import _ecdsa
-from .curve import P256
+from .curve import Curve, P256
 from .point import Point
 from .util import RFC6979, msg_bytes
+
+MsgTypes = TypeVar('MsgTypes', str, bytes, bytearray)
 
 
 class EcdsaError(Exception):
@@ -12,7 +14,7 @@ class EcdsaError(Exception):
         self.msg = msg
 
 
-def sign(msg, d, curve=P256, hashfunc=sha256, prehashed=False):
+def sign(msg: MsgTypes, d: int, curve: Curve = P256, hashfunc=sha256, prehashed: bool = False):
     """Sign a message using the elliptic curve digital signature algorithm.
 
     The elliptic curve signature algorithm is described in full in FIPS 186-4 Section 6. Please
@@ -20,7 +22,7 @@ def sign(msg, d, curve=P256, hashfunc=sha256, prehashed=False):
 
     Args:
         |  msg (str|bytes|bytearray): A message to be signed.
-        |  d (long): The ECDSA private key of the signer.
+        |  d (int): The ECDSA private key of the signer.
         |  curve (fastecdsa.curve.Curve): The curve to be used to sign the message.
         |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
     """
@@ -45,17 +47,17 @@ def sign(msg, d, curve=P256, hashfunc=sha256, prehashed=False):
         str(curve.gx),
         str(curve.gy)
     )
-    return (int(r), int(s))
+    return int(r), int(s)
 
 
-def verify(sig, msg, Q, curve=P256, hashfunc=sha256):
+def verify(sig: (int, int), msg: MsgTypes, Q: Point, curve: Curve = P256, hashfunc=sha256) -> bool:
     """Verify a message signature using the elliptic curve digital signature algorithm.
 
     The elliptic curve signature algorithm is described in full in FIPS 186-4 Section 6. Please
     refer to http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf for more information.
 
     Args:
-        |  sig (long, long): The signature for the message.
+        |  sig (int, int): The signature for the message.
         |  msg (str|bytes|bytearray): A message to be signed.
         |  Q (fastecdsa.point.Point): The ECDSA public key of the signer.
         |  curve (fastecdsa.curve.Curve): The curve to be used to sign the message.

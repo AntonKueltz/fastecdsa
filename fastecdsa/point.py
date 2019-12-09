@@ -12,20 +12,20 @@ class Point:
     """Representation of a point on an elliptic curve.
 
     Attributes:
-        |  x (long): The x coordinate of the point.
-        |  y (long): The y coordinate of the point.
+        |  x (int): The x coordinate of the point.
+        |  y (int): The y coordinate of the point.
         |  curve (:class:`Curve`): The curve that the point lies on.
     """
 
-    def __init__(self, x, y, curve=P256):
+    def __init__(self, x: int, y: int, curve=P256):
         """Initialize a point on an elliptic curve.
 
         The x and y parameters must satisfy the equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}`,
         where a, b, and p are attributes of the curve parameter.
 
         Args:
-            |  x (long): The x coordinate of the point.
-            |  y (long): The y coordinate of the point.
+            |  x (int): The x coordinate of the point.
+            |  y (int): The y coordinate of the point.
             |  curve (:class:`Curve`): The curve that the point lies on.
         """
         if not (x == 0 and y == 1 and curve is None) and not curve.is_point_on_curve((x, y)):
@@ -42,13 +42,13 @@ class Point:
         else:
             return 'X: 0x{:x}\nY: 0x{:x}\n(On curve <{}>)'.format(self.x, self.y, self.curve.name)
 
-    def __unicode__(self):
+    def __unicode__(self) -> str:
         return self.__str__()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return self.x == other.x and self.y == other.y and self.curve is other.curve
 
     def __add__(self, other):
@@ -114,12 +114,12 @@ class Point:
         negative = Point(other.x, -other.y % other.curve.p, other.curve)
         return self.__add__(negative)
 
-    def __mul__(self, scalar):
+    def __mul__(self, scalar: int):
         """Multiply a :class:`Point` on an elliptic curve by an integer.
 
         Args:
             | self (:class:`Point`): a point :math:`P` on the curve
-            | other (long): an integer :math:`d \in \mathbb{Z_q}` where :math:`q` is the order of
+            | other (int): an integer :math:`d \in \mathbb{Z_q}` where :math:`q` is the order of
                 the curve that :math:`P` is on
 
         Returns:
@@ -146,7 +146,7 @@ class Point:
             )
             return Point(int(x), int(y), self.curve)
 
-    def __rmul__(self, scalar):
+    def __rmul__(self, scalar: int):
         """Multiply a :class:`Point` on an elliptic curve by an integer.
 
         Args:

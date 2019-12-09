@@ -11,7 +11,7 @@ class InvalidDerSignature(Exception):
 
 class DEREncoder(SigEncoder):
     @staticmethod
-    def encode_signature(r, s):
+    def encode_signature(r: int, s: int) -> bytes:
         """Encode an EC signature in serialized DER format as described in
            https://tools.ietf.org/html/rfc2459 (section 7.2.2) and as detailed by
            bip-0066
@@ -33,7 +33,7 @@ class DEREncoder(SigEncoder):
         return SEQUENCE + pack('B', len(r_s)) + r_s
 
     @staticmethod
-    def decode_signature(sig):
+    def decode_signature(sig: bytes) -> (int, int):
         """Decode an EC signature from serialized DER format as described in
            https://tools.ietf.org/html/rfc2459 (section 7.2.2) and as detailed by
            bip-0066

@@ -1,5 +1,6 @@
 from . import KeyEncoder
 from .util import bytes_to_int, int_bytelen, int_to_bytes
+from ..curve import Curve
 from ..point import Point
 from ..util import mod_sqrt
 
@@ -10,12 +11,13 @@ class InvalidSEC1PublicKey(Exception):
 
 class SEC1Encoder(KeyEncoder):
     @staticmethod
-    def encode_public_key(point, compressed=True):
+    def encode_public_key(point: Point, compressed: bool = True) -> bytes:
         """ Encode a public key as described in http://www.secg.org/SEC1-Ver-1.0.pdf
             in sections 2.3.3/2.3.4
                 compressed:     04 + x_bytes + y_bytes
                 uncompressed:   02 or 03 + x_bytes
         Args:
+            point (fastecdsa.point.Point): Public key to encode
             compressed (bool): Set to False if you want an uncompressed format
 
         Returns:
@@ -30,7 +32,7 @@ class SEC1Encoder(KeyEncoder):
         return b'\x04' + int_to_bytes(point.x).rjust(bytelen, b'\x00') + int_to_bytes(point.y).rjust(bytelen, b'\x00')
 
     @staticmethod
-    def decode_public_key(key, curve):
+    def decode_public_key(key: bytes, curve: Curve) -> Point:
         """ Decode a public key as described in http://www.secg.org/SEC1-Ver-1.0.pdf
             in sections 2.3.3/2.3.4
 
@@ -38,8 +40,8 @@ class SEC1Encoder(KeyEncoder):
                 uncompressed:   02 or 03 + x_bytes
 
         Args:
-            curve (Curve): Curve to use when decoding the public key
             key (bytes): public key encoded using the SEC1 format
+            curve (fastecdsa.curve.Curve): Curve to use when decoding the public key
 
         Returns:
             Point: The decoded public key
@@ -66,9 +68,9 @@ class SEC1Encoder(KeyEncoder):
         return Point(x, y, curve=curve)
 
     @staticmethod
-    def encode_private_key(d, Q=None, curve=None):
+    def encode_private_key(d):
         raise NotImplementedError('SEC1Encoder only encodes public keys')
 
     @staticmethod
-    def decode_private_key(d, Q=None, curve=None):
+    def decode_private_key(data):
         raise NotImplementedError('SEC1Encoder only decodes public keys')

@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
+from ..point import Point
+
 
 class KeyEncoder:
     """Base class that any encoding class for EC keys should derive from.
@@ -8,20 +10,24 @@ class KeyEncoder:
     """
     __metaclass__ = ABCMeta
 
+    @staticmethod
     @abstractmethod
-    def encode_public_key(Q):
+    def encode_public_key(Q: Point):
         pass
 
+    @staticmethod
     @abstractmethod
-    def encode_private_key(d):
+    def encode_private_key(d: int):
         pass
 
+    @staticmethod
     @abstractmethod
-    def decode_public_key(binary_data):
+    def decode_public_key(data) -> Point:
         pass
 
+    @staticmethod
     @abstractmethod
-    def decode_private_key(binary_data):
+    def decode_private_key(data) -> (int, Point):
         pass
 
 
@@ -32,10 +38,12 @@ class SigEncoder:
     """
     __metaclass__ = ABCMeta
 
+    @staticmethod
     @abstractmethod
-    def encode_signature(r, s):
+    def encode_signature(r: int, s: int) -> bytes:
         pass
 
+    @staticmethod
     @abstractmethod
-    def decode_signature(binary_data):
+    def decode_signature(binary_data: bytes) -> (int, int):
         pass

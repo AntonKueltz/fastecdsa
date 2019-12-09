@@ -6,16 +6,16 @@ class Curve:
     supported.
 
     Attributes:
-        |  name (string): The name of the curve
-        |  p (long): The value of :math:`p` in the curve equation.
-        |  a (long): The value of :math:`a` in the curve equation.
-        |  b (long): The value of :math:`b` in the curve equation.
-        |  q (long): The order of the base point of the curve.
-        |  oid (long): The object identifier of the curve.
+        |  name (str): The name of the curve
+        |  p (int): The value of :math:`p` in the curve equation.
+        |  a (int): The value of :math:`a` in the curve equation.
+        |  b (int): The value of :math:`b` in the curve equation.
+        |  q (int): The order of the base point of the curve.
+        |  oid (bytes): The object identifier of the curve.
     """
     _oid_lookup = {}  # a lookup table for getting curve instances by their object identifier
 
-    def __init__(self, name, p, a, b, q, gx, gy, oid=None):
+    def __init__(self, name: str, p: int, a: int, b: int, q: int, gx: int, gy: int, oid: bytes = None):
         """Initialize the parameters of an elliptic curve.
 
         WARNING: Do not generate your own parameters unless you know what you are doing or you could
@@ -27,13 +27,13 @@ class Curve:
 
         Args:
             |  name (string): The name of the curve
-            |  p (long): The value of :math:`p` in the curve equation.
-            |  a (long): The value of :math:`a` in the curve equation.
-            |  b (long): The value of :math:`b` in the curve equation.
-            |  q (long): The order of the base point of the curve.
-            |  gx (long): The x coordinate of the base point of the curve.
-            |  gy (long): The y coordinate of the base point of the curve.
-            |  oid (str): The object identifier of the curve.
+            |  p (int): The value of :math:`p` in the curve equation.
+            |  a (int): The value of :math:`a` in the curve equation.
+            |  b (int): The value of :math:`b` in the curve equation.
+            |  q (int): The order of the base point of the curve.
+            |  gx (int): The x coordinate of the base point of the curve.
+            |  gy (int): The y coordinate of the base point of the curve.
+            |  oid (bytes): The object identifier of the curve.
         """
         self.name = name
         self.p = p
@@ -45,15 +45,15 @@ class Curve:
         self.oid = oid
         self._oid_lookup[oid] = self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
     @classmethod
-    def get_curve_by_oid(cls, oid):
+    def get_curve_by_oid(cls, oid: bytes):
         """Get a curve via it's object identifier."""
         return cls._oid_lookup.get(oid, None)
 
-    def is_point_on_curve(self, P):
+    def is_point_on_curve(self, P) -> bool:
         """ Check if a point lies on this curve.
 
         The check is done by evaluating the curve equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}`
@@ -72,7 +72,7 @@ class Curve:
         right = (x * x * x) + (self.a * x) + self.b
         return (left - right) % self.p == 0
 
-    def evaluate(self, x):
+    def evaluate(self, x: int) -> int:
         """ Evaluate the elliptic curve polynomial at 'x'
 
         Args:

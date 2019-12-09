@@ -1,7 +1,7 @@
 from struct import pack
 
 
-def int_bytelen(x):
+def int_bytelen(x: int) -> int:
     length = 0
 
     while x:
@@ -11,7 +11,7 @@ def int_bytelen(x):
     return length
 
 
-def int_to_bytes(x):
+def int_to_bytes(x: int) -> bytes:
     bs = b''
 
     while x:
@@ -21,7 +21,7 @@ def int_to_bytes(x):
     return bs
 
 
-def bytes_to_int(bytestr):
+def bytes_to_int(bytestr: bytes) -> int:
     """Make an integer from a big endian bytestring."""
     value = 0
     for byte_intval in bytestr:

@@ -13,8 +13,8 @@ class RFC6979:
 
     Attributes:
         |  msg (string): A message being signed.
-        |  x (long): An ECDSA private key.
-        |  q (long): The order of the generator point of the curve being used to sign the message.
+        |  x (int): An ECDSA private key.
+        |  q (int): The order of the generator point of the curve being used to sign the message.
         |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
     """
     def __init__(self, msg, x, q, hashfunc):
@@ -82,7 +82,7 @@ class RFC6979:
             v = hmac.new(k, v, self.hashfunc).digest()
 
 
-def _tonelli_shanks(n, p):
+def _tonelli_shanks(n: int, p: int) -> int:
     """A generic algorithm for computng modular square roots."""
     Q, S = p - 1, 0
     while Q % 2 == 0:
@@ -104,17 +104,17 @@ def _tonelli_shanks(n, p):
     return R, -R % p
 
 
-def mod_sqrt(a, p):
+def mod_sqrt(a: int, p: int) -> (int, int):
     """Compute the square root of :math:`a \pmod{p}`
 
     In other words, find a value :math:`x` such that :math:`x^2 \equiv a \pmod{p}`.
 
     Args:
-        |  a (long): The value whose root to take.
-        |  p (long): The prime whose field to perform the square root in.
+        |  a (int): The value whose root to take.
+        |  p (int): The prime whose field to perform the square root in.
 
     Returns:
-        (long, long): the two values of :math:`x` satisfying :math:`x^2 \equiv a \pmod{p}`.
+        (int, int): the two values of :math:`x` satisfying :math:`x^2 \equiv a \pmod{p}`.
     """
     if p % 4 == 3:
         k = (p - 3) // 4
@@ -124,7 +124,7 @@ def mod_sqrt(a, p):
         return _tonelli_shanks(a, p)
 
 
-def msg_bytes(msg):
+def msg_bytes(msg) -> bytes:
     """Return bytes in a consistent way for a given message.
 
     The message is expected to be either a string, bytes, or an array of bytes.

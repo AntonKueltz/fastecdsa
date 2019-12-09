@@ -4,14 +4,15 @@ from sys import argv
 from timeit import timeit
 
 from .curve import (
-    P192, P224, P256, P384, P521, secp192k1, secp224k1, secp256k1, brainpoolP160r1, brainpoolP192r1,
+    Curve, P192, P224, P256, P384, P521, secp192k1, secp224k1, secp256k1, brainpoolP160r1, brainpoolP192r1,
     brainpoolP224r1, brainpoolP256r1, brainpoolP320r1, brainpoolP384r1, brainpoolP512r1
 )
 from .ecdsa import sign, verify
 from .keys import gen_keypair
+from .point import Point
 
 
-def sign_and_verify(d, Q, curve):
+def sign_and_verify(d: int, Q: Point, curve: Curve):
     msg = b2a_uu(urandom(32))
     sig = sign(msg, d, curve=curve)
     assert verify(sig, msg, Q, curve=curve)
