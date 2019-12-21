@@ -154,7 +154,12 @@ If you'd like to benchmark performance on your machine you can do so using the c
     $ python setup.py benchmark
 
 This will use the :code:`timeit` module to benchmark 1000 signature and verification operations
-for each curve supported by this package.
+for each curve supported by this package. Alternatively, if you have not cloned the repo but
+have installed the package via e.g. :code:`pip` you can use the following command:
+
+.. code:: bash
+
+    $ python -m fastecdsa.benchmark
 
 Installing
 ----------
