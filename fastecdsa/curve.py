@@ -43,7 +43,9 @@ class Curve:
         self.gx = gx
         self.gy = gy
         self.oid = oid
-        self._oid_lookup[oid] = self
+
+        if oid is not None:
+            self._oid_lookup[oid] = self
 
     def __repr__(self) -> str:
         return self.name
@@ -95,7 +97,8 @@ class Curve:
         return Point(self.gx, self.gy, self)
 
 
-# see https://www.nsa.gov/ia/_files/nist-routines.pdf for params
+# see https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186-draft.pdf
+# Setion 4.2.1 "Weierstrass Curves" for params
 P192 = Curve(
     'P192',
     6277101735386680763835789423207666416083908700390324961279,
