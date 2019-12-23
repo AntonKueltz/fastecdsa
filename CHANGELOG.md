@@ -1,6 +1,9 @@
 # Changelog
 
-## [2.0.1]
+## [2.1.0]
+### Added
+- Curves W25519 and W448 from [NIST.SP.800-186](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186-draft.pdf)
+
 ### Fixed
 - Curves with no OID are not added to the lookup by OID map
 
