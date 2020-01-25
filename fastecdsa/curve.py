@@ -1,3 +1,6 @@
+from .util import mod_sqrt
+
+
 class Curve:
     """Representation of an elliptic curve.
 
@@ -70,9 +73,19 @@ class Curve:
             bool: :code:`True` if the point lies on this curve, otherwise :code:`False`.
         """
         x, y, = P[0], P[1]
-        left = y * y
-        right = (x * x * x) + (self.a * x) + self.b
-        return (left - right) % self.p == 0
+        y1, y2 = self.x_to_ys(x)
+        return y == y1 or y == y2
+
+    def x_to_ys(self, x: int) -> int:
+        """ Find corresponding y coordinate given x
+
+        Args:
+            x (int): the x coordinate
+
+        Returns:
+            (int, int): both values of :math:`(x^3 + ax + b)^1/2 \bmod{p}`
+        """
+        return mod_sqrt(x ** 3 + self.a * x + self.b, self.p)
 
     def evaluate(self, x: int) -> int:
         """ Evaluate the elliptic curve polynomial at 'x'

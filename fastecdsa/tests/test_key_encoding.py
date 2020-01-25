@@ -70,3 +70,11 @@ class TestEncodePublicKey(TestCase):
         public_from_compressed = SEC1Encoder.decode_public_key(
             unhexlify(b'03a3bec5fba6d13e51fb55bd88dd097cb9b04f827bc151d22d'), secp192k1)
         self.assertEqual(public_from_compressed, expected_secp192k1)
+
+    def test_fix_issue_48(self):
+        curve = secp256k1
+        x = 14899878097
+        y = 26231617881706184850666176805736269196222162329503324915111945351251945838730
+        self.assertEqual(curve.is_point_on_curve((x, y)), True)
+        self.assertEqual(curve.is_point_on_curve((x, y + 1)), False)
+        expected_public = Point(x=x, y=y, curve=curve) # should not raise an error
