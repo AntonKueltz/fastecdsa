@@ -6,6 +6,7 @@
 
 ### Fixed
 - Curves with no OID are not added to the lookup by OID map
+- Type validation for operations of points (issue #50)
 
 ## [2.0.0]
 ### Added
@@ -18,4 +19,4 @@
 - Various unused imports
 
 ### Fixed
-- Issue with benchmark script when C extensions weren't built in place
+- Issue with benchmark script when C extensions weren't built in place (issue #44)

@@ -1,5 +1,6 @@
 from fastecdsa import curvemath
 from .curve import P256
+from .util import validate_type
 
 
 class CurveMismatchError(Exception):
@@ -49,6 +50,7 @@ class Point:
         return self.__str__()
 
     def __eq__(self, other) -> bool:
+        validate_type(other, Point)
         return self.x == other.x and self.y == other.y and self.curve is other.curve
 
     def __add__(self, other):
@@ -61,6 +63,8 @@ class Point:
         Returns:
             :class:`Point`: A point :math:`R` such that :math:`R = P + Q`
         """
+        validate_type(other, Point)
+
         if self == self.IDENTITY_ELEMENT:
             return other
         elif other == self.IDENTITY_ELEMENT:
@@ -92,8 +96,9 @@ class Point:
             | other (:class:`Point`): a point :math:`Q` on the curve
 
         Returns:
-            :class:`Point`: A point :math:`R` such that :math:`R = P + Q`
+            :class:`Point`: A point :math:`R` such that :math:`R = R + Q`
         """
+        validate_type(other, Point)
         return self.__add__(other)
 
     def __sub__(self, other):
@@ -106,6 +111,8 @@ class Point:
         Returns:
             :class:`Point`: A point :math:`R` such that :math:`R = P - Q`
         """
+        validate_type(other, Point)
+
         if self == other:
             return self.IDENTITY_ELEMENT
         elif other == self.IDENTITY_ELEMENT:
@@ -125,26 +132,22 @@ class Point:
         Returns:
             :class:`Point`: A point :math:`R` such that :math:`R = P * d`
         """
-        try:
-            d = int(scalar) % self.curve.q
-        except ValueError:
-            raise TypeError('Curve point multiplication must be by an integer')
-        else:
-            if d == 0:
-                return self.IDENTITY_ELEMENT
+        validate_type(scalar, int)
+        if scalar == 0:
+            return self.IDENTITY_ELEMENT
 
-            x, y = curvemath.mul(
-                str(self.x),
-                str(self.y),
-                str(d),
-                str(self.curve.p),
-                str(self.curve.a),
-                str(self.curve.b),
-                str(self.curve.q),
-                str(self.curve.gx),
-                str(self.curve.gy)
-            )
-            return Point(int(x), int(y), self.curve)
+        x, y = curvemath.mul(
+            str(self.x),
+            str(self.y),
+            str(scalar),
+            str(self.curve.p),
+            str(self.curve.a),
+            str(self.curve.b),
+            str(self.curve.q),
+            str(self.curve.gx),
+            str(self.curve.gy)
+        )
+        return Point(int(x), int(y), self.curve)
 
     def __rmul__(self, scalar: int):
         """Multiply a :class:`Point` on an elliptic curve by an integer.

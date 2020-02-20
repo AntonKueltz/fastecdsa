@@ -82,7 +82,7 @@ class RFC6979:
             v = hmac.new(k, v, self.hashfunc).digest()
 
 
-def _tonelli_shanks(n: int, p: int) -> int:
+def _tonelli_shanks(n: int, p: int) -> (int, int):
     """A generic algorithm for computng modular square roots."""
     Q, S = p - 1, 0
     while Q % 2 == 0:
@@ -147,3 +147,19 @@ def msg_bytes(msg) -> bytes:
     else:
         raise ValueError('Msg "{}" of type {} cannot be converted to bytes'.format(
             msg, type(msg)))
+
+
+def validate_type(instance: object, expected_type: type):
+    """Validate that instance is an instance of the expected_type.
+
+    Args:
+        |  instance: The object whose type is being checked
+        |  expected_type: The expected type of instance
+        |  var_name: The name of the object
+
+    Raises:
+         TypeError: If instance is not of type expected_type
+    """
+    if not isinstance(instance, expected_type):
+        raise TypeError('Expected a value of type {}, got a value of type {}'.format(
+            expected_type, type(instance)))

@@ -55,7 +55,7 @@ class Curve:
         """Get a curve via it's object identifier."""
         return cls._oid_lookup.get(oid, None)
 
-    def is_point_on_curve(self, P) -> bool:
+    def is_point_on_curve(self, point: (int, int)) -> bool:
         """ Check if a point lies on this curve.
 
         The check is done by evaluating the curve equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}`
@@ -63,13 +63,13 @@ class Curve:
         the congruence holds, then the point lies on this curve.
 
         Args:
-            P (long, long): A tuple representing the point :math:`P` as an :math:`(x, y)` coordinate
+            point (long, long): A tuple representing the point :math:`P` as an :math:`(x, y)` coordinate
             pair.
 
         Returns:
             bool: :code:`True` if the point lies on this curve, otherwise :code:`False`.
         """
-        x, y, = P[0], P[1]
+        x, y, = point
         left = y * y
         right = (x * x * x) + (self.a * x) + self.b
         return (left - right) % self.p == 0
