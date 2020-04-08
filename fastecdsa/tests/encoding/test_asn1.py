@@ -1,8 +1,8 @@
 from os import remove
 from unittest import TestCase
 
-from ..curve import P256
-from ..keys import export_key, import_key, gen_keypair
+from fastecdsa.curve import P256
+from fastecdsa.keys import export_key, import_key, gen_keypair
 
 
 class TestAsn1(TestCase):
