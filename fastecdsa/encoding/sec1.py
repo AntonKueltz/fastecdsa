@@ -14,8 +14,8 @@ class SEC1Encoder(KeyEncoder):
     def encode_public_key(point: Point, compressed: bool = True) -> bytes:
         """ Encode a public key as described in http://www.secg.org/SEC1-Ver-1.0.pdf
             in sections 2.3.3/2.3.4
-                compressed:     04 + x_bytes + y_bytes
-                uncompressed:   02 or 03 + x_bytes
+                uncompressed:   04 + x_bytes + y_bytes
+                compressed:     02 or 03 + x_bytes
         Args:
             point (fastecdsa.point.Point): Public key to encode
             compressed (bool): Set to False if you want an uncompressed format
@@ -36,8 +36,8 @@ class SEC1Encoder(KeyEncoder):
         """ Decode a public key as described in http://www.secg.org/SEC1-Ver-1.0.pdf
             in sections 2.3.3/2.3.4
 
-                compressed:     04 + x_bytes + y_bytes
-                uncompressed:   02 or 03 + x_bytes
+                uncompressed:   04 + x_bytes + y_bytes
+                compressed:     02 or 03 + x_bytes
 
         Args:
             key (bytes): public key encoded using the SEC1 format
