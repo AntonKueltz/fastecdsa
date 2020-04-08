@@ -4,13 +4,13 @@ fastecdsa
     :target: https://pypi.org/project/fastecdsa/
     :alt: PyPI
 
-.. image:: https://img.shields.io/travis/AntonKueltz/fastecdsa.svg
+.. image:: https://travis-ci.org/AntonKueltz/fastecdsa.svg?branch=master
     :target: https://travis-ci.org/AntonKueltz/fastecdsa
-    :alt: Travis
+    :alt: Travis CI
 
 .. image:: https://readthedocs.org/projects/fastecdsa/badge/?version=latest
     :target: http://fastecdsa.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
+    :alt: Docs
 
 .. contents::
 
