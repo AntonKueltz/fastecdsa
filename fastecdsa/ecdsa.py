@@ -1,3 +1,4 @@
+from binascii import hexlify
 from hashlib import sha256
 from typing import TypeVar
 
@@ -25,19 +26,18 @@ def sign(msg: MsgTypes, d: int, curve: Curve = P256, hashfunc=sha256, prehashed:
         |  d (int): The ECDSA private key of the signer.
         |  curve (fastecdsa.curve.Curve): The curve to be used to sign the message.
         |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
+        |  prehashed (bool): The message being passed has already been hashed by :code:`hashfunc`.
     """
     # generate a deterministic nonce per RFC6979
-    rfc6979 = RFC6979(msg, d, curve.q, hashfunc)
+    rfc6979 = RFC6979(msg, d, curve.q, hashfunc, prehashed=prehashed)
     k = rfc6979.gen_nonce()
 
-    # add a prehash option
-    if not prehashed:
-        hashed = hashfunc(msg_bytes(msg)).hexdigest()
+    if prehashed:
+        hex_digest = hexlify(msg).decode()
     else:
-        hashed = msg
-
+        hex_digest = hashfunc(msg_bytes(msg)).hexdigest()
     r, s = _ecdsa.sign(
-        hashed,
+        hex_digest,
         str(d),
         str(k),
         str(curve.p),

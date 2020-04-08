@@ -1,6 +1,7 @@
 from binascii import hexlify
 import hmac
 from struct import pack
+from typing import Callable
 
 
 class RFC6979:
@@ -12,20 +13,22 @@ class RFC6979:
     key. More info here: http://tools.ietf.org/html/rfc6979.
 
     Attributes:
-        |  msg (string): A message being signed.
+        |  msg (bytes): A message being signed.
         |  x (int): An ECDSA private key.
         |  q (int): The order of the generator point of the curve being used to sign the message.
         |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
+        |  prehashed (bool): Whether the signature is on a pre-hashed message.
     """
-    def __init__(self, msg, x, q, hashfunc):
+    def __init__(self, msg: bytes, x: int, q: int, hashfunc: Callable, prehashed: bool = False):
         self.x = x
         self.q = q
         self.msg = msg_bytes(msg)
         self.qlen = len(bin(q)) - 2  # -2 for the leading '0b'
         self.rlen = ((self.qlen + 7) // 8) * 8
         self.hashfunc = hashfunc
+        self.prehashed = prehashed
 
-    def _bits2int(self, b):
+    def _bits2int(self, b: bytes) -> int:
         """ http://tools.ietf.org/html/rfc6979#section-2.3.2 """
         i = int(hexlify(b), 16)
         blen = len(b) * 8
@@ -35,7 +38,7 @@ class RFC6979:
 
         return i
 
-    def _int2octets(self, x):
+    def _int2octets(self, x: int) -> bytes:
         """ http://tools.ietf.org/html/rfc6979#section-2.3.3 """
         octets = b''
 
@@ -46,7 +49,7 @@ class RFC6979:
         padding = b'\x00' * ((self.rlen // 8) - len(octets))
         return padding + octets
 
-    def _bits2octets(self, b):
+    def _bits2octets(self, b: bytes) -> bytes:
         """ http://tools.ietf.org/html/rfc6979#section-2.3.4 """
         z1 = self._bits2int(b)  # -2 for the leading '0b'
         z2 = z1 % self.q
@@ -54,9 +57,11 @@ class RFC6979:
 
     def gen_nonce(self):
         """ http://tools.ietf.org/html/rfc6979#section-3.2 """
-        h1 = self.hashfunc(self.msg)
-        hash_size = h1.digest_size
-        h1 = h1.digest()
+        hash_size = self.hashfunc().digest_size
+        if self.prehashed:
+            h1 = self.msg
+        else:
+            h1 = self.hashfunc(self.msg).digest()
         key_and_msg = self._int2octets(self.x) + self._bits2octets(h1)
 
         v = b''.join([b'\x01' for _ in range(hash_size)])
