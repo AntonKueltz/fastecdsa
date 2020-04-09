@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.1.1]
+### Fixed
+- RFC6979 nonce generation for signatures on pre-hashed messages (issue #46)
+
 ## [2.1.0]
 ### Added
 - Curves W25519 and W448 from [NIST.SP.800-186](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186-draft.pdf)
