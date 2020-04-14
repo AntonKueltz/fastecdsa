@@ -1,7 +1,7 @@
 from struct import pack
 
 from . import SigEncoder
-from .asn1 import INTEGER, SEQUENCE
+from .asn1 import ASN1EncodingError, INTEGER, SEQUENCE, parse_asn1_int, parse_asn1_length
 from .util import bytes_to_int, int_to_bytes
 
 
@@ -40,33 +40,34 @@ class DEREncoder(SigEncoder):
 
            Returns (r,s)
         """
-        if len(sig) < 8:
-            raise InvalidDerSignature("bytestring too small")
-        if sig[0] != ord(SEQUENCE):
-            raise InvalidDerSignature("missing SEQUENCE marker")
-        if sig[1] != len(sig) - 2:
-            raise InvalidDerSignature("invalid length")
-        length_r = sig[3]
-        if 5 + length_r >= len(sig):
-            raise InvalidDerSignature("invalid length")
-        length_s = sig[5 + length_r]
-        if length_r + length_s + 6 != len(sig):
-            raise InvalidDerSignature("invalid length")
-        if sig[2] != ord(INTEGER):
-            raise InvalidDerSignature("invalid r marker")
-        if length_r == 0:
-            raise InvalidDerSignature("invalid r value")
-        if sig[4] & 0x80:
-            raise InvalidDerSignature("invalid r value")
-        if length_r > 1 and (sig[4] == 0x00) and not (sig[5] & 0x80):
-            raise InvalidDerSignature("invalid r value")
-        if sig[length_r + 4] != ord(INTEGER):
-            raise InvalidDerSignature("invalid s marker")
-        if length_s == 0:
-            raise InvalidDerSignature("invalid s value")
-        if sig[length_r + 6] & 0x80:
-            raise InvalidDerSignature("invalid s value")
-        if length_s > 1 and (sig[length_r + 6] == 0x00) and not (sig[length_r + 7] & 0x80):
-            raise InvalidDerSignature("invalid s value")
-        r_data, s_data = sig[4:4 + length_r], sig[6 + length_r:]
-        return bytes_to_int(r_data), bytes_to_int(s_data)
+        def _validate_int_bytes(data: bytes):
+            # check for negative values, indicated by leading 1 bit
+            if data[0] & 0x80:
+                raise InvalidDerSignature("Signature contains a negative value")
+
+            # check for leading 0x00s that aren't there to disambiguate possible negative values
+            if data[0] == 0x00 and not data[1] & 0x80:
+                raise InvalidDerSignature("Invalid leading 0x00 byte in ASN.1 integer")
+
+        # overarching structure must be a sequence
+        if not sig or sig[0] != ord(SEQUENCE):
+            raise InvalidDerSignature("First byte should be ASN.1 SEQUENCE")
+
+        try:
+            seqlen, sequence, leftover = parse_asn1_length(sig[1:])
+        except ASN1EncodingError as asn1_error:
+            raise InvalidDerSignature(asn1_error)
+
+        # sequence should be entirety remaining data
+        if leftover:
+            raise InvalidDerSignature(f"Expected a sequence of {seqlen} bytes, got {len(sequence + leftover)}")
+
+        try:
+            rlen, r, sdata = parse_asn1_int(sequence)
+            slen, s, _ = parse_asn1_int(sdata)
+        except ASN1EncodingError as asn1_error:
+            raise InvalidDerSignature(asn1_error)
+
+        _validate_int_bytes(r)
+        _validate_int_bytes(s)
+        return bytes_to_int(r), bytes_to_int(s)

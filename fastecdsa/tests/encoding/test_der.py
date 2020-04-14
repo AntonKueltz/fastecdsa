@@ -59,15 +59,17 @@ class TestDEREncoder(TestCase):
 
     def test_decode_signature(self):
         with self.assertRaises(InvalidDerSignature):
-            DEREncoder.decode_signature(b"")  # length to shot
+            DEREncoder.decode_signature(b"")  # length too short
         with self.assertRaises(InvalidDerSignature):
             DEREncoder.decode_signature(b"\x31\x06\x02\x01\x01\x02\x01\x02")  # invalid SEQUENCE marker
         with self.assertRaises(InvalidDerSignature):
-            DEREncoder.decode_signature(b"\x30\x07\x02\x01\x01\x02\x01\x02")  # invalid length
+            DEREncoder.decode_signature(b"\x30\x07\x02\x01\x01\x02\x01\x02")  # invalid length (too short)
+        with self.assertRaises(InvalidDerSignature):
+            DEREncoder.decode_signature(b"\x30\x05\x02\x01\x01\x02\x01\x02")  # invalid length (too long)
         with self.assertRaises(InvalidDerSignature):
             DEREncoder.decode_signature(b"\x30\x06\x02\x03\x01\x02\x01\x02")  # invalid length of r
         with self.assertRaises(InvalidDerSignature):
-            DEREncoder.decode_signature(b"\x30\x06\x02\x01\x01\x03\x01\x02")  # invalid length of s
+            DEREncoder.decode_signature(b"\x30\x06\x02\x01\x01\x02\x03\x02")  # invalid length of s
         with self.assertRaises(InvalidDerSignature):
             DEREncoder.decode_signature(b"\x30\x06\x03\x01\x01\x02\x01\x02")  # invalid INTEGER marker for r
         with self.assertRaises(InvalidDerSignature):
