@@ -1,7 +1,7 @@
 from binascii import unhexlify
-from hashlib import sha224, sha256, sha384, sha3_224, sha3_256, sha3_384, sha3_512, sha512
 from json import JSONDecodeError, loads
-from unittest import SkipTest, TestCase
+from sys import version_info
+from unittest import SkipTest, TestCase, skipIf
 from urllib.error import URLError
 from urllib.request import urlopen
 
@@ -14,7 +14,13 @@ from fastecdsa.ecdsa import verify
 from fastecdsa.encoding.der import DEREncoder
 from fastecdsa.encoding.sec1 import SEC1Encoder
 
+try:
+    from hashlib import sha224, sha256, sha384, sha3_224, sha3_256, sha3_384, sha3_512, sha512
+except ImportError:
+    pass
 
+
+@skipIf(version_info.minor < 6, "Test requires sha3 (added in python3.6) to run")
 class TestWycheproofEcdsaVerify(TestCase):
     @staticmethod
     def _get_tests(url):
