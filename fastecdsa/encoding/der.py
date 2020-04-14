@@ -60,7 +60,8 @@ class DEREncoder(SigEncoder):
 
         # sequence should be entirety remaining data
         if leftover:
-            raise InvalidDerSignature(f"Expected a sequence of {seqlen} bytes, got {len(sequence + leftover)}")
+            raise InvalidDerSignature("Expected a sequence of {} bytes, got {}".format(
+                seqlen, len(sequence + leftover)))
 
         try:
             rlen, r, sdata = parse_asn1_int(sequence)

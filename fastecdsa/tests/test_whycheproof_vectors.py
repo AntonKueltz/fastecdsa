@@ -23,7 +23,7 @@ class TestWycheproofEcdsaVerify(TestCase):
             test_json = loads(test_raw)
             return test_json["testGroups"]
         except (JSONDecodeError, URLError) as error:
-            SkipTest(f"Skipping tests, could not download / parse data from {url}\nError: {error}")
+            SkipTest("Skipping tests, could not download / parse data from {}\nError: {}".format(url, error))
 
     def _test_runner(self, tests, curve, hashfunc):
         for test_group in tests:

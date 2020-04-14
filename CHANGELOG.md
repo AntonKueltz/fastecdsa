@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.1.2]
+### Fixed
+- Point at infinity handling in C extensions
+- DER signature decoding that assumed length was always encoded in one byte
+
 ## [2.1.1]
 ### Fixed
 - RFC6979 nonce generation for signatures on pre-hashed messages (issue #46)

@@ -99,8 +99,8 @@ def parse_asn1_length(data: bytes) -> (int, bytes, bytes):
         data = data[count:]
 
     if length > len(data):
-        raise ASN1EncodingError(f"Parsed length of ASN.1 structure to be {length} bytes but only {len(data)} bytes"
-                                f"remain in the provided data")
+        raise ASN1EncodingError("Parsed length of ASN.1 structure to be {} bytes but only {} bytes"
+                                "remain in the provided data".format(length, len(data)))
 
     return length, data[:length], data[length:]
 
@@ -128,6 +128,6 @@ def parse_asn1_int(data: bytes) -> (int, bytes, bytes):
 
     # integer length should match length indicated
     if length != len(data):
-        raise ASN1EncodingError(f"Expected ASN.1 INTEGER to be {length} bytes, got {len(data)} bytes")
+        raise ASN1EncodingError("Expected ASN.1 INTEGER to be {} bytes, got {} bytes".format(length, len(data)))
 
     return length, data, remaining
