@@ -15,7 +15,22 @@ int pointZZ_pEqual(const PointZZ_p * op1, const PointZZ_p * op2) {
 }
 
 
+int pointZZ_pIsIdentityElement(const PointZZ_p * op) {
+    return mpz_cmp_ui(op->x, 0) == 0 && mpz_cmp_ui(op->y, 0) == 0 ? 1 : 0;
+}
+
+
+void pointZZ_pSetToIdentityElement(PointZZ_p * op) {
+    mpz_set_ui(op->x, 0);
+    mpz_set_ui(op->y, 0);
+}
+
+
 void pointZZ_pDouble(PointZZ_p * rop, const PointZZ_p * op, const CurveZZ_p * curve) {
+    if(pointZZ_pIsIdentityElement(op)) {
+        return pointZZ_pSetToIdentityElement(rop);
+    }
+
     mpz_t numer, denom, lambda;
     mpz_inits(numer, denom, lambda, NULL);
 
@@ -45,6 +60,35 @@ void pointZZ_pDouble(PointZZ_p * rop, const PointZZ_p * op, const CurveZZ_p * cu
 
 
 void pointZZ_pAdd(PointZZ_p * rop, const PointZZ_p * op1, const PointZZ_p * op2, const CurveZZ_p * curve) {
+    // handle identity element cases
+    if(pointZZ_pIsIdentityElement(op1) && pointZZ_pIsIdentityElement(op2)) {
+        return pointZZ_pSetToIdentityElement(rop);
+    } else if(pointZZ_pIsIdentityElement(op1)) {
+        mpz_set(rop->x, op2->x);
+        mpz_set(rop->y, op2->y);
+        return;
+    } else if(pointZZ_pIsIdentityElement(op2)) {
+        mpz_set(rop->x, op1->x);
+        mpz_set(rop->y, op1->y);
+        return;
+    }
+
+    // use doubling algorithm if points are equal
+    if(pointZZ_pEqual(op1, op2)) {
+        pointZZ_pDouble(rop, op1, curve);
+        return;
+    }
+
+    // check if points sum to identity element
+    mpz_t negy;
+    mpz_init(negy);
+    mpz_sub(negy, curve->p, op2->y);
+    if(mpz_cmp(op1->x, op2->x) == 0 && mpz_cmp(op1->y, negy) == 0) {
+        mpz_clear(negy);
+        return pointZZ_pSetToIdentityElement(rop);
+    }
+
+
     mpz_t xdiff, ydiff, lambda;
     mpz_inits(xdiff, ydiff, lambda, NULL);
 
@@ -67,11 +111,16 @@ void pointZZ_pAdd(PointZZ_p * rop, const PointZZ_p * op1, const PointZZ_p * op2,
     mpz_sub(rop->y, rop->y, op1->y);
     mpz_mod(rop->y, rop->y, curve->p);
 
-    mpz_clears(xdiff, ydiff, lambda, NULL);
+    mpz_clears(negy, xdiff, ydiff, lambda, NULL);
 }
 
 
 void pointZZ_pMul(PointZZ_p * rop, const PointZZ_p * point, const mpz_t scalar, const CurveZZ_p * curve) {
+    // handle the identity element
+    if(pointZZ_pIsIdentityElement(point)) {
+        return pointZZ_pSetToIdentityElement(rop);
+    }
+
     PointZZ_p R0, R1, tmp;
     mpz_inits(R1.x, R1.y, tmp.x, tmp.y, NULL);
     mpz_init_set(R0.x, point->x);
