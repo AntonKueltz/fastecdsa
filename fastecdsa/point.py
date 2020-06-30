@@ -29,7 +29,7 @@ class Point:
             |  y (int): The y coordinate of the point.
             |  curve (:class:`Curve`): The curve that the point lies on.
         """
-        if not (x == 0 and y == 1 and curve is None) and not curve.is_point_on_curve((x, y)):
+        if not (x == 0 and y == 0 and curve is None) and not curve.is_point_on_curve((x, y)):
             raise ValueError(
                 'coordinates are not on curve <{}>\n\tx={:x}\n\ty={:x}'.format(curve.name, x, y))
         else:
@@ -133,6 +133,8 @@ class Point:
             :class:`Point`: A point :math:`R` such that :math:`R = P * d`
         """
         validate_type(scalar, int)
+        scalar %= self.curve.q
+
         if scalar == 0:
             return self.IDENTITY_ELEMENT
 
@@ -177,4 +179,4 @@ class Point:
         return Point(self.x, -self.y % self.curve.p, self.curve)
 
 
-Point.IDENTITY_ELEMENT = Point(0, 1, curve=None)  # also known as the point at infinity
+Point.IDENTITY_ELEMENT = Point(0, 0, curve=None)  # also known as the point at infinity

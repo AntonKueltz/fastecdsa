@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.1.3]
+### Fixed
+- Multiplying base point by curve order caused an error (issue #54)
+
 ## [2.1.2]
 ### Fixed
 - Point at infinity handling in C extensions (issue #52)

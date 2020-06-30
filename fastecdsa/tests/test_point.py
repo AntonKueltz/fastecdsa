@@ -43,3 +43,9 @@ class TestTypeValidation(TestCase):
 
         with self.assertRaises(TypeError):
             _ = 1.5 * W25519.G
+
+    def test_point_at_infinity(self):
+        self.assertEqual(W25519.G * 0, Point.IDENTITY_ELEMENT)
+        self.assertEqual(W25519.G * W25519.q, Point.IDENTITY_ELEMENT)
+        self.assertEqual(W25519.G + Point.IDENTITY_ELEMENT, W25519.G)
+        self.assertEqual(W25519.G - Point.IDENTITY_ELEMENT, W25519.G)
