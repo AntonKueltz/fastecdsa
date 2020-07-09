@@ -27,19 +27,15 @@ def sign(msg: MsgTypes, d: int, curve: Curve = P256, hashfunc=sha256, prehashed:
         |  curve (fastecdsa.curve.Curve): The curve to be used to sign the message.
         |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
         |  prehashed (bool): The message being passed has already been hashed by :code:`hashfunc`.
-    """
-    if prehashed:
-        try:
-            hex_digest = msg.hexdigest()
-            msg = msg.digest()
-        except:
-            hex_digest = hexlify(msg).decode()
-    else:
-        hex_digest = hashfunc(msg_bytes(msg)).hexdigest()
-    
+    """    
     # generate a deterministic nonce per RFC6979
     rfc6979 = RFC6979(msg, d, curve.q, hashfunc, prehashed=prehashed)
     k = rfc6979.gen_nonce()
+    
+    if prehashed:        
+        hex_digest = hexlify(msg).decode()
+    else:
+        hex_digest = hashfunc(msg_bytes(msg)).hexdigest()
     
     r, s = _ecdsa.sign(
         hex_digest,
@@ -91,10 +87,7 @@ def verify(sig: (int, int), msg: MsgTypes, Q: Point, curve: Curve = P256, hashfu
             'Invalid Signature: s is not a positive integer smaller than the curve order')
     
     if prehashed:
-        try:        
-            hashed = msg.hexdigest()
-        except:
-            hashed = msg.hex()
+        hashed = hexlify(msg).decode()
     else:
         hashed = hashfunc(msg_bytes(msg)).hexdigest()
     
