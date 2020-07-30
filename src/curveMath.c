@@ -39,7 +39,13 @@ void pointZZ_pDouble(PointZZ_p * rop, const PointZZ_p * op, const CurveZZ_p * cu
     mpz_mul_ui(numer, numer, 3);
     mpz_add(numer, numer, curve->a);
     mpz_mul_ui(denom, op->y, 2);
-    mpz_invert(denom, denom, curve->p);  // TODO check status
+
+    // handle 2P = identity case
+    if (mpz_invert(denom, denom, curve->p) == 0) {
+        mpz_clears(numer, denom, lambda, NULL);
+        return pointZZ_pSetToIdentityElement(rop);
+    }
+
     mpz_mul(lambda, numer, denom);
     mpz_mod(lambda, lambda, curve->p);
 
