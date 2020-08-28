@@ -349,6 +349,10 @@ Thanks to those below for contributing improvements:
 - m-kus
 - sirk390
 - targon
+- NotStatilko
+- bbbrumley
+- luinxz
+- JJChiDguez
 
 .. _issue11: https://github.com/AntonKueltz/fastecdsa/issues/11
 .. _GMP: https://gmplib.org/

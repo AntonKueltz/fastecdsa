@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.4]
+### Fixed
+- Reduction by base point order in scalar multiplication breaks when input point does not have that order (PR #58)
+- Edge case for curves with order 2 was not handled (PR #58) 
+- Signature verification of pre-hashed messages broken (PR #56)
+
 ## [2.1.3]
 ### Fixed
 - Multiplying base point by curve order caused an error (issue #54)
