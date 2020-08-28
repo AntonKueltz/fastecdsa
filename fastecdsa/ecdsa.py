@@ -33,6 +33,16 @@ def sign(msg: MsgTypes, d: int, curve: Curve = P256, hashfunc=sha256, prehashed:
     rfc6979 = RFC6979(msg, d, curve.q, hashfunc, prehashed=prehashed)
     k = rfc6979.gen_nonce()
 
+    # Fix the bit-length of the random nonce,
+    # so that it doesn't leak via timing.
+    # This does not change that ks (mod n) = kt (mod n) = k (mod n)
+    ks = k + curve.q
+    kt = ks + curve.q
+    if ks.bit_length() == curve.q.bit_length():
+        k = kt
+    else:
+        k = ks
+
     if prehashed:
         hex_digest = hexlify(msg).decode()
     else:
