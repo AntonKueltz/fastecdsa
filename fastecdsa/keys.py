@@ -1,6 +1,7 @@
 from binascii import hexlify
 from hashlib import sha256
 from os import urandom
+from typing import Tuple
 
 from .curve import Curve, P256
 from .ecdsa import verify
@@ -9,7 +10,7 @@ from .point import Point
 from .util import mod_sqrt, msg_bytes
 
 
-def gen_keypair(curve: Curve) -> (int, Point):
+def gen_keypair(curve: Curve) -> Tuple[int, Point]:
     """Generate a keypair that consists of a private key and a public key.
 
     The private key :math:`d` is an integer generated via a cryptographically secure random number
@@ -81,7 +82,7 @@ def get_public_key(d: int, curve: Curve) -> Point:
     return d * curve.G
 
 
-def get_public_keys_from_sig(sig: (int, int), msg, curve: Curve = P256, hashfunc=sha256) -> (Point, Point):
+def get_public_keys_from_sig(sig: (int, int), msg, curve: Curve = P256, hashfunc=sha256) -> Tuple[Point, Point]:
     """Recover the public keys that can verify a signature / message pair.
 
     Args:
