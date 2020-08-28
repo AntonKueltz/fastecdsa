@@ -8,9 +8,9 @@ fastecdsa
     :target: https://travis-ci.org/AntonKueltz/fastecdsa
     :alt: Travis CI
 
-.. image:: https://readthedocs.org/projects/fastecdsa/badge/?version=latest
-    :target: http://fastecdsa.readthedocs.io/en/latest/?badge=latest
-    :alt: Docs
+.. image:: https://readthedocs.org/projects/fastecdsa/badge/?version=stable
+    :target: https://fastecdsa.readthedocs.io/en/stable/?badge=stable
+    :alt: Documentation Status
 
 .. contents::
 
