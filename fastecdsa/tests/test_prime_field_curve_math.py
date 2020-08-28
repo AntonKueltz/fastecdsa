@@ -2,7 +2,7 @@ from random import choice, randint
 from unittest import TestCase
 
 from . import CURVES
-from ..curve import P192, P224, P256, P384, P521, secp256k1
+from ..curve import P192, P224, P256, P384, P521, secp256k1, W25519, W448
 from ..point import Point
 
 
@@ -140,6 +140,72 @@ class TestPrimeFieldCurve(TestCase):
         )
         R = m * secp256k1.G
         self.assertEqual(R, expected)
+
+    def test_W25519_arith(self):
+        subgroup = [
+            (0, 0),
+            (19624287790469256669057814461137428606839005560001276145469620721820115669041,
+             25869741026945134960544184956460972567356779614910045322022475500191642319642),
+            (19298681539552699237261830834781317975544997444273427339909597334652188435538,
+             9094040566125962849133224048217411091405536248825867518642941381412595940312),
+            (784994156384216107199399111990385161439916830893843497063691184659069321411,
+             47389623381099381275796781267935282128369626952426857267179501978497824351671),
+            (19298681539552699237261830834781317975544997444273427339909597334652188435537,
+             0),
+            (784994156384216107199399111990385161439916830893843497063691184659069321411,
+             10506421237558716435988711236408671798265365380393424752549290025458740468278),
+            (19298681539552699237261830834781317975544997444273427339909597334652188435538,
+             48802004052532134862652268456126542835229456083994414501085850622543968879637),
+            (19624287790469256669057814461137428606839005560001276145469620721820115669041,
+             32026303591712962751241307547882981359278212717910236697706316503764922500307)]
+
+        # subgroup[1] generates an order-8 subgroup
+        S = Point(subgroup[1][0], subgroup[1][1], curve=W25519)
+        m = randint(1, S.curve.q - 1)
+
+        # test subgroup operation
+        for i in range(2 * len(subgroup)):
+            R = (m + i) * S
+            idx = (m + i) % len(subgroup)
+            if idx == 0:
+                expected = Point.IDENTITY_ELEMENT
+            else:
+                expected = Point(subgroup[idx][0], subgroup[idx][1], curve=S.curve)
+            self.assertEqual(R, expected)
+
+        # test 2Q = inf when ord(Q) = 2; subgroup[4] is such a point
+        S = Point(subgroup[4][0], subgroup[4][1], curve=S.curve)
+        R = S + S
+        self.assertEqual(R, Point.IDENTITY_ELEMENT)
+
+    def test_W448_arith(self):
+        subgroup = [
+            (0, 0),
+            (484559149530404593699549205258669689569094240458212040187660132787074885444487181790930922465784363953392589641229091574035665345629067,
+             197888467295464439538354009753858038256835152591059802148199779196087404232002515713604263127793030747855424464185691766453844835192428),
+            (484559149530404593699549205258669689569094240458212040187660132787074885444487181790930922465784363953392589641229091574035665345629068,
+             0),
+            (484559149530404593699549205258669689569094240458212040187660132787074885444487181790930922465784363953392589641229091574035665345629067,
+             528950257000142451010969798134146496096806208096258258133290419984524923934728256972792120570883515182233459997657945594599653183173011)]
+
+        # subgroup[1] generates an order-4 subgroup
+        S = Point(subgroup[1][0], subgroup[1][1], curve=W448)
+        m = randint(1, S.curve.q - 1)
+
+        # test subgroup operation
+        for i in range(2 * len(subgroup)):
+            R = (m + i) * S
+            idx = (m + i) % len(subgroup)
+            if idx == 0:
+                expected = Point.IDENTITY_ELEMENT
+            else:
+                expected = Point(subgroup[idx][0], subgroup[idx][1], curve=S.curve)
+            self.assertEqual(R, expected)
+
+        # test 2Q = inf when ord(Q) = 2; subgroup[2] is such a point
+        S = Point(subgroup[2][0], subgroup[2][1], curve=S.curve)
+        R = S + S
+        self.assertEqual(R, Point.IDENTITY_ELEMENT)
 
     def test_arbitrary_arithmetic(self):
         for _ in range(100):

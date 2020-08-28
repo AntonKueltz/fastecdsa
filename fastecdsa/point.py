@@ -133,7 +133,6 @@ class Point:
             :class:`Point`: A point :math:`R` such that :math:`R = P * d`
         """
         validate_type(scalar, int)
-        scalar %= self.curve.q
 
         if scalar == 0:
             return self.IDENTITY_ELEMENT
@@ -149,7 +148,11 @@ class Point:
             str(self.curve.gx),
             str(self.curve.gy)
         )
-        return Point(int(x), int(y), self.curve)
+        x = int(x)
+        y = int(y)
+        if x == 0 and y == 0:
+            return self.IDENTITY_ELEMENT
+        return Point(x, y, self.curve)
 
     def __rmul__(self, scalar: int):
         """Multiply a :class:`Point` on an elliptic curve by an integer.
