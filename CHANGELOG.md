@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.1.5]
+### Fixed
+- Timing leakage from nonce bit length aka the [Minerva](https://minerva.crocs.fi.muni.cz/) vulnerability (PR #60)
+
 ## [2.1.4]
 ### Fixed
 - Reduction by base point order in scalar multiplication breaks when input point does not have that order (PR #58)

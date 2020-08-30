@@ -21,12 +21,6 @@ digital signatures.
 
 Security
 --------
-Current Issues
-~~~~~~~~~~~~~~
-* Minerva - see issue #40
-
-Overview
-~~~~~~~~
 There is no nonce reuse, no branching on secret material,
 and all points are validated before any operations are performed on them. Timing side challenges
 are mitigated via Montgomery point multiplication. Nonces are generated per RFC6979_. The default
@@ -353,6 +347,7 @@ Thanks to those below for contributing improvements:
 - bbbrumley
 - luinxz
 - JJChiDguez
+- J08nY
 
 .. _issue11: https://github.com/AntonKueltz/fastecdsa/issues/11
 .. _GMP: https://gmplib.org/
