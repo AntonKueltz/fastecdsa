@@ -143,7 +143,7 @@ def export_key(key, curve: Curve = None, filepath: str = None, encoder=PEMEncode
     if filepath is None:
         return encoded
     else:
-        f = open(filepath, 'w')
+        f = open(filepath, 'wb')
         f.write(encoded)
         f.close()
 
