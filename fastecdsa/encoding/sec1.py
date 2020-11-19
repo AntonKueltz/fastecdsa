@@ -10,6 +10,8 @@ class InvalidSEC1PublicKey(Exception):
 
 
 class SEC1Encoder(KeyEncoder):
+    binary_data = True
+
     @staticmethod
     def encode_public_key(point: Point, compressed: bool = True) -> bytes:
         """ Encode a public key as described in http://www.secg.org/SEC1-Ver-1.0.pdf

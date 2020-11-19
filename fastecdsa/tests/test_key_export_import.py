@@ -26,8 +26,9 @@ class TestExportImport(TestCase):
             for encoder in (PEMEncoder, SEC1Encoder):
                 d, Q = gen_keypair(curve)
                 export_key(Q, curve=curve, filepath=TEST_FILE_PATH, encoder=encoder)
-                _, Q_ = import_key(filepath=TEST_FILE_PATH, curve=curve, public=True, decoder=encoder)
+                d_, Q_ = import_key(filepath=TEST_FILE_PATH, curve=curve, public=True, decoder=encoder)
 
+                self.assertIsNone(d_)
                 self.assertEqual(Q, Q_)
 
                 remove(TEST_FILE_PATH)

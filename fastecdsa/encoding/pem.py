@@ -18,6 +18,7 @@ EC_PUBLIC_FOOTER = '-----END PUBLIC KEY-----'
 
 class PEMEncoder(KeyEncoder):
     ASN1_PARSED_DATA = []
+    binary_data = False
 
     @staticmethod
     def _parse_ascii_armored_base64(data: str) -> bytes:

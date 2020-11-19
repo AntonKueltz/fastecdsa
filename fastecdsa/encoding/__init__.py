@@ -6,7 +6,9 @@ from ..point import Point
 class KeyEncoder:
     """Base class that any encoding class for EC keys should derive from.
 
-    All overriding methods should be static.
+    All overriding methods should be static. If your key encoder writes binary
+    data you must have a field named :code:`binary_data` set to :code:`True` in
+    order for keys to correctly read from and write to disk.
     """
     __metaclass__ = ABCMeta
 

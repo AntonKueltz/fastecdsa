@@ -143,9 +143,10 @@ def export_key(key, curve: Curve = None, filepath: str = None, encoder=PEMEncode
     if filepath is None:
         return encoded
     else:
-        f = open(filepath, 'wb')
-        f.write(encoded)
-        f.close()
+        # some encoder output strings, others bytes, need to determine what mode to write in
+        write_mode = 'w' + ('b' if getattr(encoder, 'binary_data', False) else '')
+        with open(filepath, write_mode) as f:
+            f.write(encoded)
 
 
 def import_key(filepath: str, curve: Curve = None, public: bool = False, decoder=PEMEncoder
@@ -161,7 +162,9 @@ def import_key(filepath: str, curve: Curve = None, public: bool = False, decoder
         (long, fastecdsa.point.Point): A (private key, public key) tuple. If a public key was
         imported then the first value will be None.
     """
-    with open(filepath, 'r') as f:
+    # some decoders read strings, others bytes, need to determine what mode to write in
+    read_mode = 'r' + ('b' if getattr(decoder, 'binary_data', False) else '')
+    with open(filepath, read_mode) as f:
         data = f.read()
 
     if public:
