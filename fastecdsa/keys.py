@@ -1,7 +1,7 @@
 from binascii import hexlify
 from hashlib import sha256
 from os import urandom
-from typing import Tuple
+from typing import Optional, Tuple
 
 from .curve import Curve, P256
 from .ecdsa import verify
@@ -148,7 +148,8 @@ def export_key(key, curve: Curve = None, filepath: str = None, encoder=PEMEncode
         f.close()
 
 
-def import_key(filepath: str, curve: Curve = None, public: bool = False, decoder=PEMEncoder):
+def import_key(filepath: str, curve: Curve = None, public: bool = False, decoder=PEMEncoder
+               ) -> Tuple[Optional[int], Point]:
     """Import a public or private EC key in PEM format.
 
     Args:
@@ -164,6 +165,6 @@ def import_key(filepath: str, curve: Curve = None, public: bool = False, decoder
         data = f.read()
 
     if public:
-        return decoder.decode_public_key(data, curve)
+        return None, decoder.decode_public_key(data, curve)
     else:
         return decoder.decode_private_key(data)
