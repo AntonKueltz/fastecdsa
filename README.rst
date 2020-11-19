@@ -348,6 +348,7 @@ Thanks to those below for contributing improvements:
 - luinxz
 - JJChiDguez
 - J08nY
+- trevor-crypto
 
 .. _issue11: https://github.com/AntonKueltz/fastecdsa/issues/11
 .. _GMP: https://gmplib.org/

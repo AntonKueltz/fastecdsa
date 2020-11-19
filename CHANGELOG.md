@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.1.6]
+### Fixed
+- Reading and writing keys to disk using encoders that output bytes (PR #62)
+
+### Updated
+- `fastecdsa.keys.import_key` now has a consistent return type (`Tuple[Optional[int], Point]`) for public and private 
+keys. Previously public key imports returned `Point`, they now return `Tuple[None, Point]`, in other words a tuple
+with the first entry being `None` (the private key) and the second entry being the point representing the public key.
+
 ## [2.1.5]
 ### Fixed
 - Timing leakage from nonce bit length aka the [Minerva](https://minerva.crocs.fi.muni.cz/) vulnerability (PR #60)
