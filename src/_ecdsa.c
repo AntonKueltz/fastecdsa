@@ -84,7 +84,7 @@ static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
 
     char * resultR = mpz_get_str(NULL, 10, sig.r);
     char * resultS = mpz_get_str(NULL, 10, sig.s);
-    mpz_clears(sig.r, sig.s, privKey, NULL);
+    mpz_clears(sig.r, sig.s, privKey, nonce, NULL);
 
     PyObject * ret = Py_BuildValue("ss", resultR, resultS);
     free(resultR);
