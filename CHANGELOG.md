@@ -1,6 +1,12 @@
 # Changelog
 
-## [2.1.6]
+## [2.2.0]
+### Added
+- Support for python3.9
+
+### Removed
+- Support for python3.5
+
 ### Fixed
 - Reading and writing keys to disk using encoders that output bytes (PR #62)
 
