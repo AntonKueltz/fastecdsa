@@ -8,6 +8,7 @@
 - Support for python3.5
 
 ### Fixed
+- Multiplying by negative scalars (issue #70)
 - Reading and writing keys to disk using encoders that output bytes (PR #62)
 
 ### Updated
