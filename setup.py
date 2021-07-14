@@ -57,5 +57,5 @@ setup(
     name='fastecdsa',
     packages=find_packages(),
     url='https://github.com/AntonKueltz/fastecdsa',
-    version='2.2.0',
+    version='2.2.1',
 )

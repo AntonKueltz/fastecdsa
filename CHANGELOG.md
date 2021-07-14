@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.2.1]
+### Fixed
+- Incorrect DER encoding of data with length >=0x80 (issue #61)
+
 ## [2.2.0]
 ### Added
 - Support for python3.9
