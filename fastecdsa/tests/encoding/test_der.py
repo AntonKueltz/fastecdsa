@@ -1,6 +1,8 @@
 from binascii import unhexlify
+from random import randint
 from unittest import TestCase
 
+from .. import CURVES
 from fastecdsa.curve import secp256k1
 from fastecdsa.ecdsa import sign
 from fastecdsa.encoding.der import DEREncoder, InvalidDerSignature
@@ -94,3 +96,16 @@ class TestDEREncoder(TestCase):
         self.assertEqual(
             DEREncoder.decode_signature(b"0\x08\x02\x02\x03\xE8\x02\x02\x03\xE8"), (1000, 1000)
         )  # verify byte order
+
+    def test_encode_decode_all_curves(self):
+        for curve in CURVES:
+            d = randint(1, curve.q)
+            Q = d * curve.G
+            r, s = sign("sign me", d, curve=curve)
+
+            encoded = DEREncoder.encode_signature(r, s)
+            decoded_r, decoded_s = DEREncoder.decode_signature(encoded)
+
+            self.assertEqual(decoded_r, r)
+            self.assertEqual(decoded_s, s)
+

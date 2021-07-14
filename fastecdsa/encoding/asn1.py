@@ -93,9 +93,10 @@ def parse_asn1_length(data: bytes) -> (int, bytes, bytes):
         length = initial_byte
     else:
         count = initial_byte & 0x7f
-        fmt = {1: '=B', 2: '=H', 4: '=L'}
+        fmt = {1: '=B', 2: '=H', 3: '=L', 4: '=L', 5: '=Q', 6: '=Q', 7: '=Q', 8: '=Q'}
+        zero_padding = b'\x00' * ((1 << (count.bit_length() - 1)) - count)
 
-        (length,) = unpack(fmt[count], data[:count])
+        (length,) = unpack(fmt[count], zero_padding + data[:count])
         data = data[count:]
 
     if length > len(data):

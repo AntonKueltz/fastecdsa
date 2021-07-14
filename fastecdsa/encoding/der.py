@@ -1,7 +1,7 @@
 from struct import pack
 
 from . import SigEncoder
-from .asn1 import ASN1EncodingError, INTEGER, SEQUENCE, parse_asn1_int, parse_asn1_length
+from .asn1 import ASN1EncodingError, INTEGER, SEQUENCE, asn1_structure, parse_asn1_int, parse_asn1_length
 from .util import bytes_to_int, int_to_bytes
 
 
@@ -29,8 +29,10 @@ class DEREncoder(SigEncoder):
         s_bytes = int_to_bytes(s)
         if s_bytes[0] & 0x80:
             s_bytes = b"\x00" + s_bytes
-        r_s = INTEGER + pack('B', len(r_bytes)) + r_bytes + INTEGER + pack('B', len(s_bytes)) + s_bytes
-        return SEQUENCE + pack('B', len(r_s)) + r_s
+
+        r_asn1 = asn1_structure(INTEGER, r_bytes)
+        s_asn1 = asn1_structure(INTEGER, s_bytes)
+        return asn1_structure(SEQUENCE, r_asn1 + s_asn1)
 
     @staticmethod
     def decode_signature(sig: bytes) -> (int, int):
