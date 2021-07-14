@@ -226,3 +226,17 @@ class TestPrimeFieldCurve(TestCase):
 
             self.assertEqual(P + Q, Point.IDENTITY_ELEMENT)
             self.assertEqual((P + Q) + P, P)
+
+    def test_mul_by_negative(self):
+        for curve in CURVES:
+            P = -1 * curve.G
+            self.assertEqual(P.x, (-curve.G).x)
+            self.assertEqual(P.y, (-curve.G).y)
+
+            a = randint(0, curve.q)
+            P = -a * curve.G
+            Q = a * -curve.G
+
+            self.assertEqual(P.x, Q.x)
+            self.assertEqual(P.y, Q.y)
+

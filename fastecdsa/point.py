@@ -140,7 +140,7 @@ class Point:
         x, y = curvemath.mul(
             str(self.x),
             str(self.y),
-            str(scalar),
+            str(abs(scalar)),
             str(self.curve.p),
             str(self.curve.a),
             str(self.curve.b),
@@ -152,7 +152,7 @@ class Point:
         y = int(y)
         if x == 0 and y == 0:
             return self.IDENTITY_ELEMENT
-        return Point(x, y, self.curve)
+        return Point(x, y, self.curve) if scalar > 0 else -Point(x, y, self.curve)
 
     def __rmul__(self, scalar: int):
         """Multiply a :class:`Point` on an elliptic curve by an integer.
