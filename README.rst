@@ -4,8 +4,8 @@ fastecdsa
     :target: https://pypi.org/project/fastecdsa/
     :alt: PyPI
 
-.. image:: https://travis-ci.org/AntonKueltz/fastecdsa.svg?branch=master
-    :target: https://travis-ci.org/AntonKueltz/fastecdsa
+.. image:: https://travis-ci.com/AntonKueltz/fastecdsa.svg?branch=master
+    :target: https://travis-ci.com/AntonKueltz/fastecdsa
     :alt: Travis CI
 
 .. image:: https://readthedocs.org/projects/fastecdsa/badge/?version=stable
