@@ -1,4 +1,10 @@
 # Changelog
+## [2.2.2]
+### Added
+- Support for python3.10
+
+### Fixed
+- Error when adding two equal points where one point's coordinates are not reduced mod p (issue #75)
 
 ## [2.2.1]
 ### Fixed
