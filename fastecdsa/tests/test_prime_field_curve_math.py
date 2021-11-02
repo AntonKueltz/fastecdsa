@@ -141,6 +141,20 @@ class TestPrimeFieldCurve(TestCase):
         R = m * secp256k1.G
         self.assertEqual(R, expected)
 
+    def test_secp256k1_add_large(self):
+        xs = 1
+        xt = secp256k1.p + 1
+        ys = 0x4218f20ae6c646b363db68605822fb14264ca8d2587fdd6fbc750d587e76a7ee
+        S = Point(xs, ys, curve=secp256k1)
+        T = Point(xt, ys, curve=secp256k1)
+        expected = Point(
+            0xc7ffffffffffffffffffffffffffffffffffffffffffffffffffffff37fffd03,
+            0x4298c557a7ddcc570e8bf054c4cad9e99f396b3ce19d50f1b91c9df4bb00d333,
+            curve=secp256k1
+        )
+        R = S+T
+        self.assertEqual(R, expected)
+
     def test_W25519_arith(self):
         subgroup = [
             (0, 0),

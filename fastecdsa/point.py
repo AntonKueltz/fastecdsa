@@ -29,6 +29,12 @@ class Point:
             |  y (int): The y coordinate of the point.
             |  curve (:class:`Curve`): The curve that the point lies on.
         """
+
+        # Reduce numbers before computation to avoid errors and limit computations.
+        if curve != None:
+            x = x % curve.p
+            y = y % curve.p
+        
         if not (x == 0 and y == 0 and curve is None) and not curve.is_point_on_curve((x, y)):
             raise ValueError(
                 'coordinates are not on curve <{}>\n\tx={:x}\n\ty={:x}'.format(curve.name, x, y))
