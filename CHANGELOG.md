@@ -1,4 +1,9 @@
 # Changelog
+
+## [2.2.3]
+### Fixed
+- Minor doc issues and doc build
+
 ## [2.2.2]
 ### Added
 - Support for python3.10
