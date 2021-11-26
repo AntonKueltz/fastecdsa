@@ -28,6 +28,9 @@ def sign(msg: MsgTypes, d: int, curve: Curve = P256, hashfunc=sha256, prehashed:
         |  curve (fastecdsa.curve.Curve): The curve to be used to sign the message.
         |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
         |  prehashed (bool): The message being passed has already been hashed by :code:`hashfunc`.
+
+    Returns:
+        (int, int): The signature (r, s) as a tuple.
     """
     # generate a deterministic nonce per RFC6979
     rfc6979 = RFC6979(msg, d, curve.q, hashfunc, prehashed=prehashed)
