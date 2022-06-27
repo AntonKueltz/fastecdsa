@@ -110,7 +110,7 @@ def _tonelli_shanks(n: int, p: int) -> (int, int):
 
 
 def mod_sqrt(a: int, p: int) -> (int, int):
-    """Compute the square root of :math:`a \pmod{p}`
+    r"""Compute the square root of :math:`a \pmod{p}`
 
     In other words, find a value :math:`x` such that :math:`x^2 \equiv a \pmod{p}`.
 
