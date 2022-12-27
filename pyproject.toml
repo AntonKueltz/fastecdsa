@@ -23,6 +23,17 @@ classifiers = [
     "Operating System :: POSIX :: Linux"
 ]
 
+[project.urls]
+repo = "https://github.com/AntonKueltz/fastecdsa"
+docs = "https://fastecdsa.readthedocs.io"
+pypi = "https://pypi.org/project/fastecdsa/"
+
 [build-system]
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ['fastecdsa*']

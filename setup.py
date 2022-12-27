@@ -1,4 +1,4 @@
-from setuptools import find_packages, setup, Extension, Command
+from setuptools import setup, Extension, Command
 from sys import executable
 
 class BenchmarkCommand(Command):
@@ -34,29 +34,6 @@ _ecdsa = Extension(
 )
 
 setup(
-    author='Anton Kueltz',
-    author_email='kueltz.anton@gmail.com',
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'Topic :: Security :: Cryptography',
-        'License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
-        'Operating System :: MacOS :: MacOS X',
-        'Operating System :: POSIX :: Linux',
-    ],
     cmdclass={'benchmark': BenchmarkCommand},
-    description='Fast elliptic curve digital signatures',
     ext_modules=[curvemath, _ecdsa],
-    keywords='elliptic curve cryptography ecdsa ecc',
-    license='CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',
-    long_description=''.join(open('README.rst', 'r').readlines()),
-    name='fastecdsa',
-    packages=find_packages(),
-    url='https://github.com/AntonKueltz/fastecdsa',
-    version='2.3.0',
 )

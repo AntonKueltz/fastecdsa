@@ -4,6 +4,7 @@
 ### Added
 - Support for python3.11
 - `pyproject.toml` per [PEP-621](https://peps.python.org/pep-0621/)
+- Support for [PEP-517](https://peps.python.org/pep-0517/) builds
 
 ### Removed
 - Support for python3.6
