@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.3.0]
+### Added
+- Support for python3.11
+- `pyproject.toml` per [PEP-621](https://peps.python.org/pep-0621/)
+
+### Removed
+- Support for python3.6
+
 ## [2.2.3]
 ### Fixed
 - Minor doc issues and doc build
