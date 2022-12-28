@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.3.1]
+### Added
+- Building wheels via CI/CD for the following architectures
+  - Linux x86_64
+  - Linux i686
+  - MacOS x86_64
+  - MacOS arm64 (M1)
+
 ## [2.3.0]
 ### Added
 - Support for python3.11

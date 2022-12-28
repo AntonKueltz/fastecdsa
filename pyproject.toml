@@ -1,6 +1,6 @@
 [project]
 name = "fastecdsa"
-version = "2.3.0"
+version = "2.3.1"
 description = "Fast elliptic curve digital signatures"
 readme = "README.rst"
 requires-python = ">=3.7"
