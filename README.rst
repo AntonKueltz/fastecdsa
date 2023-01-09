@@ -168,7 +168,7 @@ apt
 
 .. code:: bash
 
-    $ sudo apt-get install python-dev libgmp3-dev
+    $ sudo apt-get install python3-dev libgmp3-dev
 
 yum
 ~~~
