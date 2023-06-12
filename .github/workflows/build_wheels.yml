@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-12]
+        os: [ubuntu-20.04, macos-12, windows-2022]
 
     steps:
       - uses: actions/checkout@v3
@@ -20,6 +20,11 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: apt-get install libgmp3-dev || yum install -y gmp-devel || apk add --upgrade gmp-dev
           CIBW_ARCHS_MACOS: x86_64 arm64
           CIBW_BEFORE_ALL_MACOS: brew install gmp
+          CIBW_ARCHS_WINDOWS: AMD64
+          CIBW_BEFORE_ALL_WINDOWS: >
+            echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" >> %GITHUB_ENV% &&
+            vcpkg install gmp:x64-windows-static
+          CIBW_ENVIRONMENT_WINDOWS: _CL_='-IC:\vcpkg\packages\gmp_x64-windows-static\include' LIB='C:\vcpkg\packages\gmp_x64-windows-static\lib'
 
       - uses: actions/upload-artifact@v3
         with:
