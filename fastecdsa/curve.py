@@ -75,7 +75,7 @@ class Curve:
         return (left - right) % self.p == 0
 
     def evaluate(self, x: int) -> int:
-        """ Evaluate the elliptic curve polynomial at 'x'
+        r""" Evaluate the elliptic curve polynomial at 'x'
 
         Args:
             x (int): The position to evaluate the polynomial at
