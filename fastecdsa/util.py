@@ -88,7 +88,7 @@ class RFC6979:
 
 
 def _tonelli_shanks(n: int, p: int) -> (int, int):
-    """A generic algorithm for computng modular square roots."""
+    """A generic algorithm for computing modular square roots."""
     Q, S = p - 1, 0
     while Q % 2 == 0:
         Q, S = Q // 2, S + 1
@@ -110,7 +110,7 @@ def _tonelli_shanks(n: int, p: int) -> (int, int):
 
 
 def mod_sqrt(a: int, p: int) -> (int, int):
-    """Compute the square root of :math:`a \pmod{p}`
+    r"""Compute the square root of :math:`a \pmod{p}`
 
     In other words, find a value :math:`x` such that :math:`x^2 \equiv a \pmod{p}`.
 

@@ -1,5 +1,5 @@
 class Curve:
-    """Representation of an elliptic curve.
+    r"""Representation of an elliptic curve.
 
     Defines a group for  the arithmetic operations of point addition and scalar multiplication.
     Currently only curves defined via the equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}` are
@@ -16,7 +16,7 @@ class Curve:
     _oid_lookup = {}  # a lookup table for getting curve instances by their object identifier
 
     def __init__(self, name: str, p: int, a: int, b: int, q: int, gx: int, gy: int, oid: bytes = None):
-        """Initialize the parameters of an elliptic curve.
+        r"""Initialize the parameters of an elliptic curve.
 
         WARNING: Do not generate your own parameters unless you know what you are doing or you could
         generate a curve severely less secure than you think. Even then, consider using a
@@ -56,7 +56,7 @@ class Curve:
         return cls._oid_lookup.get(oid, None)
 
     def is_point_on_curve(self, point: (int, int)) -> bool:
-        """ Check if a point lies on this curve.
+        r""" Check if a point lies on this curve.
 
         The check is done by evaluating the curve equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}`
         at the given point :math:`(x,y)` with this curve's domain parameters :math:`(a, b, p)`. If
@@ -75,7 +75,7 @@ class Curve:
         return (left - right) % self.p == 0
 
     def evaluate(self, x: int) -> int:
-        """ Evaluate the elliptic curve polynomial at 'x'
+        r""" Evaluate the elliptic curve polynomial at 'x'
 
         Args:
             x (int): The position to evaluate the polynomial at
