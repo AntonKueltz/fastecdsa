@@ -25,6 +25,7 @@ jobs:
             echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" >> %GITHUB_ENV% &&
             vcpkg install gmp:x64-windows-static
           CIBW_ENVIRONMENT_WINDOWS: _CL_='-IC:\vcpkg\packages\gmp_x64-windows-static\include' LIB='C:\vcpkg\packages\gmp_x64-windows-static\lib'
+          CIBW_TEST_COMMAND_WINDOWS: python -m fastecdsa.benchmark
 
       - uses: actions/upload-artifact@v3
         with:
