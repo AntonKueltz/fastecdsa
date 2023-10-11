@@ -3,7 +3,7 @@ from json import JSONDecodeError, loads
 from sys import version_info
 from unittest import SkipTest, TestCase, skipIf
 from urllib.error import URLError
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 
 from fastecdsa.curve import (
     P224, P256, P384, P521,
@@ -25,7 +25,7 @@ class TestWycheproofEcdsaVerify(TestCase):
     @staticmethod
     def _get_tests(url):
         try:
-            test_raw = urlopen(url).read()
+            test_raw = urlopen(Request(url, headers={'User-Agent': 'python'})).read()
             test_json = loads(test_raw)
             return test_json["testGroups"]
         except (JSONDecodeError, URLError) as error:
