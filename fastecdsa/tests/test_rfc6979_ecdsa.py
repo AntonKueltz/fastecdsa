@@ -1,6 +1,6 @@
 from hashlib import sha1, sha224, sha256, sha384, sha512
 from re import findall, DOTALL
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 from unittest import TestCase
 
 from ..curve import P192, P224, P256, P384, P521
@@ -11,7 +11,7 @@ from ..util import RFC6979
 class TestRFC6979ECDSA(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.rfc6979_text = urlopen('https://tools.ietf.org/rfc/rfc6979.txt').read().decode()
+        cls.rfc6979_text = urlopen(Request('https://tools.ietf.org/rfc/rfc6979.txt', headers={'User-Agent': 'python'})).read().decode()
         cls.hash_lookup = {
             '1': sha1,
             '224': sha224,
