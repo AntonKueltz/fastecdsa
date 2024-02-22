@@ -215,6 +215,7 @@ static PyObject * curvemath_mul(PyObject *self, PyObject *args) {
     }
 
     PointZZ_p result;
+    mpz_inits(result.x, result.y, NULL);
     mpz_t scalar;
     mpz_init_set_str(scalar, d, 10);
     CurveZZ_p * curve = buildCurveZZ_p(p, a, b, q, gx, gy, 10);;
