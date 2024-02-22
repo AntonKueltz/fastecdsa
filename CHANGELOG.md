@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.3.2]
+### Added
+- Support for python3.12
+
+### Removed
+- CI/CD pipelines
+  
+### Fixed
+- [Memory corruption issue](https://gist.github.com/keltecc/49da037072276f21b005a8337c15db26). Special thanks to [keltecc](https://gist.github.com/keltecc) for discovering this and to Snyk for reporting it.
+
 ## [2.3.1]
 ### Added
 - Building wheels via CI/CD for the following architectures
