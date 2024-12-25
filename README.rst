@@ -177,6 +177,22 @@ yum
 
     $ sudo yum install python-devel gmp-devel
 
+Development
+-----------
+This package uses `uv` for package management. You can install it via `pip install uv`. To run the test
+suite use the following command
+
+.. code:: bash
+
+    $ uv run pytest
+
+You'll also want to install pre-commit hooks to ensure type checking and autoformatting happens before you
+commit your code
+
+.. code:: bash
+
+    $ uv run pre-commit install
+
 Usage
 -----
 Generating Keys
@@ -350,7 +366,7 @@ Thanks to those below for contributing improvements:
 - J08nY
 - trevor-crypto
 - sylvainpelissier
-- akaIDIOT 
+- akaIDIOT
 
 .. _issue11: https://github.com/AntonKueltz/fastecdsa/issues/11
 .. _GMP: https://gmplib.org/
