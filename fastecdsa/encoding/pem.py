@@ -1,33 +1,50 @@
 from binascii import a2b_base64, b2a_base64, hexlify
 from textwrap import wrap
+from typing import List, Optional, Tuple
 
 from . import KeyEncoder
 from .asn1 import (
-    BIT_STRING, OBJECT_IDENTIFIER, OCTET_STRING, PARAMETERS, PUBLIC_KEY, SEQUENCE,
-    asn1_ecpublickey, asn1_ecversion, asn1_oid, asn1_private_key, asn1_public_key, asn1_structure, parse_asn1_length
+    BIT_STRING,
+    OBJECT_IDENTIFIER,
+    OCTET_STRING,
+    PARAMETERS,
+    PUBLIC_KEY,
+    SEQUENCE,
+    asn1_ecpublickey,
+    asn1_ecversion,
+    asn1_oid,
+    asn1_private_key,
+    asn1_public_key,
+    asn1_structure,
+    parse_asn1_length,
 )
 from ..curve import Curve
 from ..point import Point
 
-EC_PRIVATE_HEADER = '-----BEGIN EC PRIVATE KEY-----'
-EC_PRIVATE_FOOTER = '-----END EC PRIVATE KEY-----'
+EC_PRIVATE_HEADER = "-----BEGIN EC PRIVATE KEY-----"
+EC_PRIVATE_FOOTER = "-----END EC PRIVATE KEY-----"
 
-EC_PUBLIC_HEADER = '-----BEGIN PUBLIC KEY-----'
-EC_PUBLIC_FOOTER = '-----END PUBLIC KEY-----'
+EC_PUBLIC_HEADER = "-----BEGIN PUBLIC KEY-----"
+EC_PUBLIC_FOOTER = "-----END PUBLIC KEY-----"
+
+
+class PEMEncoderError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
 
 
 class PEMEncoder(KeyEncoder):
-    ASN1_PARSED_DATA = []
+    ASN1_PARSED_DATA: List[Tuple[bytes, bytes]] = []
     binary_data = False
 
     @staticmethod
     def _parse_ascii_armored_base64(data: str) -> bytes:
         """Convert an ASCII armored key to raw binary data"""
         data = data.strip()
-        lines = (line for line in data.split('\n'))
-        header = next(lines).rstrip()
+        lines = (line for line in data.split("\n"))
+        next(lines).rstrip()  # header lines
 
-        base64_data = ''
+        base64_data = ""
         line = next(lines).rstrip()
 
         while line and (line != EC_PRIVATE_FOOTER) and (line != EC_PUBLIC_FOOTER):
@@ -40,7 +57,7 @@ class PEMEncoder(KeyEncoder):
     def _parse_asn1_structure(data: bytes):
         """Recursively parse ASN.1 data"""
         data_type = data[:1]
-        length, data, remaining = parse_asn1_length(data[1:])
+        _, data, remaining = parse_asn1_length(data[1:])
 
         if data_type in [OCTET_STRING, BIT_STRING, OBJECT_IDENTIFIER]:
             PEMEncoder.ASN1_PARSED_DATA.append((data_type, data))
@@ -64,12 +81,14 @@ class PEMEncoder(KeyEncoder):
 
         sequence = parameters + public_key
         ec_public_key = asn1_structure(SEQUENCE, sequence)
-        b64_data = '\n'.join(wrap(b2a_base64(ec_public_key).decode(), 64))
+        b64_data = "\n".join(wrap(b2a_base64(ec_public_key).decode(), 64))
 
-        return EC_PUBLIC_HEADER + '\n' + b64_data + '\n' + EC_PUBLIC_FOOTER
+        return EC_PUBLIC_HEADER + "\n" + b64_data + "\n" + EC_PUBLIC_FOOTER
 
     @staticmethod
-    def encode_private_key(d: int, Q: Point = None, curve: Curve = None) -> str:
+    def encode_private_key(
+        d: int, Q: Optional[Point] = None, curve: Optional[Curve] = None
+    ) -> str:
         """Encode an EC keypair as described in `RFC 5915 <https://tools.ietf.org/html/rfc5915.html>`_.
 
         Args:
@@ -81,9 +100,13 @@ class PEMEncoder(KeyEncoder):
             str: The ASCII armored encoded EC keypair.
         """
         if Q is None and curve is None:
-            raise ValueError('Ambiguous encoding, public key or curve must passed as an argument')
+            raise ValueError(
+                "Ambiguous encoding, public key or curve must passed as an argument"
+            )
         elif Q is None:
-            Q = d * curve.G
+            Q = d * curve.G  # type: ignore
+        elif curve is None:
+            curve = Q.curve
 
         version = asn1_ecversion()
         private_key = asn1_private_key(d, Q.curve)
@@ -94,19 +117,13 @@ class PEMEncoder(KeyEncoder):
 
         sequence = version + private_key + parameters + public_key
         ec_private_key = asn1_structure(SEQUENCE, sequence)
-        b64_data = '\n'.join(wrap(b2a_base64(ec_private_key).decode(), 64))
+        b64_data = "\n".join(wrap(b2a_base64(ec_private_key).decode(), 64))
 
-        return EC_PRIVATE_HEADER + '\n' + b64_data + '\n' + EC_PRIVATE_FOOTER
-
-    @staticmethod
-    def decode_public_key(pemdata: str, curve: Curve = None) -> Point:
-        """Delegate to private key decoding but return only the public key"""
-        _, Q = PEMEncoder.decode_private_key(pemdata)
-        return Q
+        return EC_PRIVATE_HEADER + "\n" + b64_data + "\n" + EC_PRIVATE_FOOTER
 
     @staticmethod
-    def decode_private_key(pemdata: str) -> (int, Point):
-        """Decode an EC key as described in `RFC 5915 <https://tools.ietf.org/html/rfc5915.html>`_ and
+    def decode_public_key(pemdata: str, curve: Optional[Curve] = None) -> Point:
+        """Decode a PEM encoded public key as described in
         `RFC 5480 <https://tools.ietf.org/html/rfc5480>`_.
 
         Args:
@@ -116,20 +133,58 @@ class PEMEncoder(KeyEncoder):
             (long, fastecdsa.point.Point): A private key, public key tuple. If the encoded key was a
             public key the first entry in the tuple is None.
         """
-        pemdata = PEMEncoder._parse_ascii_armored_base64(pemdata)
-        PEMEncoder._parse_asn1_structure(pemdata)
+        parsed = PEMEncoder._parse_ascii_armored_base64(pemdata)
+        PEMEncoder._parse_asn1_structure(parsed)
 
-        d, x, y, curve = None, None, None, None
-        for (value_type, value) in PEMEncoder.ASN1_PARSED_DATA:
+        x, y, curve = None, None, None
+        for value_type, value in PEMEncoder.ASN1_PARSED_DATA:
+            if value_type == OBJECT_IDENTIFIER and curve is None:
+                curve = Curve.get_curve_by_oid(value)
+            elif value_type == BIT_STRING:
+                value = value[2:]  # strip off b'\x00\x04'
+                x = int(hexlify(value[: len(value) // 2]), 16)
+                y = int(hexlify(value[len(value) // 2 :]), 16)
+
+        PEMEncoder.ASN1_PARSED_DATA = []
+
+        if curve is None or x is None or y is None:
+            raise PEMEncoderError(f"Could not parse public key. {x=}, {y=}, {curve=}")
+
+        return Point(x, y, curve)
+
+    @staticmethod
+    def decode_private_key(pemdata: str) -> Tuple[int, Optional[Point]]:
+        """Decode a PEM encoded EC private key as described in
+        `RFC 5915 <https://tools.ietf.org/html/rfc5915.html>`_.
+
+        Args:
+            pemdata (bytes): A sequence of bytes representing an encoded EC key.
+
+        Returns:
+            (long, fastecdsa.point.Point): A private key, public key tuple. If the encoded key was a
+            public key the first entry in the tuple is None.
+        """
+        parsed = PEMEncoder._parse_ascii_armored_base64(pemdata)
+        PEMEncoder._parse_asn1_structure(parsed)
+
+        d, Q, x, y, curve = None, None, None, None, None
+
+        for value_type, value in PEMEncoder.ASN1_PARSED_DATA:
             if value_type == OCTET_STRING:
                 d = int(hexlify(value), 16)
             elif value_type == OBJECT_IDENTIFIER and curve is None:
                 curve = Curve.get_curve_by_oid(value)
             elif value_type == BIT_STRING:
                 value = value[2:]  # strip off b'\x00\x04'
-                x = int(hexlify(value[:len(value) // 2]), 16)
-                y = int(hexlify(value[len(value) // 2:]), 16)
+                x = int(hexlify(value[: len(value) // 2]), 16)
+                y = int(hexlify(value[len(value) // 2 :]), 16)
 
         PEMEncoder.ASN1_PARSED_DATA = []
-        Q = None if (x is None) or (y is None) else Point(x, y, curve)
+
+        if d is None:
+            raise PEMEncoderError("Could not parse private key.")
+
+        if x is not None and y is not None and curve is not None:
+            Q = Point(x, y, curve)
+
         return d, Q

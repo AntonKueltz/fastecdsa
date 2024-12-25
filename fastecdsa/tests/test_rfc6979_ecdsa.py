@@ -1,30 +1,25 @@
 from dataclasses import dataclass
 from hashlib import sha1, sha224, sha256, sha384, sha512
 from json import load
-from typing import Callable, List
+from typing import List
 from unittest import TestCase
 
 from ..curve import P192, P224, P256, P384, P521
 from ..ecdsa import sign
+from ..typing import HashFunction
 from ..util import RFC6979
 
-hash_lookup = {
-    '1': sha1,
-    '224': sha224,
-    '256': sha256,
-    '384': sha384,
-    '512': sha512
-}
+hash_lookup = {"1": sha1, "224": sha224, "256": sha256, "384": sha384, "512": sha512}
 
 
 @dataclass
-class TestVector:
-    h: Callable[bytes, bytes]
+class Vector:
+    h: HashFunction
     m: str
     k: int
     r: int
     s: int
-    
+
     def __init__(self, data: dict):
         self.h = hash_lookup[data["h"]]
         self.m = data["m"]
@@ -34,27 +29,32 @@ class TestVector:
 
 
 @dataclass
-class TestData:
+class Data:
     q: int
     x: int
-    vectors: List[TestVector]
-        
+    vectors: List[Vector]
+
     def __init__(self, data: dict):
         self.q = data["q"]
         self.x = data["x"]
-        self.vectors = [TestVector(d) for d in data["test_case"]]
+        self.vectors = [Vector(d) for d in data["test_case"]]
 
 
 class TestRFC6979ECDSA(TestCase):
     def _run_test(self, filename, curve):
         with open(filename) as f:
             data = load(f)
-        
-        test_data = TestData(data)
-        
+
+        test_data = Data(data)
+
         for test in test_data.vectors:
-            self.assertEqual(test.k, RFC6979(test.m, test_data.x, test_data.q, test.h).gen_nonce())
-            self.assertEqual((test.r, test.s), sign(test.m, test_data.x, curve=curve, hashfunc=test.h))
+            self.assertEqual(
+                test.k, RFC6979(test.m, test_data.x, test_data.q, test.h).gen_nonce()
+            )
+            self.assertEqual(
+                (test.r, test.s),
+                sign(test.m, test_data.x, curve=curve, hashfunc=test.h),
+            )
 
     def test_p192_rfc6979_ecdsa(self):
         self._run_test("fastecdsa/tests/vectors/rfc6979/P192.json", P192)

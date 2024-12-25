@@ -1,14 +1,11 @@
 from binascii import hexlify
 from hashlib import sha256
-from typing import Tuple, TypeVar
 
-from fastecdsa import _ecdsa
+from fastecdsa import _ecdsa  # type: ignore
 from .curve import Curve, P256
 from .point import Point
+from .typing import EcdsaSignature, HashFunction, SignableMessage
 from .util import RFC6979, msg_bytes
-
-MsgTypes = TypeVar('MsgTypes', str, bytes, bytearray)
-SigType = Tuple[int, int]
 
 
 class EcdsaError(Exception):
@@ -16,7 +13,13 @@ class EcdsaError(Exception):
         self.msg = msg
 
 
-def sign(msg: MsgTypes, d: int, curve: Curve = P256, hashfunc=sha256, prehashed: bool = False):
+def sign(
+    msg: SignableMessage,
+    d: int,
+    curve: Curve = P256,
+    hashfunc: HashFunction = sha256,
+    prehashed: bool = False,
+) -> EcdsaSignature:
     """Sign a message using the elliptic curve digital signature algorithm.
 
     The elliptic curve signature algorithm is described in full in FIPS 186-4 Section 6. Please
@@ -46,13 +49,10 @@ def sign(msg: MsgTypes, d: int, curve: Curve = P256, hashfunc=sha256, prehashed:
     else:
         k = ks
 
-    if prehashed:
-        hex_digest = hexlify(msg).decode()
-    else:
-        hex_digest = hashfunc(msg_bytes(msg)).hexdigest()
+    hashed = _hex_digest(msg, hashfunc, prehashed)
 
     r, s = _ecdsa.sign(
-        hex_digest,
+        hashed,
         str(d),
         str(k),
         str(curve.p),
@@ -60,13 +60,19 @@ def sign(msg: MsgTypes, d: int, curve: Curve = P256, hashfunc=sha256, prehashed:
         str(curve.b),
         str(curve.q),
         str(curve.gx),
-        str(curve.gy)
+        str(curve.gy),
     )
     return int(r), int(s)
 
 
 def verify(
-        sig: SigType, msg: MsgTypes, Q: Point, curve: Curve = P256, hashfunc=sha256, prehashed: bool = False) -> bool:
+    sig: EcdsaSignature,
+    msg: SignableMessage,
+    Q: Point,
+    curve: Curve = P256,
+    hashfunc: HashFunction = sha256,
+    prehashed: bool = False,
+) -> bool:
     """Verify a message signature using the elliptic curve digital signature algorithm.
 
     The elliptic curve signature algorithm is described in full in FIPS 186-4 Section 6. Please
@@ -93,18 +99,19 @@ def verify(
 
     # validate Q, r, s (Q should be validated in constructor of Point already but double check)
     if not curve.is_point_on_curve((Q.x, Q.y)):
-        raise EcdsaError('Invalid public key, point is not on curve {}'.format(curve.name))
+        raise EcdsaError(
+            "Invalid public key, point is not on curve {}".format(curve.name)
+        )
     elif r > curve.q or r < 1:
         raise EcdsaError(
-            'Invalid Signature: r is not a positive integer smaller than the curve order')
+            "Invalid Signature: r is not a positive integer smaller than the curve order"
+        )
     elif s > curve.q or s < 1:
         raise EcdsaError(
-            'Invalid Signature: s is not a positive integer smaller than the curve order')
+            "Invalid Signature: s is not a positive integer smaller than the curve order"
+        )
 
-    if prehashed:
-        hashed = hexlify(msg).decode()
-    else:
-        hashed = hashfunc(msg_bytes(msg)).hexdigest()
+    hashed = _hex_digest(msg, hashfunc, prehashed)
 
     return _ecdsa.verify(
         str(r),
@@ -117,5 +124,14 @@ def verify(
         str(curve.b),
         str(curve.q),
         str(curve.gx),
-        str(curve.gy)
+        str(curve.gy),
     )
+
+
+def _hex_digest(msg: SignableMessage, hashfunc: HashFunction, prehashed: bool) -> str:
+    if prehashed:
+        if not isinstance(msg, (bytes, bytearray)):
+            raise ValueError(f"Prehashed message must be bytes, got {type(msg)}")
+        return hexlify(msg).decode()
+    else:
+        return hashfunc(msg_bytes(msg)).hexdigest()

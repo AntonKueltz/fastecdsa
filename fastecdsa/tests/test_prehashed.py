@@ -1,4 +1,3 @@
-
 from hashlib import sha256
 from unittest import TestCase
 

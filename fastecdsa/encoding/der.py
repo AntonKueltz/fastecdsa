@@ -1,7 +1,14 @@
-from struct import pack
+from typing import Tuple
 
 from . import SigEncoder
-from .asn1 import ASN1EncodingError, INTEGER, SEQUENCE, asn1_structure, parse_asn1_int, parse_asn1_length
+from .asn1 import (
+    ASN1EncodingError,
+    INTEGER,
+    SEQUENCE,
+    asn1_structure,
+    parse_asn1_int,
+    parse_asn1_length,
+)
 from .util import bytes_to_int, int_to_bytes
 
 
@@ -35,13 +42,14 @@ class DEREncoder(SigEncoder):
         return asn1_structure(SEQUENCE, r_asn1 + s_asn1)
 
     @staticmethod
-    def decode_signature(sig: bytes) -> (int, int):
+    def decode_signature(sig: bytes) -> Tuple[int, int]:
         """Decode an EC signature from serialized DER format as described in
-           https://tools.ietf.org/html/rfc2459 (section 7.2.2) and as detailed by
-           bip-0066
+        https://tools.ietf.org/html/rfc2459 (section 7.2.2) and as detailed by
+        bip-0066
 
-           Returns (r,s)
+        Returns (r,s)
         """
+
         def _validate_int_bytes(data: bytes):
             # check for negative values, indicated by leading 1 bit
             if data[0] & 0x80:
@@ -62,8 +70,11 @@ class DEREncoder(SigEncoder):
 
         # sequence should be entirety remaining data
         if leftover:
-            raise InvalidDerSignature("Expected a sequence of {} bytes, got {}".format(
-                seqlen, len(sequence + leftover)))
+            raise InvalidDerSignature(
+                "Expected a sequence of {} bytes, got {}".format(
+                    seqlen, len(sequence + leftover)
+                )
+            )
 
         try:
             rlen, r, sdata = parse_asn1_int(sequence)

@@ -1,7 +1,7 @@
 from binascii import hexlify
 from hashlib import sha256
 from os import urandom
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 from .curve import Curve, P256
 from .ecdsa import verify
@@ -82,7 +82,9 @@ def get_public_key(d: int, curve: Curve) -> Point:
     return d * curve.G
 
 
-def get_public_keys_from_sig(sig: (int, int), msg, curve: Curve = P256, hashfunc=sha256) -> Tuple[Point, Point]:
+def get_public_keys_from_sig(
+    sig: Tuple[int, int], msg, curve: Curve = P256, hashfunc=sha256
+) -> Tuple[Point, Point]:
     """Recover the public keys that can verify a signature / message pair.
 
     Args:
@@ -101,7 +103,7 @@ def get_public_keys_from_sig(sig: (int, int), msg, curve: Curve = P256, hashfunc
     z = int(hashfunc(msg_bytes(msg)).hexdigest(), 16)
     hash_bit_length = hashfunc().digest_size * 8
     if curve.q.bit_length() < hash_bit_length:
-        z >>= (hash_bit_length - curve.q.bit_length())
+        z >>= hash_bit_length - curve.q.bit_length()
 
     y_squared = (r * r * r + curve.a * r + curve.b) % curve.p
     y1, y2 = mod_sqrt(y_squared, curve.p)
@@ -110,13 +112,20 @@ def get_public_keys_from_sig(sig: (int, int), msg, curve: Curve = P256, hashfunc
     Qs = rinv * (s * R1 - z * curve.G), rinv * (s * R2 - z * curve.G)
     for Q in Qs:
         if not verify(sig, msg, Q, curve=curve, hashfunc=hashfunc):
-            raise ValueError('Could not recover public key, is the signature ({}) a valid '
-                             'signature for the message ({}) over the given curve ({}) using the '
-                             'given hash function ({})?'.format(sig, msg, curve, hashfunc))
+            raise ValueError(
+                "Could not recover public key, is the signature ({}) a valid "
+                "signature for the message ({}) over the given curve ({}) using the "
+                "given hash function ({})?".format(sig, msg, curve, hashfunc)
+            )
     return Qs
 
 
-def export_key(key, curve: Curve = None, filepath: str = None, encoder=PEMEncoder):
+def export_key(
+    key,
+    curve: Optional[Curve] = None,
+    filepath: Optional[str] = None,
+    encoder=PEMEncoder,
+) -> Optional[Union[str, bytes]]:
     """Export a public or private EC key in PEM format.
 
     Args:
@@ -132,7 +141,9 @@ def export_key(key, curve: Curve = None, filepath: str = None, encoder=PEMEncode
 
     # throw error for ambiguous private keys
     elif curve is None:
-        raise ValueError('curve parameter cannot be \'None\' when exporting a private key')
+        raise ValueError(
+            "curve parameter cannot be 'None' when exporting a private key"
+        )
 
     # encode a private key
     else:
@@ -144,13 +155,18 @@ def export_key(key, curve: Curve = None, filepath: str = None, encoder=PEMEncode
         return encoded
     else:
         # some encoder output strings, others bytes, need to determine what mode to write in
-        write_mode = 'w' + ('b' if getattr(encoder, 'binary_data', False) else '')
+        write_mode = "w" + ("b" if getattr(encoder, "binary_data", False) else "")
         with open(filepath, write_mode) as f:
             f.write(encoded)
+        return None
 
 
-def import_key(filepath: str, curve: Curve = None, public: bool = False, decoder=PEMEncoder
-               ) -> Tuple[Optional[int], Point]:
+def import_key(
+    filepath: str,
+    curve: Optional[Curve] = None,
+    public: bool = False,
+    decoder=PEMEncoder,
+) -> Tuple[Optional[int], Optional[Point]]:
     """Import a public or private EC key in PEM format.
 
     Args:
@@ -163,7 +179,7 @@ def import_key(filepath: str, curve: Curve = None, public: bool = False, decoder
         imported then the first value will be None.
     """
     # some decoders read strings, others bytes, need to determine what mode to write in
-    read_mode = 'r' + ('b' if getattr(decoder, 'binary_data', False) else '')
+    read_mode = "r" + ("b" if getattr(decoder, "binary_data", False) else "")
     with open(filepath, read_mode) as f:
         data = f.read()
 

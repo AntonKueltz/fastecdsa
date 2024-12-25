@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
+from typing import Any, Optional, Tuple, Union
 
+from ..curve import Curve
 from ..point import Point
 
 
@@ -10,26 +12,27 @@ class KeyEncoder:
     data you must have a field named :code:`binary_data` set to :code:`True` in
     order for keys to correctly read from and write to disk.
     """
+
     __metaclass__ = ABCMeta
 
     @staticmethod
     @abstractmethod
-    def encode_public_key(Q: Point):
+    def encode_public_key(Q: Point) -> Union[str, bytes]:
         pass
 
     @staticmethod
     @abstractmethod
-    def encode_private_key(d: int):
+    def encode_private_key(d: int) -> Union[str, bytes]:
         pass
 
     @staticmethod
     @abstractmethod
-    def decode_public_key(data) -> Point:
+    def decode_public_key(key: Any, curve: Curve) -> Point:
         pass
 
     @staticmethod
     @abstractmethod
-    def decode_private_key(data) -> (int, Point):
+    def decode_private_key(data) -> Tuple[int, Optional[Point]]:
         pass
 
 
@@ -38,6 +41,7 @@ class SigEncoder:
 
     All overriding methods should be static.
     """
+
     __metaclass__ = ABCMeta
 
     @staticmethod
@@ -47,5 +51,5 @@ class SigEncoder:
 
     @staticmethod
     @abstractmethod
-    def decode_signature(binary_data: bytes) -> (int, int):
+    def decode_signature(binary_data: bytes) -> Tuple[int, int]:
         pass
