@@ -2,8 +2,8 @@ from hashlib import sha256
 from unittest import TestCase
 
 from . import CURVES
-from ..ecdsa import sign
-from ..keys import gen_keypair, get_public_keys_from_sig
+from fastecdsa.ecdsa import sign
+from fastecdsa.keys import gen_keypair, get_public_keys_from_sig
 
 
 class TestKeyRecovery(TestCase):

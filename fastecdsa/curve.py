@@ -5,7 +5,7 @@ from typing import Dict, Optional, Tuple
 class Curve:
     r"""Representation of an elliptic curve.
 
-    Defines a group for  the arithmetic operations of point addition and scalar multiplication.
+    Defines a group with the arithmetic operations of point addition and scalar multiplication.
     Currently only curves defined via the equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}` are
     supported.
 
@@ -69,7 +69,16 @@ class Curve:
 
     @classmethod
     def get_curve_by_oid(cls, oid: bytes) -> Optional[Curve]:
-        """Get a curve via it's object identifier."""
+        r"""Get a curve via its object identifier.
+
+        Args:
+            oid (bytes): The object identifier for the curve.
+
+        Returns:
+            Curve | None: The curve corresponding to the object identifier. If the identifier does
+            not correspond to a supported curve :code:`None` is returned.
+
+        """
         return cls._oid_lookup.get(oid, None)
 
     def is_point_on_curve(self, point: Tuple[int, int]) -> bool:
@@ -80,7 +89,7 @@ class Curve:
         the congruence holds, then the point lies on this curve.
 
         Args:
-            point (long, long): A tuple representing the point :math:`P` as an :math:`(x, y)` coordinate
+            point (int, int): A tuple representing the point :math:`P` as an :math:`(x, y)` coordinate
             pair.
 
         Returns:

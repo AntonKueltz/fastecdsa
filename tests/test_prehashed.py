@@ -1,9 +1,9 @@
 from hashlib import sha256
 from unittest import TestCase
 
-from ..curve import P256
-from ..ecdsa import sign, verify
-from ..keys import gen_keypair
+from fastecdsa.curve import P256
+from fastecdsa.ecdsa import sign, verify
+from fastecdsa.keys import gen_keypair
 
 
 class TestPrehashed(TestCase):

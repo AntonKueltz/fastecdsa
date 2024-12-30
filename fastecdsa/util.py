@@ -161,24 +161,5 @@ def msg_bytes(msg: SignableMessage) -> bytes:
         return bytes(msg)
     else:
         raise ValueError(
-            'Msg "{}" of type {} cannot be converted to bytes'.format(msg, type(msg))
-        )
-
-
-def validate_type(instance: object, expected_type: type):
-    """Validate that instance is an instance of the expected_type.
-
-    Args:
-        |  instance: The object whose type is being checked
-        |  expected_type: The expected type of instance
-        |  var_name: The name of the object
-
-    Raises:
-         TypeError: If instance is not of type expected_type
-    """
-    if not isinstance(instance, expected_type):
-        raise TypeError(
-            "Expected a value of type {}, got a value of type {}".format(
-                expected_type, type(instance)
-            )
+            f'Msg "{msg}" of type {type(msg)} cannot be converted to bytes'
         )

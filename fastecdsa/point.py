@@ -2,13 +2,12 @@ from __future__ import annotations
 
 from fastecdsa import curvemath  # type: ignore
 from .curve import Curve, P256
-from .util import validate_type
 
 
 class CurveMismatchError(Exception):
     def __init__(self, curve1: Curve, curve2: Curve):
-        self.msg = "Tried to add points on two different curves <{}> & <{}>".format(
-            curve1.name, curve2.name
+        self.msg = (
+            f"Tried to add points on two different curves <{curve1}> & <{curve2}>"
         )
 
 
@@ -42,9 +41,7 @@ class Point:
             (x, y)
         ):
             raise ValueError(
-                "coordinates are not on curve <{}>\n\tx={:x}\n\ty={:x}".format(
-                    curve.name, x, y
-                )
+                f"coordinates are not on curve <{curve}>\n\tx={x:x}\n\ty={y:x}"
             )
         else:
             self.x = x
@@ -55,9 +52,7 @@ class Point:
         if self._is_identity():
             return "<POINT AT INFINITY>"
         else:
-            return "X: 0x{:x}\nY: 0x{:x}\n(On curve <{}>)".format(
-                self.x, self.y, self.curve.name
-            )
+            return f"X: 0x{self.x:x}\nY: 0x{self.y:x}\n(On curve <{self.curve}>)"
 
     def __unicode__(self) -> str:
         return self.__str__()
@@ -65,8 +60,10 @@ class Point:
     def __repr__(self) -> str:
         return self.__str__()
 
-    def __eq__(self, other) -> bool:
-        validate_type(other, Point)
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Point):
+            raise TypeError(f"Cannot compare Point to {type(other)}")
+
         return self.x == other.x and self.y == other.y and self.curve is other.curve
 
     def __add__(self, other: Point) -> Point:
@@ -79,7 +76,8 @@ class Point:
         Returns:
             :class:`Point`: A point :math:`R` such that :math:`R = P + Q`
         """
-        validate_type(other, Point)
+        if not isinstance(other, Point):
+            raise TypeError(f"Cannot add {type(other)} to Point")
 
         if self._is_identity():
             return other
@@ -104,19 +102,6 @@ class Point:
             )
             return Point(int(x), int(y), self.curve)
 
-    def __radd__(self, other: Point) -> Point:
-        """Add two points on the same elliptic curve.
-
-        Args:
-            | self (:class:`Point`): a point :math:`P` on the curve
-            | other (:class:`Point`): a point :math:`Q` on the curve
-
-        Returns:
-            :class:`Point`: A point :math:`R` such that :math:`R = R + Q`
-        """
-        validate_type(other, Point)
-        return self.__add__(other)
-
     def __sub__(self, other: Point) -> Point:
         """Subtract two points on the same elliptic curve.
 
@@ -127,7 +112,8 @@ class Point:
         Returns:
             :class:`Point`: A point :math:`R` such that :math:`R = P - Q`
         """
-        validate_type(other, Point)
+        if not isinstance(other, Point):
+            raise TypeError(f"Cannot subtract {type(other)} from Point")
 
         if self == other:
             return self._identity_element()
@@ -148,7 +134,8 @@ class Point:
         Returns:
             :class:`Point`: A point :math:`R` such that :math:`R = P * d`
         """
-        validate_type(scalar, int)
+        if not isinstance(scalar, int):
+            raise TypeError(f"Cannot multiply Point by {type(scalar)}")
 
         if scalar == 0:
             return self._identity_element()

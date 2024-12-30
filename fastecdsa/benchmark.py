@@ -59,9 +59,7 @@ def run():
         d, Q = gen_keypair(curve)
         time = timeit(stmt=lambda: sign_and_verify(d, Q, curve), number=iterations)
         print(
-            "{} signatures and verifications with curve {} took {:.2f} seconds".format(
-                iterations, curve.name, time
-            )
+            f"{iterations} signatures and verifications with curve {curve} took {time:.2f} seconds"
         )
 
 

@@ -29,7 +29,7 @@ def sign(
         |  msg (str|bytes|bytearray): A message to be signed.
         |  d (int): The ECDSA private key of the signer.
         |  curve (fastecdsa.curve.Curve): The curve to be used to sign the message.
-        |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
+        |  hashfunc (Callable): The hash function used to compress the message.
         |  prehashed (bool): The message being passed has already been hashed by :code:`hashfunc`.
 
     Returns:
@@ -93,15 +93,11 @@ def verify(
         fastecdsa.ecdsa.EcdsaError: If the signature or public key are invalid. Invalid signature
             in this case means that it has values less than 1 or greater than the curve order.
     """
-    if isinstance(Q, tuple):
-        Q = Point(Q[0], Q[1], curve)
     r, s = sig
 
     # validate Q, r, s (Q should be validated in constructor of Point already but double check)
     if not curve.is_point_on_curve((Q.x, Q.y)):
-        raise EcdsaError(
-            "Invalid public key, point is not on curve {}".format(curve.name)
-        )
+        raise EcdsaError(f"Invalid public key, point is not on curve {curve}")
     elif r > curve.q or r < 1:
         raise EcdsaError(
             "Invalid Signature: r is not a positive integer smaller than the curve order"

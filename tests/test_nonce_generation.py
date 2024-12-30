@@ -1,7 +1,7 @@
 from hashlib import sha1, sha224, sha256, sha384, sha512
 from unittest import TestCase
 
-from ..util import RFC6979
+from fastecdsa.util import RFC6979
 
 
 class TestNonceGeneration(TestCase):

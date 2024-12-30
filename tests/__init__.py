@@ -1,4 +1,4 @@
-from ..curve import (
+from fastecdsa.curve import (
     P192,
     P224,
     P256,

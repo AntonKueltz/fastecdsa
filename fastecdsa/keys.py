@@ -1,11 +1,10 @@
-from binascii import hexlify
 from hashlib import sha256
 from os import urandom
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple
 
 from .curve import Curve, P256
 from .ecdsa import verify
-from .encoding.pem import PEMEncoder
+from .encoding import KeyEncoder
 from .point import Point
 from .util import mod_sqrt, msg_bytes
 
@@ -22,7 +21,7 @@ def gen_keypair(curve: Curve) -> Tuple[int, Point]:
         curve (fastecdsa.curve.Curve): The curve over which the keypair will be calulated.
 
     Returns:
-        int, fastecdsa.point.Point: Returns a tuple with the private key first and public key
+        (int, fastecdsa.point.Point): Returns a tuple with the private key first and public key
         second.
     """
     private_key = gen_private_key(curve)
@@ -55,12 +54,12 @@ def gen_private_key(curve: Curve, randfunc=urandom) -> int:
     order_bytes = (order_bits + 7) // 8  # randfunc only takes bytes
     extra_bits = order_bytes * 8 - order_bits  # bits to shave off after getting bytes
 
-    rand = int(hexlify(randfunc(order_bytes)), 16)
+    rand = int.from_bytes(randfunc(order_bytes), "big")
     rand >>= extra_bits
 
     # no modding by group order or we'll introduce biases
     while rand >= curve.q:
-        rand = int(hexlify(randfunc(order_bytes)), 16)
+        rand = int.from_bytes(randfunc(order_bytes), "big")
         rand >>= extra_bits
 
     return rand
@@ -113,77 +112,111 @@ def get_public_keys_from_sig(
     for Q in Qs:
         if not verify(sig, msg, Q, curve=curve, hashfunc=hashfunc):
             raise ValueError(
-                "Could not recover public key, is the signature ({}) a valid "
-                "signature for the message ({}) over the given curve ({}) using the "
-                "given hash function ({})?".format(sig, msg, curve, hashfunc)
+                f"Could not recover public key, is the signature ({sig}) a valid "
+                f"signature for the message ({msg}) over the given curve ({curve}) using the "
+                f"given hash function ({hashfunc})?"
             )
     return Qs
 
 
-def export_key(
-    key,
-    curve: Optional[Curve] = None,
-    filepath: Optional[str] = None,
-    encoder=PEMEncoder,
-) -> Optional[Union[str, bytes]]:
-    """Export a public or private EC key in PEM format.
+def export_private_key(
+    key: int, curve: Curve, encoder: KeyEncoder, filepath: Optional[str] = None
+) -> Optional[bytes]:
+    r"""Export a private EC key using the given encoder.
 
     Args:
-        |   key (fastecdsa.point.Point | int): A public or private EC key
-        |   curve (fastecdsa.curve.Curve): The curve corresponding to the key (required if the
-            key is a private key)
-        |   filepath (str): Where to save the exported key. If None the key is simply printed.
-        |   encoder (type): The class used to encode the key
-    """
-    # encode a public key
-    if isinstance(key, Point):
-        encoded = encoder.encode_public_key(key)
+        |   key (int): A private EC key.
+        |   curve (fastecdsa.curve.Curve): The curve corresponding to the key.
+        |   encoder (fastecdsa.encoding.KeyEncoder): An instance of an encoder that can encode a private key.
+        |   filepath (str): Where to save the exported key. If :code:`None` the key is simply printed.
 
-    # throw error for ambiguous private keys
-    elif curve is None:
-        raise ValueError(
-            "curve parameter cannot be 'None' when exporting a private key"
+    Returns:
+        bytes | None: If no filepath is provided the bytes of the encoded key are returned.
+    """
+    if not isinstance(curve, Curve):
+        raise TypeError("curve must be an instance of the Curve type.")
+    if not isinstance(encoder, KeyEncoder):
+        raise TypeError(
+            "encoder must be an instance of a subclass of the KeyEncoder type."
         )
 
-    # encode a private key
-    else:
-        pubkey = key * curve.G
-        encoded = encoder.encode_private_key(key, Q=pubkey)
+    encoded: bytes = encoder.encode_private_key(key, curve)
 
     # return binary data or write to file
     if filepath is None:
         return encoded
-    else:
-        # some encoder output strings, others bytes, need to determine what mode to write in
-        write_mode = "w" + ("b" if getattr(encoder, "binary_data", False) else "")
-        with open(filepath, write_mode) as f:
-            f.write(encoded)
-        return None
+
+    # write binary encoded key to disk
+    with open(filepath, "wb") as f:
+        f.write(encoded)
+
+    return None
 
 
-def import_key(
-    filepath: str,
-    curve: Optional[Curve] = None,
-    public: bool = False,
-    decoder=PEMEncoder,
-) -> Tuple[Optional[int], Optional[Point]]:
-    """Import a public or private EC key in PEM format.
+def export_public_key(
+    key: Point, encoder: KeyEncoder, filepath: Optional[str] = None
+) -> Optional[bytes]:
+    r"""Export a private EC key using the given encoder.
 
     Args:
-        |  filepath (str): The location of the key file
-        |  public (bool): Indicates if the key file is a public key
-        |  decoder (fastecdsa.encoding.KeyEncoder): The class used to parse the key
+        |   key (fastecdsa.point.Point): A public EC key.
+        |   encoder (fastecdsa.encoding.KeyEncoder): An instance of an encoder that can encode a private key.
+        |   filepath (str): Where to save the exported key. If :code:`None` the key is simply printed.
 
     Returns:
-        (long, fastecdsa.point.Point): A (private key, public key) tuple. If a public key was
-        imported then the first value will be None.
+        bytes | None: If no filepath is provided the bytes of the encoded key are returned.
     """
-    # some decoders read strings, others bytes, need to determine what mode to write in
-    read_mode = "r" + ("b" if getattr(decoder, "binary_data", False) else "")
-    with open(filepath, read_mode) as f:
+    if not isinstance(encoder, KeyEncoder):
+        raise TypeError("encoder must be a subclass of KeyEncoder.")
+
+    encoded: bytes = encoder.encode_public_key(key)
+
+    # return binary data or write to file
+    if filepath is None:
+        return encoded
+
+    # write binary encoded key to disk
+    with open(filepath, "wb") as f:
+        f.write(encoded)
+
+    return None
+
+
+def import_private_key(filepath: str, decoder: KeyEncoder) -> int:
+    """Import a private EC key.
+
+    Args:
+        |  filepath (str): The location of the key file.
+        |  decoder (fastecdsa.encoding.KeyEncoder): The decoder used to parse the key.
+
+    Returns:
+        (int): A decoded private key.
+    """
+    if not isinstance(decoder, KeyEncoder):
+        raise TypeError("decoder must be a subclass of KeyEncoder.")
+
+    with open(filepath, "rb") as f:
         data = f.read()
 
-    if public:
-        return None, decoder.decode_public_key(data, curve)
-    else:
-        return decoder.decode_private_key(data)
+    return decoder.decode_private_key(data)
+
+
+def import_public_key(filepath: str, curve: Curve, decoder: KeyEncoder) -> Point:
+    """Import a public EC key.
+
+    Args:
+        |  filepath (str): The location of the key file.
+        |  decoder (fastecdsa.encoding.KeyEncoder): The decoder used to parse the key.
+
+    Returns:
+        (int): A decoded private key.
+    """
+    if not isinstance(curve, Curve):
+        raise TypeError("curve must be an instance of the Curve type.")
+    if not isinstance(decoder, KeyEncoder):
+        raise TypeError("decoder must be a subclass of KeyEncoder.")
+
+    with open(filepath, "rb") as f:
+        data = f.read()
+
+    return decoder.decode_public_key(data, curve)

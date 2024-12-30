@@ -4,10 +4,10 @@ from json import load
 from typing import List
 from unittest import TestCase
 
-from ..curve import P192, P224, P256, P384, P521
-from ..ecdsa import sign
-from ..typing import HashFunction
-from ..util import RFC6979
+from fastecdsa.curve import P192, P224, P256, P384, P521
+from fastecdsa.ecdsa import sign
+from fastecdsa.typing import HashFunction
+from fastecdsa.util import RFC6979
 
 hash_lookup = {"1": sha1, "224": sha224, "256": sha256, "384": sha384, "512": sha512}
 
@@ -57,16 +57,16 @@ class TestRFC6979ECDSA(TestCase):
             )
 
     def test_p192_rfc6979_ecdsa(self):
-        self._run_test("fastecdsa/tests/vectors/rfc6979/P192.json", P192)
+        self._run_test("tests/vectors/rfc6979/P192.json", P192)
 
     def test_p224_rfc6979_ecdsa(self):
-        self._run_test("fastecdsa/tests/vectors/rfc6979/P224.json", P224)
+        self._run_test("tests/vectors/rfc6979/P224.json", P224)
 
     def test_p256_rfc6979_ecdsa(self):
-        self._run_test("fastecdsa/tests/vectors/rfc6979/P256.json", P256)
+        self._run_test("tests/vectors/rfc6979/P256.json", P256)
 
     def test_p384_rfc6979_ecdsa(self):
-        self._run_test("fastecdsa/tests/vectors/rfc6979/P384.json", P384)
+        self._run_test("tests/vectors/rfc6979/P384.json", P384)
 
     def test_p521_rfc6979_ecdsa(self):
-        self._run_test("fastecdsa/tests/vectors/rfc6979/P521.json", P521)
+        self._run_test("tests/vectors/rfc6979/P521.json", P521)

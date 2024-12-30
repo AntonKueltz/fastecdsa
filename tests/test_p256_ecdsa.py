@@ -1,9 +1,9 @@
 from hashlib import sha1, sha224, sha256, sha384, sha512
 from unittest import TestCase
 
-from ..curve import P256
-from ..ecdsa import sign, verify
-from ..point import Point
+from fastecdsa.curve import P256
+from fastecdsa.ecdsa import sign, verify
+from fastecdsa.point import Point
 
 
 class TestP256ECDSA(TestCase):

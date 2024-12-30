@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from ..curve import brainpoolP256r1, brainpoolP384r1, brainpoolP512r1
+from fastecdsa.curve import brainpoolP256r1, brainpoolP384r1, brainpoolP512r1
 
 
 class TestBrainpoolECDH(TestCase):

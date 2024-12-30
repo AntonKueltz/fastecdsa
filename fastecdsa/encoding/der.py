@@ -71,9 +71,7 @@ class DEREncoder(SigEncoder):
         # sequence should be entirety remaining data
         if leftover:
             raise InvalidDerSignature(
-                "Expected a sequence of {} bytes, got {}".format(
-                    seqlen, len(sequence + leftover)
-                )
+                f"Expected a sequence of {seqlen} bytes, got {len(sequence + leftover)}"
             )
 
         try:

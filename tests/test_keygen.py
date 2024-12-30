@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from ..curve import Curve
-from ..keys import gen_private_key
+from fastecdsa.curve import Curve
+from fastecdsa.keys import gen_private_key
 
 
 class TestKeygen(TestCase):

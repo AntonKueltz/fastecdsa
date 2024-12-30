@@ -74,10 +74,8 @@ class SEC1Encoder(KeyEncoder):
                 raise InvalidSEC1PublicKey("Wrong key format")
         return Point(x, y, curve=curve)
 
-    @staticmethod
-    def encode_private_key(_):
+    def encode_private_key(self, _: int, __: Curve) -> bytes:
         raise NotImplementedError("SEC1Encoder only encodes public keys")
 
-    @staticmethod
-    def decode_private_key(_):
+    def decode_private_key(self, _: bytes) -> int:
         raise NotImplementedError("SEC1Encoder only decodes public keys")

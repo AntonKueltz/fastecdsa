@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from ..curve import W25519
-from ..point import Point
+from fastecdsa.curve import W25519
+from fastecdsa.point import Point
 
 
 class TestTypeValidation(TestCase):
