@@ -154,6 +154,7 @@ brew
 ~~~~
 
 .. code:: bash
+
     $ brew install gmp
 
 yum
