@@ -45,4 +45,6 @@ dev = [
     "pytest>=8.3.4",
     "ruff>=0.8.4",
     "setuptools>=75.6.0",
+    "sphinx-rtd-theme>=3.0.2",
+    "sphinx>=7.4.7",
 ]

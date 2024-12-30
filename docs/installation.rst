@@ -11,6 +11,13 @@ via the :code:`-lgmp` flag).
 Installing Dependencies
 -----------------------
 
+MacOS
+~~~~~
+
+.. code:: bash
+
+    $ brew install gmp
+
 Ubuntu / Debian
 ~~~~~~~~~~~~~~~
 

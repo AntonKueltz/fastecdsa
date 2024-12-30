@@ -170,6 +170,12 @@ apt
 
     $ sudo apt-get install python3-dev libgmp3-dev
 
+brew
+~~~~
+
+.. code:: bash
+    $ brew install gmp
+
 yum
 ~~~
 
@@ -179,7 +185,7 @@ yum
 
 Development
 -----------
-This package uses `uv` for package management. You can install it via `pip install uv`. To run the test
+This package uses :code:`uv` for package management. You can install it via `pip install uv`. To run the test
 suite use the following command
 
 .. code:: bash
@@ -192,6 +198,13 @@ commit your code
 .. code:: bash
 
     $ uv run pre-commit install
+
+To build the docs use the following command, which will create a :code:`docs/_build` directory
+
+.. code:: bash
+
+    $ cd docs
+    $ uv run make html
 
 Usage
 -----
