@@ -1,11 +1,11 @@
-from hashlib import sha256
 from os import urandom
-from typing import Optional, Tuple
+from typing import Any, Callable, Optional, Tuple
 
-from .curve import Curve, P256
+from .curve import Curve
 from .ecdsa import verify
 from .encoding import KeyEncoder
 from .point import Point
+from .typing import EcdsaSignature
 from .util import mod_sqrt, msg_bytes
 
 
@@ -29,7 +29,7 @@ def gen_keypair(curve: Curve) -> Tuple[int, Point]:
     return private_key, public_key
 
 
-def gen_private_key(curve: Curve, randfunc=urandom) -> int:
+def gen_private_key(curve: Curve, randfunc: Callable[[Any], bytes] = urandom) -> int:
     """Generate a private key to sign data with.
 
     The private key :math:`d` is an integer generated via a cryptographically secure random number
@@ -82,7 +82,7 @@ def get_public_key(d: int, curve: Curve) -> Point:
 
 
 def get_public_keys_from_sig(
-    sig: Tuple[int, int], msg, curve: Curve = P256, hashfunc=sha256
+    sig: EcdsaSignature, msg, curve: Curve, hashfunc: Callable
 ) -> Tuple[Point, Point]:
     """Recover the public keys that can verify a signature / message pair.
 

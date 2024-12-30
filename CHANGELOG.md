@@ -4,9 +4,15 @@
 ### Added
 - Support for python3.13
 - `uv` for package management
-- Typing for all modules in this package
+- Typing for all non C extension modules in this package and a corresponding `py.typed` marker
 - Github Actions for testing and publishing
 - Pre-commit hooks to enforce formatting and type checks
+- Functions in `fastedcsa.keys` specific to public and private keys:
+  - `export_private_key`
+  - `export_public_key`
+  - `import_private_key`
+  - `import_public_key`
+- `__self__` to `fastecdsa.curve.Curve`
 
 ### Changed
 - `fastecdsa.encodng.KeyEncoder` interface:
@@ -15,13 +21,14 @@
   - Decoders always take `bytes` for key data
   - Private key methods do not consume or return public key data in their signatures
     - Private key encoding _does_ take a curve parameter as some encoders do encode the public key as part of the encoded private key (in this case the public key is computed using the private key and the curve)
-  -
 
 ### Removed
 - Support for python3.7
 - Support for python3.8
-- `int` tuples are no longer allowed to be passed as `Q` in `ecdsa.verify`. `Q` must be of type `point.Point` now.
-- `keys.export_key` and `keys.import_key`. Superseded by functions specific to public and private keys.
+- `int` tuples are no longer allowed to be passed as `Q` in `fastecdsa.ecdsa.verify`. `Q` must be of type `point.Point` now.
+- `fastecdsa.keys.export_key` and `fastecdsa.keys.import_key`. Superseded by functions specific to public and private keys.
+- Default curve parameter from `fastecdsa.point.Point` constructor
+- `__unicode__` from `fastecdsa.point.Point`
 
 ## [2.3.2]
 ### Added

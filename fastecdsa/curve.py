@@ -64,8 +64,11 @@ class Curve:
         if oid is not None:
             self._oid_lookup[oid] = self
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return self.name
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
     @classmethod
     def get_curve_by_oid(cls, oid: bytes) -> Optional[Curve]:

@@ -1,6 +1,6 @@
 [project]
 name = "fastecdsa"
-version = "3.0.0a0"
+version = "3.0.0a1"
 description = "Fast elliptic curve digital signatures"
 readme = "README.rst"
 requires-python = ">=3.9"
@@ -35,6 +35,16 @@ benchmark = "fastecdsa.benchmark:run"
 requires = ["setuptools>=75.6.0"]
 build-backend = "setuptools.build_meta"
 
+[tool.coverage.run]
+omit = [
+    "fastecdsa/benchmark.py",
+    "fastecdsa/encoding/__init__.py"
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+addopts = "--cov=fastecdsa --cov-report=term-missing --cov-fail-under=95"
+
 [tool.setuptools]
 include-package-data = true
 
@@ -50,4 +60,5 @@ dev = [
     "setuptools>=75.6.0",
     "sphinx-rtd-theme>=3.0.2",
     "sphinx>=7.4.7",
+    "pytest-cov>=6.0.0",
 ]

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from fastecdsa import curvemath  # type: ignore
-from .curve import Curve, P256
+from .curve import Curve
 
 
 class CurveMismatchError(Exception):
@@ -20,7 +20,7 @@ class Point:
         |  curve (:class:`Curve`): The curve that the point lies on.
     """
 
-    def __init__(self, x: int, y: int, curve: Curve = P256):
+    def __init__(self, x: int, y: int, curve: Curve):
         r"""Initialize a point on an elliptic curve.
 
         The x and y parameters must satisfy the equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}`,
@@ -53,9 +53,6 @@ class Point:
             return "<POINT AT INFINITY>"
         else:
             return f"X: 0x{self.x:x}\nY: 0x{self.y:x}\n(On curve <{self.curve}>)"
-
-    def __unicode__(self) -> str:
-        return self.__str__()
 
     def __repr__(self) -> str:
         return self.__str__()

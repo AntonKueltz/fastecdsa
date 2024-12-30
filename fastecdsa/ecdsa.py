@@ -127,7 +127,7 @@ def verify(
 def _hex_digest(msg: SignableMessage, hashfunc: HashFunction, prehashed: bool) -> str:
     if prehashed:
         if not isinstance(msg, (bytes, bytearray)):
-            raise ValueError(f"Prehashed message must be bytes, got {type(msg)}")
+            raise TypeError(f"Prehashed message must be bytes, got {type(msg)}")
         return hexlify(msg).decode()
     else:
         return hashfunc(msg_bytes(msg)).hexdigest()
