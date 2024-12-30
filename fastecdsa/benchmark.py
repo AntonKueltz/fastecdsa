@@ -33,7 +33,7 @@ def sign_and_verify(d: int, Q: Point, curve: Curve):
     assert verify(sig, msg, Q, curve=curve)
 
 
-if __name__ == "__main__":
+def run():
     iterations = 1000
     curves = (
         P192,

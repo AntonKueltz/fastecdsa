@@ -28,8 +28,11 @@ repo = "https://github.com/AntonKueltz/fastecdsa"
 docs = "https://fastecdsa.readthedocs.io"
 pypi = "https://pypi.org/project/fastecdsa/"
 
+[project.scripts]
+benchmark = "fastecdsa.benchmark:run"
+
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=75.6.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]

@@ -4,10 +4,6 @@ fastecdsa
     :target: https://pypi.org/project/fastecdsa/
     :alt: PyPI
 
-.. image:: https://travis-ci.com/AntonKueltz/fastecdsa.svg?branch=master
-    :target: https://travis-ci.com/AntonKueltz/fastecdsa
-    :alt: Travis CI
-
 .. image:: https://readthedocs.org/projects/fastecdsa/badge/?version=stable
     :target: https://fastecdsa.readthedocs.io/en/stable/?badge=stable
     :alt: Documentation Status
@@ -139,22 +135,6 @@ Core i5.
 | secp256k1 | 5.92s                  | 2m57.19s           | ~30x    |
 +-----------+------------------------+--------------------+---------+
 
-Benchmarking
-~~~~~~~~~~~~
-If you'd like to benchmark performance on your machine you can do so using the command:
-
-.. code:: bash
-
-    $ python setup.py benchmark
-
-This will use the :code:`timeit` module to benchmark 1000 signature and verification operations
-for each curve supported by this package. Alternatively, if you have not cloned the repo but
-have installed the package via e.g. :code:`pip` you can use the following command:
-
-.. code:: bash
-
-    $ python -m fastecdsa.benchmark
-
 Installing
 ----------
 You can use pip: :code:`$ pip install fastecdsa` or clone the repo and use
@@ -185,26 +165,74 @@ yum
 
 Development
 -----------
-This package uses :code:`uv` for package management. You can install it via `pip install uv`. To run the test
-suite use the following command
+This package uses :code:`uv` for package management. You can install it via `pip install uv`. First build
+the C extension modules
+
+.. code:: bash
+
+    $ uv run python setup.py build_ext --inplace
+
+To run the test suite use the following command
 
 .. code:: bash
 
     $ uv run pytest
 
-You'll also want to install pre-commit hooks to ensure type checking and autoformatting happens before you
-commit your code
+Install pre-commit hooks to ensure type checking and autoformatting happens before you commit your code
 
 .. code:: bash
 
     $ uv run pre-commit install
 
-To build the docs use the following command, which will create a :code:`docs/_build` directory
+To build the docs use the following command, which will create a :code:`docs/_build` directory with the
+docs built as HTML files
 
 .. code:: bash
 
     $ cd docs
     $ uv run make html
+
+Publishing
+~~~~~~~~~~
+Note that currently only the package owner is able to publish releases to PyPI. The following steps
+can still be used to generate source and wheel distributions, but note that the publish command will
+not work.
+
+To build a release first install all supported versions of python into the environment (double check
+:code:`pyproject.toml` for which python versions are supported)
+
+.. code:: bash
+
+   $ uv python install 3.9 3.10 3.11 3.12 3.13
+
+Then build a source distribution, followed by wheels for each supported python version
+
+.. code:: bash
+
+    $ uv build --sdist
+    $ uv build --wheel -p 3.x  # do this for each supported python version
+
+Then publish the source and wheels distributions to the test PyPI account.
+
+.. code:: bash
+
+    $ uv publish --token {token} --url https://test.pypi.org/simple/
+
+Benchmarking
+------------
+If you'd like to benchmark performance on your machine you can do so using the command:
+
+.. code:: bash
+
+    $ uv run benchmark
+
+This will use the :code:`timeit` module to benchmark 1000 signature and verification operations
+for each curve supported by this package. Alternatively, if you have not cloned the repo but
+have installed the package via e.g. :code:`pip` you can use the following command:
+
+.. code:: bash
+
+    $ python -m fastecdsa.benchmark
 
 Usage
 -----
