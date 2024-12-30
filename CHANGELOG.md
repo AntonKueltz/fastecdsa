@@ -1,12 +1,24 @@
 # Changelog
 
+## [3.0.0]
+### Added
+- `uv` for package management
+- Support for python3.13
+- Typing for all modules in this package
+- Github Actions for testing and publishing
+- Pre-commit hooks to enforce formatting and type checks
+
+### Removed
+- Support for python3.7
+- Support for python3.8
+
 ## [2.3.2]
 ### Added
 - Support for python3.12
 
 ### Removed
 - CI/CD pipelines
-  
+
 ### Fixed
 - [Memory corruption issue](https://gist.github.com/keltecc/49da037072276f21b005a8337c15db26). Special thanks to [keltecc](https://gist.github.com/keltecc) for discovering this and to Snyk for reporting it.
 
@@ -54,7 +66,7 @@
 - Reading and writing keys to disk using encoders that output bytes (PR #62)
 
 ### Updated
-- `fastecdsa.keys.import_key` now has a consistent return type (`Tuple[Optional[int], Point]`) for public and private 
+- `fastecdsa.keys.import_key` now has a consistent return type (`Tuple[Optional[int], Point]`) for public and private
 keys. Previously public key imports returned `Point`, they now return `Tuple[None, Point]`, in other words a tuple
 with the first entry being `None` (the private key) and the second entry being the point representing the public key.
 
@@ -65,7 +77,7 @@ with the first entry being `None` (the private key) and the second entry being t
 ## [2.1.4]
 ### Fixed
 - Reduction by base point order in scalar multiplication breaks when input point does not have that order (PR #58)
-- Edge case for curves with order 2 was not handled (PR #58) 
+- Edge case for curves with order 2 was not handled (PR #58)
 - Signature verification of pre-hashed messages broken (PR #56)
 
 ## [2.1.3]
