@@ -5,21 +5,23 @@ on: push
 jobs:
   build:
     name: Build distribution 📦
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
 
     - name: Install uv
       uses: astral-sh/setup-uv@v4
 
-    - name: Install Python Versions
-      run: uv python install 3.9 3.10 3.11 3.12 3.13
-
     - name: Build
+      env:
+        CFLAGS: -I/opt/homebrew/include
+        LDFLAGS: -L/opt/homebrew/lib
       run: |
         uv build --sdist
         uv build --wheel -p 3.9
@@ -56,4 +58,5 @@ jobs:
     - name: Publish distribution 📦 to TestPyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
+        verbose: true
         repository-url: https://test.pypi.org/legacy/
