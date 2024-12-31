@@ -6,43 +6,84 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+a[0-9]+'  # only run on alpha tags
 
 jobs:
-  build:
-    name: Build distribution 📦
-    runs-on: macos-latest
-
+  make_sdist:
+    name: Make SDist
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Build SDist
+      run: pipx run build --sdist
+
+    - uses: actions/upload-artifact@v4
       with:
-        python-version: "3.x"
+        name: cibw-sdist
+        path: dist/*.tar.gz
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v4
+  build_wheels-manylinux:
+    name: Build wheels on ubuntu-latest
+    runs-on: ubuntu-latest
 
-    - name: Build
-      env:
-        CFLAGS: -I/opt/homebrew/include
-        LDFLAGS: -L/opt/homebrew/lib
-      run: |
-        uv build --sdist
-        uv build --wheel -p 3.9
-        uv build --wheel -p 3.10
-        uv build --wheel -p 3.11
-        uv build --wheel -p 3.12
-        uv build --wheel -p 3.13
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Store the distribution packages
-      uses: actions/upload-artifact@v4
-      with:
-        name: python-package-distributions
-        path: dist/
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.22.0
+        env:
+          CIBW_BEFORE_ALL_LINUX: >
+            yum update &&
+            yum install -y gmp-devel
+          CIBW_BUILD: cp39-manylinux* cp310-manylinux* cp311-manylinux* cp312-manylinux* cp313-manylinux*
+          CIBW_ENVIRONMENT_LINUX: CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-manylinux
+          path: ./wheelhouse/*.whl
+
+  # macos-13 is an intel runner
+  build_wheels-macos-13:
+    name: Build wheels on macos-13
+    runs-on: macos-13
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.22.0
+        env:
+          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-*
+          CIBW_ENVIRONMENT_MACOS: CFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib"
+          MACOSX_DEPLOYMENT_TARGET: 13.0
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-macos-13
+          path: ./wheelhouse/*.whl
+
+  # macos-14 is apple silicon
+  build_wheels-macos-14:
+    name: Build wheels on macos-14
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.22.0
+        env:
+          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-*
+          CIBW_ENVIRONMENT_MACOS: CFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib"
+          MACOSX_DEPLOYMENT_TARGET: 14.0
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-macos-14
+          path: ./wheelhouse/*.whl
 
   publish-to-testpypi:
     name: Publish Python 🐍 distribution 📦 to TestPyPI
-    needs:
-    - build
+    needs: [make_sdist, build_wheels-manylinux, build_wheels-macos-13, build_wheels-macos-14]
     runs-on: ubuntu-latest
 
     environment:
@@ -56,8 +97,10 @@ jobs:
     - name: Download all the dists
       uses: actions/download-artifact@v4
       with:
-        name: python-package-distributions
+        pattern: cibw-*
         path: dist/
+        merge-multiple: true
+
     - name: Publish distribution 📦 to TestPyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
