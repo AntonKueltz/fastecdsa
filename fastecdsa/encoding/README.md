@@ -8,11 +8,10 @@ with keys and signatures.
 ## Keys
 
 Key encoders should inherit from the `fastecdsa.encoding.KeyEncoder` class. They
-should implement all of `KeyEncoder`'s abstract methods as static methods. If an
-encoder only operates on public or private keys then the non-applicable methods
-should raise `NotImplementedError`s.
+should implement all of `KeyEncoder`'s abstract methods. If an encoder only operates
+on public or private keys then the non-applicable methods should raise `NotImplementedError`s.
 
 ## Signatures
 
 Signature encoders should inherit from the `fastecdsa.encoding.SigEncoder` class.
-They should implement all of `SigEncoder`'s abstract methods as static methods.
+They should implement all of `SigEncoder`'s abstract methods.
