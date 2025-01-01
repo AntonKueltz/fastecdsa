@@ -83,8 +83,7 @@ jobs:
 
   publish-to-pypi:
     name: Publish Python 🐍 distribution 📦 to PyPI
-    needs:
-    - build
+    needs: [make_sdist, build_wheels-manylinux, build_wheels-macos-13, build_wheels-macos-14]
     runs-on: ubuntu-latest
 
     environment:
