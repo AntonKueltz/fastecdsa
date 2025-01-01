@@ -9,7 +9,7 @@ from .util import RFC6979, msg_bytes
 
 
 class EcdsaError(Exception):
-    def __init__(self, msg):
+    def __init__(self, msg: str) -> None:
         self.msg = msg
 
 

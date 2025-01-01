@@ -21,4 +21,4 @@ repos:
     rev: 'v1.13.0'  # Use the sha / tag you want to point at
     hooks:
     -   id: mypy
-        args: [ --explicit-package-bases, --check-untyped-defs ]
+        args: [ --explicit-package-bases, --check-untyped-defs, --disallow-untyped-calls, --disallow-untyped-defs, --disallow-incomplete-defs ]

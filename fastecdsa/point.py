@@ -5,7 +5,7 @@ from .curve import Curve
 
 
 class CurveMismatchError(Exception):
-    def __init__(self, curve1: Curve, curve2: Curve):
+    def __init__(self, curve1: Curve, curve2: Curve) -> None:
         self.msg = (
             f"Tried to add points on two different curves <{curve1}> & <{curve2}>"
         )
@@ -20,7 +20,7 @@ class Point:
         |  curve (:class:`Curve`): The curve that the point lies on.
     """
 
-    def __init__(self, x: int, y: int, curve: Curve):
+    def __init__(self, x: int, y: int, curve: Curve) -> None:
         r"""Initialize a point on an elliptic curve.
 
         The x and y parameters must satisfy the equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}`,

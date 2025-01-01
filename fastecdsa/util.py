@@ -1,4 +1,3 @@
-from binascii import hexlify
 import hmac
 from struct import pack
 from typing import Callable, Tuple
@@ -29,7 +28,7 @@ class RFC6979:
         q: int,
         hashfunc: Callable,
         prehashed: bool = False,
-    ):
+    ) -> None:
         self.x = x
         self.q = q
         self.msg = msg_bytes(msg)
@@ -40,7 +39,7 @@ class RFC6979:
 
     def _bits2int(self, b: bytes) -> int:
         """http://tools.ietf.org/html/rfc6979#section-2.3.2"""
-        i = int(hexlify(b), 16)
+        i = int.from_bytes(b, "big")
         blen = len(b) * 8
 
         if blen > self.qlen:
@@ -65,7 +64,7 @@ class RFC6979:
         z2 = z1 % self.q
         return self._int2octets(z2)
 
-    def gen_nonce(self):
+    def gen_nonce(self) -> int:
         """http://tools.ietf.org/html/rfc6979#section-3.2"""
         hash_size = self.hashfunc().digest_size
         if self.prehashed:

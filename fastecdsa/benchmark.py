@@ -27,13 +27,13 @@ from .keys import gen_keypair
 from .point import Point
 
 
-def sign_and_verify(d: int, Q: Point, curve: Curve):
+def sign_and_verify(d: int, Q: Point, curve: Curve) -> None:
     msg = b2a_uu(urandom(32))
     sig = sign(msg, d, curve=curve)
     assert verify(sig, msg, Q, curve=curve)
 
 
-def run():
+def run() -> None:
     iterations = 1000
     curves = (
         P192,

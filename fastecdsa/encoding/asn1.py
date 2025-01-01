@@ -46,7 +46,7 @@ def asn1_private_key(d: int, curve: Curve) -> bytes:
     return asn1_structure(OCTET_STRING, padding + d_bytes)
 
 
-def asn1_ecversion(version=1) -> bytes:
+def asn1_ecversion(version: int = 1) -> bytes:
     version_bytes = int_to_bytes(version)
     return asn1_structure(INTEGER, version_bytes)
 

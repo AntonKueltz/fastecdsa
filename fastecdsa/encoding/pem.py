@@ -23,7 +23,7 @@ from ..point import Point
 
 
 class PEMEncoderError(Exception):
-    def __init__(self, msg):
+    def __init__(self, msg: str) -> None:
         self.msg = msg
 
 
@@ -34,7 +34,7 @@ class PEMEncoder(KeyEncoder):
     EC_PUBLIC_HEADER = b"-----BEGIN PUBLIC KEY-----"
     EC_PUBLIC_FOOTER = b"-----END PUBLIC KEY-----"
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.asn1_parsed_data: List[Tuple[bytes, bytes]] = []
 
     @classmethod
@@ -55,7 +55,7 @@ class PEMEncoder(KeyEncoder):
 
         return a2b_base64(base64_data)
 
-    def _parse_asn1_structure(self, data: bytes):
+    def _parse_asn1_structure(self, data: bytes) -> None:
         """Recursively parse ASN.1 data"""
         data_type = data[:1]
         _, data, remaining = parse_asn1_length(data[1:])

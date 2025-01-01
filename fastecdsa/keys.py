@@ -5,7 +5,7 @@ from .curve import Curve
 from .ecdsa import verify
 from .encoding import KeyEncoder
 from .point import Point
-from .typing import EcdsaSignature
+from .typing import EcdsaSignature, SignableMessage
 from .util import mod_sqrt, msg_bytes
 
 
@@ -82,7 +82,7 @@ def get_public_key(d: int, curve: Curve) -> Point:
 
 
 def get_public_keys_from_sig(
-    sig: EcdsaSignature, msg, curve: Curve, hashfunc: Callable
+    sig: EcdsaSignature, msg: SignableMessage, curve: Curve, hashfunc: Callable
 ) -> Tuple[Point, Point]:
     """Recover the public keys that can verify a signature / message pair.
 
@@ -99,7 +99,7 @@ def get_public_keys_from_sig(
     r, s = sig
     rinv = pow(r, curve.q - 2, curve.q)
 
-    z = int(hashfunc(msg_bytes(msg)).hexdigest(), 16)
+    z = int.from_bytes(hashfunc(msg_bytes(msg)).digest(), "big")
     hash_bit_length = hashfunc().digest_size * 8
     if curve.q.bit_length() < hash_bit_length:
         z >>= hash_bit_length - curve.q.bit_length()
@@ -113,7 +113,7 @@ def get_public_keys_from_sig(
         if not verify(sig, msg, Q, curve=curve, hashfunc=hashfunc):
             raise ValueError(
                 f"Could not recover public key, is the signature ({sig}) a valid "
-                f"signature for the message ({msg}) over the given curve ({curve}) using the "
+                f"signature for the message ({msg!r}) over the given curve ({curve}) using the "
                 f"given hash function ({hashfunc})?"
             )
     return Qs

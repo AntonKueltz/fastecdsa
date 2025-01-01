@@ -32,7 +32,7 @@ class Curve:
         gx: int,
         gy: int,
         oid: Optional[bytes] = None,
-    ):
+    ) -> None:
         r"""Initialize the parameters of an elliptic curve.
 
         WARNING: Do not generate your own parameters unless you know what you are doing or you could
@@ -118,7 +118,7 @@ class Curve:
         return (x**3 + self.a * x + self.b) % self.p
 
     @property
-    def G(self):
+    def G(self):  # type: ignore
         """The base point of the curve.
 
         For the purposes of ECDSA this point is multiplied by a private key to obtain the

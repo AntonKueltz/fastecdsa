@@ -50,7 +50,7 @@ class DEREncoder(SigEncoder):
         Returns (r,s)
         """
 
-        def _validate_int_bytes(data: bytes):
+        def _validate_int_bytes(data: bytes) -> None:
             # check for negative values, indicated by leading 1 bit
             if data[0] & 0x80:
                 raise InvalidDerSignature("Signature contains a negative value")
