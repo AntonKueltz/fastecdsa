@@ -125,7 +125,7 @@ class Point:
 
         Args:
             | self (:class:`Point`): a point :math:`P` on the curve
-            | other (int): an integer :math:`d \in \mathbb{Z_q}` where :math:`q` is the order of
+            | scalar (int): an integer :math:`d \in \mathbb{Z_q}` where :math:`q` is the order of
                 the curve that :math:`P` is on
 
         Returns:
@@ -159,7 +159,7 @@ class Point:
 
         Args:
             | self (:class:`Point`): a point :math:`P` on the curve
-            | other (long): an integer :math:`d \in \mathbb{Z_q}` where :math:`q` is the order of
+            | scalar (int): an integer :math:`d \in \mathbb{Z_q}` where :math:`q` is the order of
                 the curve that :math:`P` is on
 
         Returns:
