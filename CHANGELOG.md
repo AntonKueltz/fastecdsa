@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.0.1]
+### Fixed
+- Updated acceptable range of private keys from `[0, n)` to `[1, n)` as per SEC spec guidance (pull #97)
+
 ## [3.0.0]
 ### Added
 - Support for python3.13
