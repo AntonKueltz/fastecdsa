@@ -5,22 +5,20 @@ from fastecdsa.keys import gen_private_key
 
 
 class TestKeygen(TestCase):
-    def test_gen_private_key(self):
+    def test_gen_private_key(self) -> None:
         class FakeCurve(Curve):
-            def __init__(self, q):
+            def __init__(self, q: int) -> None:
                 super().__init__("FakeCurve", 0, 0, 0, q, 0, 0)
 
         class FakeRandom:
-            def __init__(self, values=b"\x00"):
+            def __init__(self, values: bytes = b"\x01") -> None:
                 self.values = values
                 self.pos = 0
 
-            def __call__(self, nb):
+            def __call__(self, nb: int) -> bytes:
                 result = self.values[self.pos : self.pos + nb]
                 self.pos += nb
                 return result
-
-        self.assertEqual(gen_private_key(FakeCurve(2), randfunc=FakeRandom(b"\x00")), 0)
 
         # 1 byte / 6 bits shaved off + the first try is lower than the order
         self.assertEqual(gen_private_key(FakeCurve(2), randfunc=FakeRandom(b"\x40")), 1)
@@ -28,9 +26,6 @@ class TestKeygen(TestCase):
         # 1 byte / 6 bits shaved off + the first try is higher than the order
         self.assertEqual(
             gen_private_key(FakeCurve(2), randfunc=FakeRandom(b"\xc0\x40")), 1
-        )
-        self.assertEqual(
-            gen_private_key(FakeCurve(2), randfunc=FakeRandom(b"\xc0\x00")), 0
         )
 
         # 2 byte / 3 are shaved off, the first try is lower than the order.

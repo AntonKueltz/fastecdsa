@@ -58,7 +58,7 @@ def gen_private_key(curve: Curve, randfunc: Callable[[Any], bytes] = urandom) ->
     rand >>= extra_bits
 
     # no modding by group order or we'll introduce biases
-    while rand >= curve.q:
+    while rand < 1 or rand >= curve.q:
         rand = int.from_bytes(randfunc(order_bytes), "big")
         rand >>= extra_bits
 
