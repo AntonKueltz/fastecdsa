@@ -209,7 +209,7 @@ def import_public_key(filepath: str, curve: Curve, decoder: KeyEncoder) -> Point
         |  decoder (fastecdsa.encoding.KeyEncoder): The decoder used to parse the key.
 
     Returns:
-        (int): A decoded private key.
+        (fastecdsa.point.Point): A decoded public key.
     """
     if not isinstance(curve, Curve):
         raise TypeError("curve must be an instance of the Curve type.")

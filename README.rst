@@ -346,24 +346,31 @@ private keys and public keys can be exported as follows:
 .. code:: python
 
     from fastecdsa.curve import P256
-    from fastecdsa.keys import export_key, gen_keypair
-
+    from fastecdsa.encoding.pem import PEMEncoder
+    from fastecdsa.keys import export_private_key, export_public_key, gen_keypair
+    
     d, Q = gen_keypair(P256)
+    encoder = PEMEncoder()
+
     # save the private key to disk
-    export_key(d, curve=P256, filepath='/path/to/exported/p256.key')
-    # save the public key to disk
-    export_key(Q, curve=P256, filepath='/path/to/exported/p256.pub')
+    export_private_key(d, curve=P256, encoder=encoder, filepath='/path/to/exported/p256.key')
+    # save the public key to disk (curve inferred from Q)
+    export_public_key(Q, encoder=encoder, filepath='/path/to/exported/p256.pub')
 
 Keys stored in this format can also be imported. The import function will figure out if the key
 is a public or private key and parse it accordingly:
 
 .. code:: python
 
-    from fastecdsa.keys import import_key
+    from fastecdsa.curve import P256
+    from fastecdsa.encoding.pem import PEMEncoder
+    from fastecdsa.keys import import_public_key, import_private_key
 
-    # if the file is a private key then parsed_d is a long and parsed_Q is a Point object
-    # if the file is a public key then parsed_d will be None
-    parsed_d, parsed_Q = import_key('/path/to/file.key')
+    decoder = PEMEncoder()
+    # returns an int
+    parsed_d = import_private_key('/path/to/exported/p256.key', decoder=decoder)
+    # returns a fastecdsa.point.Point
+    parsed_Q = import_public_key('/path/to/exported/p256.pub', curve=P256, decoder=decoder)
 
 Other encoding formats can also be specified, such as SEC1_ for public keys. This is done using
 classes found in the :code:`fastecdsa.encoding` package, and passing them as keyword args to
@@ -373,11 +380,13 @@ the key functions:
 
     from fastecdsa.curve import P256
     from fastecdsa.encoding.sec1 import SEC1Encoder
-    from fastecdsa.keys import export_key, gen_keypair, import_key
+    from fastecdsa.keys import export_public_key, gen_keypair, import_public_key
 
     _, Q = gen_keypair(P256)
-    export_key(Q, curve=P256, filepath='/path/to/p256.key', encoder=SEC1Encoder)
-    parsed_Q = import_key('/path/to/p256.key', curve=P256, public=True, decoder=SEC1Encoder)
+    encoder = SEC1Encoder()
+
+    export_public_key(Q, encoder=encoder, filepath='/path/to/exported/p256.pub')
+    parsed_Q = import_public_key('/path/to/exported/p256.pub', curve=P256, decoder=encoder)
 
 Encoding Signatures
 ~~~~~~~~~~~~~~~~~~~
