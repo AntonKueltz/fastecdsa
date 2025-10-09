@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # fastecdsa documentation build configuration file, created by
 # sphinx-quickstart on Thu Dec 15 20:02:52 2016.
 #
