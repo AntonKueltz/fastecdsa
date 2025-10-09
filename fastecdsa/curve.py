@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     # allow the type checker to use Point
@@ -37,7 +37,7 @@ class Curve:
         q: int,
         gx: int,
         gy: int,
-        oid: Optional[bytes] = None,
+        oid: bytes | None = None,
     ) -> None:
         r"""Initialize the parameters of an elliptic curve.
 
@@ -77,7 +77,7 @@ class Curve:
         return self.__str__()
 
     @classmethod
-    def get_curve_by_oid(cls, oid: bytes) -> Optional[Curve]:
+    def get_curve_by_oid(cls, oid: bytes) -> Curve | None:
         r"""Get a curve via its object identifier.
 
         Args:
