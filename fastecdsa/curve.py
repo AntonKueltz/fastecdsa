@@ -118,7 +118,7 @@ class Curve:
         return (x**3 + self.a * x + self.b) % self.p
 
     @property
-    def G(self):  # type: ignore
+    def G(self):
         """The base point of the curve.
 
         For the purposes of ECDSA this point is multiplied by a private key to obtain the
