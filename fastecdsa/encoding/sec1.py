@@ -55,14 +55,13 @@ class SEC1Encoder(KeyEncoder):
         if key.startswith(b"\x04"):  # uncompressed key
             if len(key) != bytelen * 2 + 1:
                 raise InvalidSEC1PublicKey(
-                    "An uncompressed public key must be %d bytes long"
-                    % (bytelen * 2 + 1)
+                    f"An uncompressed public key must be {bytelen * 2 + 1} bytes long"
                 )
             x, y = bytes_to_int(key[1 : bytelen + 1]), bytes_to_int(key[bytelen + 1 :])
         else:  # compressed key
             if len(key) != bytelen + 1:
                 raise InvalidSEC1PublicKey(
-                    "A compressed public key must be %d bytes long" % (bytelen + 1)
+                    f"A compressed public key must be {bytelen + 1} bytes long"
                 )
             x = bytes_to_int(key[1:])
             root = mod_sqrt(curve.evaluate(x), curve.p)[0]
