@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Tuple
 
 from ..curve import Curve
 from ..point import Point
@@ -38,5 +37,5 @@ class SigEncoder(ABC):
 
     @staticmethod
     @abstractmethod
-    def decode_signature(binary_data: bytes) -> Tuple[int, int]:
+    def decode_signature(binary_data: bytes) -> tuple[int, int]:
         pass

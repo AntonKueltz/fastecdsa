@@ -1,5 +1,5 @@
 from os import urandom
-from typing import Any, Callable, Optional, Tuple
+from typing import Any, Callable, Optional
 
 from .curve import Curve
 from .ecdsa import verify
@@ -9,7 +9,7 @@ from .typing import EcdsaSignature, SignableMessage
 from .util import mod_sqrt, msg_bytes
 
 
-def gen_keypair(curve: Curve) -> Tuple[int, Point]:
+def gen_keypair(curve: Curve) -> tuple[int, Point]:
     """Generate a keypair that consists of a private key and a public key.
 
     The private key :math:`d` is an integer generated via a cryptographically secure random number
@@ -83,7 +83,7 @@ def get_public_key(d: int, curve: Curve) -> Point:
 
 def get_public_keys_from_sig(
     sig: EcdsaSignature, msg: SignableMessage, curve: Curve, hashfunc: Callable
-) -> Tuple[Point, Point]:
+) -> tuple[Point, Point]:
     """Recover the public keys that can verify a signature / message pair.
 
     Args:

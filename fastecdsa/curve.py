@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Dict, Optional, Tuple, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     # allow the type checker to use Point
@@ -24,7 +24,7 @@ class Curve:
         |  oid (bytes): The object identifier of the curve.
     """
 
-    _oid_lookup: Dict[
+    _oid_lookup: dict[
         bytes, Curve
     ] = {}  # a lookup table for getting curve instances by their object identifier
 
@@ -90,7 +90,7 @@ class Curve:
         """
         return cls._oid_lookup.get(oid, None)
 
-    def is_point_on_curve(self, point: Tuple[int, int]) -> bool:
+    def is_point_on_curve(self, point: tuple[int, int]) -> bool:
         r"""Check if a point lies on this curve.
 
         The check is done by evaluating the curve equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}`

@@ -1,6 +1,5 @@
 from binascii import a2b_base64, b2a_base64, hexlify
 from textwrap import wrap
-from typing import List, Tuple
 
 from . import KeyEncoder
 from .asn1 import (
@@ -35,7 +34,7 @@ class PEMEncoder(KeyEncoder):
     EC_PUBLIC_FOOTER = b"-----END PUBLIC KEY-----"
 
     def __init__(self) -> None:
-        self.asn1_parsed_data: List[Tuple[bytes, bytes]] = []
+        self.asn1_parsed_data: list[tuple[bytes, bytes]] = []
 
     @classmethod
     def _parse_ascii_armored_base64(cls, data: bytes) -> bytes:
