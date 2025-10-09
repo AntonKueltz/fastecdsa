@@ -131,7 +131,7 @@ class Curve:
 
 
 # see https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186-draft.pdf
-# Setion 4.2.1 "Weierstrass Curves" for params
+# Section 4.2.1 "Weierstrass Curves" for params
 P192 = Curve(
     "P192",
     6277101735386680763835789423207666416083908700390324961279,
