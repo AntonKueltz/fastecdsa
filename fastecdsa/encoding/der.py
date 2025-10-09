@@ -73,8 +73,8 @@ class DEREncoder(SigEncoder):
             )
 
         try:
-            rlen, r, sdata = parse_asn1_int(sequence)
-            slen, s, _ = parse_asn1_int(sdata)
+            _rlen, r, sdata = parse_asn1_int(sequence)
+            _slen, s, _rdata = parse_asn1_int(sdata)
         except ASN1EncodingError as asn1_error:
             raise InvalidDerSignature(asn1_error)
 
