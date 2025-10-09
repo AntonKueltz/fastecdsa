@@ -7,6 +7,8 @@ if TYPE_CHECKING:
     # circular import if we try to do this during runtime
     from fastecdsa.point import Point
 
+from typing import ClassVar
+
 
 class Curve:
     r"""Representation of an elliptic curve.
@@ -24,8 +26,8 @@ class Curve:
         |  oid (bytes): The object identifier of the curve.
     """
 
-    _oid_lookup: dict[
-        bytes, Curve
+    _oid_lookup: ClassVar[
+        dict[bytes, Curve]
     ] = {}  # a lookup table for getting curve instances by their object identifier
 
     def __init__(
