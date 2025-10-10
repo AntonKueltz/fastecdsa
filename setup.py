@@ -7,7 +7,7 @@ extra_link_args = []
 if environ.get("COVERAGE_BUILD"):
     extra_compile_args.extend(["--coverage", "-g", "-O0"])
     extra_link_args.extend(["--coverage"])
-    
+
 curvemath = Extension(
     "fastecdsa.curvemath",
     include_dirs=["src/"],
