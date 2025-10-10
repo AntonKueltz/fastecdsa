@@ -41,9 +41,10 @@ jobs:
           name: cibw-wheels-manylinux
           path: ./wheelhouse/*.whl
 
-  build_wheels-macos-15-intel:
-    name: Build wheels on macos-15-intel
-    runs-on: macos-15-intel
+  # macos-13 is an intel runner
+  build_wheels-macos-13:
+    name: Build wheels on macos-13
+    runs-on: macos-13
 
     steps:
       - uses: actions/checkout@v4
@@ -57,12 +58,13 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: cibw-wheels-macos-15-intel
+          name: cibw-wheels-macos-13
           path: ./wheelhouse/*.whl
 
-  build_wheels-macos-15:
-    name: Build wheels on macos-15
-    runs-on: macos-15
+  # macos-14 is apple silicon
+  build_wheels-macos-14:
+    name: Build wheels on macos-14
+    runs-on: macos-14
 
     steps:
       - uses: actions/checkout@v4
@@ -76,12 +78,12 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: cibw-wheels-macos-15
+          name: cibw-wheels-macos-14
           path: ./wheelhouse/*.whl
 
   publish-to-pypi:
     name: Publish Python 🐍 distribution 📦 to PyPI
-    needs: [make_sdist, build_wheels-manylinux, build_wheels-macos-15-intel, build_wheels-macos-15]
+    needs: [make_sdist, build_wheels-manylinux, build_wheels-macos-13, build_wheels-macos-14]
     runs-on: ubuntu-latest
 
     environment:
