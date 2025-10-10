@@ -19,6 +19,6 @@ repos:
 - repo: https://github.com/pre-commit/mirrors-mypy
   rev: v1.18.2
   hooks:
-  - id: mypy
-    exclude: ^tests/
-    args: [ --explicit-package-bases, --check-untyped-defs, --disallow-untyped-calls, --disallow-untyped-defs, --disallow-incomplete-defs ]
+    - id: mypy
+      exclude: ^tests/
+      args: [ --explicit-package-bases, --check-untyped-defs, --disallow-untyped-calls, --disallow-untyped-defs, --disallow-incomplete-defs ]
