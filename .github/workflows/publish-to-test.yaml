@@ -33,7 +33,7 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: >
             yum update &&
             yum install -y gmp-devel
-          CIBW_BUILD: cp39-manylinux* cp310-manylinux* cp311-manylinux* cp312-manylinux* cp313-manylinux*
+          CIBW_BUILD: cp39-manylinux* cp310-manylinux* cp311-manylinux* cp312-manylinux* cp313-manylinux* cp314-manylinux*
           CIBW_ENVIRONMENT_LINUX: CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib"
 
       - uses: actions/upload-artifact@v4
@@ -51,7 +51,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.0
         env:
-          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-*
+          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-* cp314-*
           CIBW_ENVIRONMENT_MACOS: CFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib"
           MACOSX_DEPLOYMENT_TARGET: 13.0
 
@@ -70,7 +70,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.0
         env:
-          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-*
+          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-* cp314-*
           CIBW_ENVIRONMENT_MACOS: CFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib"
           MACOSX_DEPLOYMENT_TARGET: 14.0
 
