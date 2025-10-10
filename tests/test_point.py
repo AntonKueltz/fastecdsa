@@ -47,42 +47,42 @@ class TestPoint(TestCase):
 class TestPointTypeValidation(TestCase):
     def test_type_validation_add(self):
         with self.assertRaises(TypeError):
-            _ = Point._identity_element() + 2  # type: ignore
+            _ = Point._identity_element() + 2
 
         with self.assertRaises(TypeError):
-            _ = W25519.G + 2  # type: ignore
+            _ = W25519.G + 2
 
         with self.assertRaises(TypeError):
-            _ = 2 + Point._identity_element()  # type: ignore
+            _ = 2 + Point._identity_element()
 
         with self.assertRaises(TypeError):
-            _ = 2 + W25519.G  # type: ignore
+            _ = 2 + W25519.G
 
     def test_type_validation_sub(self):
         with self.assertRaises(TypeError):
-            _ = Point._identity_element() - 2  # type: ignore
+            _ = Point._identity_element() - 2
 
         with self.assertRaises(TypeError):
-            _ = W25519.G - 2  # type: ignore
+            _ = W25519.G - 2
 
         with self.assertRaises(TypeError):
-            _ = 2 - Point._identity_element()  # type: ignore
+            _ = 2 - Point._identity_element()
 
         with self.assertRaises(TypeError):
-            _ = 2 - W25519.G  # type: ignore
+            _ = 2 - W25519.G
 
     def test_type_validation_mul(self):
         with self.assertRaises(TypeError):
-            _ = Point._identity_element() * 1.5  # type: ignore
+            _ = Point._identity_element() * 1.5
 
         with self.assertRaises(TypeError):
-            _ = W25519.G * 1.5  # type: ignore
+            _ = W25519.G * 1.5
 
         with self.assertRaises(TypeError):
-            _ = 1.5 * Point._identity_element()  # type: ignore
+            _ = 1.5 * Point._identity_element()
 
         with self.assertRaises(TypeError):
-            _ = 1.5 * W25519.G  # type: ignore
+            _ = 1.5 * W25519.G
 
     def test_point_at_infinity(self):
         self.assertEqual(W25519.G * 0, Point._identity_element())
