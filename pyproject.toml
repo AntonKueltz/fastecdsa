@@ -45,9 +45,6 @@ omit = [
 pythonpath = ["."]
 addopts = "--cov=fastecdsa --cov-report=term-missing --cov-fail-under=95"
 
-[tool.setuptools]
-include-package-data = true
-
 [tool.setuptools.packages.find]
 include = ['fastecdsa*']
 
