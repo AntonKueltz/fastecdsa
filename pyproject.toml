@@ -43,7 +43,11 @@ omit = [
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
-addopts = "--cov=fastecdsa --cov-report=term-missing --cov-fail-under=95"
+log_cli_level = "INFO"
+addopts = [
+    "-ra", "--strict-config", "--strict-markers",
+    "--cov=fastecdsa", "--cov-report=term-missing", "--cov-fail-under=95",
+]
 
 [tool.setuptools]
 include-package-data = true
