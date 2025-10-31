@@ -50,6 +50,16 @@ addopts = [
     "--cov=fastecdsa", "--cov-report=term-missing", "--cov-fail-under=95",
 ]
 
+[tool.ruff.lint]
+extend-select = [
+    "C4",    # flake8-comprehensions
+    "ISC",   # flake8-implicit-str-concat
+    "PGH",   # pygrep-hooks
+    "UP",    # pyupgrade
+    "FURB",  # refurb
+    "RUF",   # Ruff-specific rules
+]
+
 [tool.setuptools.packages.find]
 include = ['fastecdsa*']
 

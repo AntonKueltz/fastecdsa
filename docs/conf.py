@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # fastecdsa documentation build configuration file, created by
 # sphinx-quickstart on Thu Dec 15 20:02:52 2016.
 #
@@ -19,7 +17,7 @@
 from datetime import datetime
 import os
 import sys
-from typing import Any, Dict, List, Tuple
+from typing import Any
 from unittest import mock
 
 sys.path.insert(0, os.path.abspath("."))
@@ -39,16 +37,16 @@ for mod_name in MOCK_MODULES:
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions: List[str] = ["sphinx.ext.mathjax", "sphinx.ext.autodoc"]
+extensions: list[str] = ["sphinx.ext.mathjax", "sphinx.ext.autodoc"]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path: List[str] = ["_templates"]
+templates_path: list[str] = ["_templates"]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix: List[str] = [".rst", ".md"]
+source_suffix: list[str] = [".rst", ".md"]
 
 # The master toctree document.
 master_doc: str = "index"
@@ -76,7 +74,7 @@ language: str = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns: List[str] = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns: list[str] = ["_build", "Thumbs.db", ".DS_Store"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style: str = "sphinx"
@@ -101,7 +99,7 @@ html_theme: str = "sphinx_rtd_theme"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path: List[str] = []
+html_static_path: list[str] = []
 
 
 # -- Options for HTMLHelp output ------------------------------------------
@@ -112,7 +110,7 @@ htmlhelp_basename: str = "fastecdsadoc"
 
 # -- Options for LaTeX output ---------------------------------------------
 
-latex_elements: Dict[str, str] = {
+latex_elements: dict[str, str] = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
@@ -130,7 +128,7 @@ latex_elements: Dict[str, str] = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents: List[Tuple[str, ...]] = [
+latex_documents: list[tuple[str, ...]] = [
     (master_doc, "fastecdsa.tex", "fastecdsa Documentation", "Anton Kueltz", "manual"),
 ]
 
@@ -139,7 +137,7 @@ latex_documents: List[Tuple[str, ...]] = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages: List[Tuple[Any, ...]] = [
+man_pages: list[tuple[Any, ...]] = [
     (master_doc, "fastecdsa", "fastecdsa Documentation", [author], 1)
 ]
 
@@ -149,7 +147,7 @@ man_pages: List[Tuple[Any, ...]] = [
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
-texinfo_documents: List[Tuple[str, ...]] = [
+texinfo_documents: list[tuple[str, ...]] = [
     (
         master_doc,
         "fastecdsa",

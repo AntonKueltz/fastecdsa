@@ -1,6 +1,6 @@
 import hmac
 from struct import pack
-from typing import Callable, Tuple
+from typing import Callable
 
 from .typing import SignableMessage
 
@@ -96,7 +96,7 @@ class RFC6979:
             v = hmac.new(k, v, self.hashfunc).digest()
 
 
-def _tonelli_shanks(n: int, p: int) -> Tuple[int, int]:
+def _tonelli_shanks(n: int, p: int) -> tuple[int, int]:
     """A generic algorithm for computing modular square roots."""
     Q, S = p - 1, 0
     while Q % 2 == 0:
@@ -118,7 +118,7 @@ def _tonelli_shanks(n: int, p: int) -> Tuple[int, int]:
     return R, -R % p
 
 
-def mod_sqrt(a: int, p: int) -> Tuple[int, int]:
+def mod_sqrt(a: int, p: int) -> tuple[int, int]:
     r"""Compute the square root of :math:`a \pmod{p}`
 
     In other words, find a value :math:`x` such that :math:`x^2 \equiv a \pmod{p}`.

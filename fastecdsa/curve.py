@@ -1,11 +1,13 @@
 from __future__ import annotations
-from typing import Dict, Optional, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     # allow the type checker to use Point
     # Point depends on Curve, but Curve also depends on Point (the type of G)
     # circular import if we try to do this during runtime
     from fastecdsa.point import Point
+
+from typing import ClassVar
 
 
 class Curve:
@@ -24,8 +26,8 @@ class Curve:
         |  oid (bytes): The object identifier of the curve.
     """
 
-    _oid_lookup: Dict[
-        bytes, Curve
+    _oid_lookup: ClassVar[
+        dict[bytes, Curve]
     ] = {}  # a lookup table for getting curve instances by their object identifier
 
     def __init__(
@@ -37,7 +39,7 @@ class Curve:
         q: int,
         gx: int,
         gy: int,
-        oid: Optional[bytes] = None,
+        oid: bytes | None = None,
     ) -> None:
         r"""Initialize the parameters of an elliptic curve.
 
@@ -77,7 +79,7 @@ class Curve:
         return self.__str__()
 
     @classmethod
-    def get_curve_by_oid(cls, oid: bytes) -> Optional[Curve]:
+    def get_curve_by_oid(cls, oid: bytes) -> Curve | None:
         r"""Get a curve via its object identifier.
 
         Args:
@@ -90,7 +92,7 @@ class Curve:
         """
         return cls._oid_lookup.get(oid, None)
 
-    def is_point_on_curve(self, point: Tuple[int, int]) -> bool:
+    def is_point_on_curve(self, point: tuple[int, int]) -> bool:
         r"""Check if a point lies on this curve.
 
         The check is done by evaluating the curve equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}`
