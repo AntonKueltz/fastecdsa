@@ -1,5 +1,3 @@
-include LICENSE
-include README.rst
 include fastecdsa/py.typed
 include src/_ecdsa.h
 include src/curve.h
