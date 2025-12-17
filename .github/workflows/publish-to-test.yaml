@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.0
+        uses: pypa/cibuildwheel@v3.3.0
         env:
           CIBW_BEFORE_ALL_LINUX: >
             yum update &&
@@ -50,7 +50,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.0
+        uses: pypa/cibuildwheel@v3.3.0
         env:
           CIBW_BUILD: cp310-* cp311-* cp312-* cp313-* cp314-*
           CIBW_ENVIRONMENT_MACOS: CFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib"
@@ -70,7 +70,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.0
+        uses: pypa/cibuildwheel@v3.3.0
         env:
           CIBW_BUILD: cp310-* cp311-* cp312-* cp313-* cp314-*
           CIBW_ENVIRONMENT_MACOS: CFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib"
