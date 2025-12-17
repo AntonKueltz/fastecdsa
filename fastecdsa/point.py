@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastecdsa import curvemath  # type: ignore
+from fastecdsa import curvemath  # type: ignore[attr-defined]
 from .curve import Curve
 
 
@@ -182,8 +182,8 @@ class Point:
         return Point(self.x, -self.y % self.curve.p, self.curve)
 
     def _is_identity(self) -> bool:
-        return self.x == 0 and self.y == 0 and self.curve is None  # type: ignore
+        return self.x == 0 and self.y == 0 and self.curve is None
 
     @staticmethod
     def _identity_element() -> Point:
-        return Point(0, 0, curve=None)  # type: ignore
+        return Point(0, 0, curve=None)  # type: ignore[arg-type]

@@ -1,5 +1,11 @@
 from __future__ import annotations
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    # allow the type checker to use Point
+    # Point depends on Curve, but Curve also depends on Point (the type of G)
+    # circular import if we try to do this during runtime
+    from fastecdsa.point import Point
 
 
 class Curve:
@@ -118,7 +124,7 @@ class Curve:
         return (x**3 + self.a * x + self.b) % self.p
 
     @property
-    def G(self):  # type: ignore
+    def G(self) -> Point:
         """The base point of the curve.
 
         For the purposes of ECDSA this point is multiplied by a private key to obtain the
@@ -131,7 +137,7 @@ class Curve:
 
 
 # see https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186-draft.pdf
-# Setion 4.2.1 "Weierstrass Curves" for params
+# Section 4.2.1 "Weierstrass Curves" for params
 P192 = Curve(
     "P192",
     6277101735386680763835789423207666416083908700390324961279,

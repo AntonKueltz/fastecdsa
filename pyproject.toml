@@ -4,7 +4,8 @@ version = "3.0.1"
 description = "Fast elliptic curve digital signatures"
 readme = "README.rst"
 requires-python = ">=3.9"
-license = {file = "LICENSE"}
+license = "CC0-1.0"
+license-files = ["LICENSE"]
 authors = [
     {name = "Anton Kueltz", email = "kueltz.anton@gmail.com"}
 ]
@@ -13,7 +14,6 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Topic :: Security :: Cryptography",
-    "License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -32,7 +32,7 @@ pypi = "https://pypi.org/project/fastecdsa/"
 benchmark = "fastecdsa.benchmark:run"
 
 [build-system]
-requires = ["setuptools>=75.6.0"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [tool.coverage.run]
@@ -45,9 +45,6 @@ omit = [
 pythonpath = ["."]
 addopts = "--cov=fastecdsa --cov-report=term-missing --cov-fail-under=95"
 
-[tool.setuptools]
-include-package-data = true
-
 [tool.setuptools.packages.find]
 include = ['fastecdsa*']
 
@@ -57,7 +54,7 @@ dev = [
     "pre-commit>=4.0.1",
     "pytest>=8.3.4",
     "ruff>=0.8.4",
-    "setuptools>=75.6.0",
+    "setuptools>=77.0.3",
     "sphinx-rtd-theme>=3.0.2",
     "sphinx>=7.4.7",
     "pytest-cov>=6.0.0",

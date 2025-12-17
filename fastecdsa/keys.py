@@ -18,7 +18,7 @@ def gen_keypair(curve: Curve) -> Tuple[int, Point]:
     curve's base point.
 
     Args:
-        curve (fastecdsa.curve.Curve): The curve over which the keypair will be calulated.
+        curve (fastecdsa.curve.Curve): The curve over which the keypair will be calculated.
 
     Returns:
         (int, fastecdsa.point.Point): Returns a tuple with the private key first and public key
@@ -37,7 +37,7 @@ def gen_private_key(curve: Curve, randfunc: Callable[[Any], bytes] = urandom) ->
     random number generator used is /dev/urandom.
 
     Args:
-        |  curve (fastecdsa.curve.Curve): The curve over which the key will be calulated.
+        |  curve (fastecdsa.curve.Curve): The curve over which the key will be calculated.
         |  randfunc (function): A function taking one argument 'n' and returning a bytestring
                                 of n random bytes suitable for cryptographic use.
                                 The default is "os.urandom"
@@ -73,7 +73,7 @@ def get_public_key(d: int, curve: Curve) -> Point:
 
     Args:
         |  d (long): An integer representing the private key.
-        |  curve (fastecdsa.curve.Curve): The curve over which the key will be calulated.
+        |  curve (fastecdsa.curve.Curve): The curve over which the key will be calculated.
 
     Returns:
         fastecdsa.point.Point: The public key, a point on the given curve.

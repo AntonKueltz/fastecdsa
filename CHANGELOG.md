@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.0.2]
+### Fixed
+- Typos
+
+### Added
+- Support for python3.14
+- Dependabot github action
+
+### Changed
+- Github action "uses" versions
+- Setuptools version
+
+
 ## [3.0.1]
 ### Fixed
 - Updated acceptable range of private keys from `[0, n)` to `[1, n)` as per SEC spec guidance (pull #97)

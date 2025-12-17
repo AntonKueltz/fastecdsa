@@ -348,7 +348,7 @@ private keys and public keys can be exported as follows:
     from fastecdsa.curve import P256
     from fastecdsa.encoding.pem import PEMEncoder
     from fastecdsa.keys import export_private_key, export_public_key, gen_keypair
-    
+
     d, Q = gen_keypair(P256)
     encoder = PEMEncoder()
 
@@ -419,6 +419,7 @@ Thanks to those below for contributing improvements:
 - sylvainpelissier
 - akaIDIOT
 - Peter-Bergman
+- DimitriPapadopoulos
 
 .. _issue11: https://github.com/AntonKueltz/fastecdsa/issues/11
 .. _GMP: https://gmplib.org/
