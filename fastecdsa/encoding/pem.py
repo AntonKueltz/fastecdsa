@@ -125,18 +125,18 @@ class PEMEncoder(KeyEncoder):
             + self.EC_PRIVATE_FOOTER
         )
 
-    def decode_public_key(self, pemdata: bytes, curve: Curve) -> Point:
+    def decode_public_key(self, key: bytes, curve: Curve) -> Point:
         """Decode a PEM encoded public key as described in
         `RFC 5480 <https://tools.ietf.org/html/rfc5480>`_.
 
         Args:
-            pemdata (bytes): A sequence of bytes representing an encoded EC key.
+            key (bytes): A sequence of bytes representing an encoded EC key.
 
         Returns:
             (long, fastecdsa.point.Point): A private key, public key tuple. If the encoded key was a
             public key the first entry in the tuple is None.
         """
-        parsed = self._parse_ascii_armored_base64(pemdata)
+        parsed = self._parse_ascii_armored_base64(key)
         self._parse_asn1_structure(parsed)
 
         x, y = None, None
@@ -159,17 +159,17 @@ class PEMEncoder(KeyEncoder):
 
         return Point(x, y, curve)
 
-    def decode_private_key(self, pemdata: bytes) -> int:
+    def decode_private_key(self, key: bytes) -> int:
         """Decode a PEM encoded EC private key as described in
         `RFC 5915 <https://tools.ietf.org/html/rfc5915.html>`_.
 
         Args:
-            pemdata (bytes): A sequence of bytes representing an encoded EC key.
+            key (bytes): A sequence of bytes representing an encoded EC key.
 
         Returns:
             int: The private key.
         """
-        parsed = self._parse_ascii_armored_base64(pemdata)
+        parsed = self._parse_ascii_armored_base64(key)
         self._parse_asn1_structure(parsed)
 
         d = None

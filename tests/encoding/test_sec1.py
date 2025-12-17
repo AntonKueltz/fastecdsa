@@ -7,6 +7,9 @@ from fastecdsa.point import Point
 
 
 class TestSEC1Encoder(TestCase):
+    def setUp(self) -> None:
+        self.encoder = SEC1Encoder()
+
     def test_encode_public_key(self):
         # 1/ PrivateKey generated using openssl "openssl ecparam -name secp256k1 -genkey -out ec-priv.pem"
         # 2/ Printed using "openssl ec -in ec-priv.pem -text -noout" and converted to numeric using "asn1._bytes_to_int"
@@ -14,10 +17,10 @@ class TestSEC1Encoder(TestCase):
             7002880736699640265110069622773736733141182416793484574964618597954446769264
         )
         pubkey_compressed = hexlify(
-            SEC1Encoder.encode_public_key(secp256k1.G * priv_key)
+            self.encoder.encode_public_key(secp256k1.G * priv_key)
         )
         pubkey_uncompressed = hexlify(
-            SEC1Encoder.encode_public_key(secp256k1.G * priv_key, compressed=False)
+            self.encoder.encode_public_key(secp256k1.G * priv_key, compressed=False)
         )
 
         # 3/ PublicKey extracted using "openssl ec -in ec-priv.pem -pubout -out ec-pub.pem"
@@ -36,9 +39,9 @@ class TestSEC1Encoder(TestCase):
         priv_P256 = (
             807015861248675637760562792774171551137308512372870683367415858378856470633
         )
-        pubkey_compressed = hexlify(SEC1Encoder.encode_public_key(P256.G * priv_P256))
+        pubkey_compressed = hexlify(self.encoder.encode_public_key(P256.G * priv_P256))
         pubkey_uncompressed = hexlify(
-            SEC1Encoder.encode_public_key(P256.G * priv_P256, compressed=False)
+            self.encoder.encode_public_key(P256.G * priv_P256, compressed=False)
         )
         self.assertEqual(
             pubkey_compressed,
@@ -53,10 +56,10 @@ class TestSEC1Encoder(TestCase):
         # And secp192k1 Curve
         priv_secp192k1 = 5345863567856687638748079156318679969014620278806295592453
         pubkey_compressed = hexlify(
-            SEC1Encoder.encode_public_key(secp192k1.G * priv_secp192k1)
+            self.encoder.encode_public_key(secp192k1.G * priv_secp192k1)
         )
         pubkey_uncompressed = hexlify(
-            SEC1Encoder.encode_public_key(
+            self.encoder.encode_public_key(
                 secp192k1.G * priv_secp192k1, compressed=False
             )
         )
@@ -74,13 +77,13 @@ class TestSEC1Encoder(TestCase):
             y=0x3DAD76DF888ABDE5ED0CC5AF1B83968EDFFCAE5D70BEDB24FDC18BB5F79499D0,
             curve=secp256k1,
         )
-        public_from_compressed = SEC1Encoder.decode_public_key(
+        public_from_compressed = self.encoder.decode_public_key(
             unhexlify(
                 b"02e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f35835062"
             ),
             secp256k1,
         )
-        public_from_uncompressed = SEC1Encoder.decode_public_key(
+        public_from_uncompressed = self.encoder.decode_public_key(
             unhexlify(
                 b"04e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f3583506"
                 b"23dad76df888abde5ed0cc5af1b83968edffcae5d70bedb24fdc18bb5f79499d0"
@@ -92,14 +95,14 @@ class TestSEC1Encoder(TestCase):
         self.assertEqual(public_from_compressed, expected_public)
         self.assertEqual(public_from_uncompressed, expected_public)
         with self.assertRaises(InvalidSEC1PublicKey) as e:
-            SEC1Encoder.decode_public_key(
+            self.encoder.decode_public_key(
                 b"\x02", secp256k1
             )  # invalid compressed length
         self.assertEqual(
             e.exception.args[0], "A compressed public key must be 33 bytes long"
         )
         with self.assertRaises(InvalidSEC1PublicKey) as e:
-            SEC1Encoder.decode_public_key(
+            self.encoder.decode_public_key(
                 b"\x04", secp256k1
             )  # invalid uncompressed length
         self.assertEqual(
@@ -107,7 +110,7 @@ class TestSEC1Encoder(TestCase):
         )
         with self.assertRaises(InvalidSEC1PublicKey) as e:
             # invalid prefix value
-            SEC1Encoder.decode_public_key(
+            self.encoder.decode_public_key(
                 unhexlify(
                     b"05e5e2c01985aafb6e2c3ad49f3db5ccc54b2e63343af405b521303d0f35835062"
                 ),
@@ -121,7 +124,7 @@ class TestSEC1Encoder(TestCase):
             y=0x9A7D581BCF2ABA680B53CEDBADE03BE62FE95869DA04A168A458F369AC6A823E,
             curve=P256,
         )
-        public_from_compressed = SEC1Encoder.decode_public_key(
+        public_from_compressed = self.encoder.decode_public_key(
             unhexlify(
                 b"0212c9ddf64b0d1f1d91d9bd729abfb880079fa889d66604cc0b78c9cbc271824c"
             ),
@@ -135,7 +138,7 @@ class TestSEC1Encoder(TestCase):
             y=0xF07A73819149E8D903AA983E52AB1CFF38F0D381F940D361,
             curve=secp192k1,
         )
-        public_from_compressed = SEC1Encoder.decode_public_key(
+        public_from_compressed = self.encoder.decode_public_key(
             unhexlify(b"03a3bec5fba6d13e51fb55bd88dd097cb9b04f827bc151d22d"), secp192k1
         )
         self.assertEqual(public_from_compressed, expected_secp192k1)

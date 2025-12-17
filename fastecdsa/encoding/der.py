@@ -42,10 +42,13 @@ class DEREncoder(SigEncoder):
         return asn1_structure(SEQUENCE, r_asn1 + s_asn1)
 
     @staticmethod
-    def decode_signature(sig: bytes) -> Tuple[int, int]:
+    def decode_signature(binary_data: bytes) -> Tuple[int, int]:
         """Decode an EC signature from serialized DER format as described in
         https://tools.ietf.org/html/rfc2459 (section 7.2.2) and as detailed by
         bip-0066
+
+        Args:
+            binary_data (bytes): A sequence of bytes respresenting an ECDSA signature.
 
         Returns (r,s)
         """
@@ -60,11 +63,11 @@ class DEREncoder(SigEncoder):
                 raise InvalidDerSignature("Invalid leading 0x00 byte in ASN.1 integer")
 
         # overarching structure must be a sequence
-        if not sig or sig[0] != ord(SEQUENCE):
+        if not binary_data or binary_data[0] != ord(SEQUENCE):
             raise InvalidDerSignature("First byte should be ASN.1 SEQUENCE")
 
         try:
-            seqlen, sequence, leftover = parse_asn1_length(sig[1:])
+            seqlen, sequence, leftover = parse_asn1_length(binary_data[1:])
         except ASN1EncodingError as asn1_error:
             raise InvalidDerSignature(asn1_error)
 

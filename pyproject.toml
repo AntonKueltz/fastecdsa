@@ -50,7 +50,6 @@ include = ['fastecdsa*']
 
 [dependency-groups]
 dev = [
-    "mypy>=1.14.0",
     "pre-commit>=4.0.1",
     "pytest>=8.3.4",
     "ruff>=0.8.4",
@@ -59,4 +58,5 @@ dev = [
     "sphinx>=7.4.7",
     "pytest-cov>=6.0.0",
     "gcovr>=8.3",
+    "ty>=0.0.2",
 ]

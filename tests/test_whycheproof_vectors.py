@@ -38,9 +38,11 @@ class TestWycheproofEcdsaVerify(TestCase):
         return test_json["testGroups"]
 
     def _test_runner(self, tests, curve, hashfunc):
+        decoder = SEC1Encoder()
+
         for test_group in tests:
             keybytes = unhexlify(test_group["key"]["uncompressed"])
-            public_key = SEC1Encoder.decode_public_key(keybytes, curve)
+            public_key = decoder.decode_public_key(keybytes, curve)
 
             for test in test_group["tests"]:
                 try:

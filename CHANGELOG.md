@@ -1,6 +1,6 @@
 # Changelog
 
-## [3.0.2]
+## [3.1.0]
 ### Fixed
 - Typos
 
@@ -9,9 +9,10 @@
 - Dependabot github action
 
 ### Changed
+- Static methods in `SEC1Encoder` changed to instance methods
 - Github action "uses" versions
 - Setuptools version
-
+- Replaced mypy with ty
 
 ## [3.0.1]
 ### Fixed
