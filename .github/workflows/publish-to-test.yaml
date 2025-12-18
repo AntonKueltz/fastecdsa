@@ -10,12 +10,12 @@ jobs:
     name: Make SDist
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Build SDist
       run: pipx run build --sdist
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         name: cibw-sdist
         path: dist/*.tar.gz
@@ -25,10 +25,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.0
+        uses: pypa/cibuildwheel@v3.3.0
         env:
           CIBW_BEFORE_ALL_LINUX: >
             yum update &&
@@ -36,7 +36,7 @@ jobs:
           CIBW_BUILD: cp310-manylinux* cp311-manylinux* cp312-manylinux* cp313-manylinux* cp314-manylinux*
           CIBW_ENVIRONMENT_LINUX: CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: cibw-wheels-manylinux
           path: ./wheelhouse/*.whl
@@ -46,16 +46,16 @@ jobs:
     runs-on: macos-15
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.0
+        uses: pypa/cibuildwheel@v3.3.0
         env:
           CIBW_BUILD: cp310-* cp311-* cp312-* cp313-* cp314-*
           CIBW_ENVIRONMENT_MACOS: CFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib"
           MACOSX_DEPLOYMENT_TARGET: 15.0
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: cibw-wheels-macos-arm
           path: ./wheelhouse/*.whl
@@ -65,16 +65,16 @@ jobs:
     runs-on: macos-15-intel
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.0
+        uses: pypa/cibuildwheel@v3.3.0
         env:
           CIBW_BUILD: cp310-* cp311-* cp312-* cp313-* cp314-*
           CIBW_ENVIRONMENT_MACOS: CFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib"
           MACOSX_DEPLOYMENT_TARGET: 15.0
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: cibw-wheels-macos-intel
           path: ./wheelhouse/*.whl
@@ -93,7 +93,7 @@ jobs:
 
     steps:
     - name: Download all the dists
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v7
       with:
         pattern: cibw-*
         path: dist/
