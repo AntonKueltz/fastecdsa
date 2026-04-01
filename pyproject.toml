@@ -20,7 +20,11 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux"
+]
+dependencies = [
+    "gmpy2>=2.3.0",
 ]
 
 [project.urls]

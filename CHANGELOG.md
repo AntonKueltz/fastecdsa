@@ -6,9 +6,12 @@
 
 ### Added
 - Support for python3.14
+- Support for Windows (issue #11)
+- Support for macOS Apple Silicon without manual GMP configuration (issue #74)
 - Dependabot github action
 
 ### Changed
+- Replaced C extension with gmpy2-based pure-Python implementation. This eliminates the need for a C compiler and system-installed libgmp, as gmpy2 ships prebuilt wheels for all major platforms.
 - Static methods in `SEC1Encoder` changed to instance methods
 - Github action "uses" versions
 - Setuptools version

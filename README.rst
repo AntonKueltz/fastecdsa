@@ -31,13 +31,12 @@ Python Versions Supported
 The initial release of this package was targeted at python2.7. Earlier versions may work but have
 no guarantee of correctness or stability. As of release 1.2.1+ python3 is supported as well. Due to
 python2's EOL on January 1st 2020 release 2.x of this package only supports python3.5+.
+Due to the gmpy2_ dependency, release 3.1+ requires Python 3.9+.
 
 Operating Systems Supported
 ---------------------------
-This package is targeted at the Linux and MacOS operating systems. Due to the the dependency on
-the GMP C library building this package on Windows is difficult and no official support or
-distributions are provided for Windows OSes. See issue11_ for what users have done to get things
-building.
+Linux, macOS, and Windows are all supported. Prebuilt wheels are available for all major platforms
+via the gmpy2_ dependency.
 
 Supported Primitives
 --------------------
@@ -138,42 +137,11 @@ Core i5.
 Installing
 ----------
 You can use pip: :code:`$ pip install fastecdsa` or clone the repo and use
-:code:`$ python setup.py install`. Note that you need to have a C compiler.
-You  also need to have GMP_ on your system as the underlying
-C code in this package includes the :code:`gmp.h` header (and links against gmp
-via the :code:`-lgmp` flag). You can install all dependencies as follows:
-
-apt
-~~~
-
-.. code:: bash
-
-    $ sudo apt-get install python3-dev libgmp3-dev
-
-brew
-~~~~
-
-.. code:: bash
-
-    $ brew install gmp
-
-yum
-~~~
-
-.. code:: bash
-
-    $ sudo yum install python-devel gmp-devel
+:code:`$ pip install .`. No C compiler or system libraries are required.
 
 Development
 -----------
-This package uses :code:`uv` for package management. You can install it via `pip install uv`. First build
-the C extension modules
-
-.. code:: bash
-
-    $ uv run python setup.py build_ext --inplace
-
-To run the test suite use the following command
+This package uses :code:`uv` for package management. To run the test suite use the following command
 
 .. code:: bash
 
@@ -421,8 +389,7 @@ Thanks to those below for contributing improvements:
 - Peter-Bergman
 - DimitriPapadopoulos
 
-.. _issue11: https://github.com/AntonKueltz/fastecdsa/issues/11
-.. _GMP: https://gmplib.org/
+.. _gmpy2: https://pypi.org/project/gmpy2/
 .. _RFC2459: https://tools.ietf.org/html/rfc2459
 .. _RFC5480: https://tools.ietf.org/html/rfc5480
 .. _RFC5915: https://tools.ietf.org/html/rfc5915
