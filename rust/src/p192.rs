@@ -1,4 +1,4 @@
-use crypto_bigint::{U192, const_monty_params, modular::ConstMontyForm};
+use crypto_bigint::{const_monty_params, modular::ConstMontyForm, U192};
 use pyo3::prelude::*;
 
 const LIMBS: usize = 3;
@@ -9,34 +9,21 @@ type P192MulResult = [u64; LIMBS << 1];
 type P192Point = (P192Element, P192Element, P192Element);
 
 const P192_ONE: P192Element = [0x1, 0x0, 0x0];
-const P192_P: P192Element = [
-    0xffffffffffffffff,
-    0xfffffffffffffffe,
-    0xffffffffffffffff
-];
-const P192_A: P192Element = [
-    0xfffffffffffffffc,
-    0xfffffffffffffffe,
-    0xffffffffffffffff
-];
+const P192_P: P192Element = [0xffffffffffffffff, 0xfffffffffffffffe, 0xffffffffffffffff];
+const P192_A: P192Element = [0xfffffffffffffffc, 0xfffffffffffffffe, 0xffffffffffffffff];
 const P192_G: P192Point = (
-    [
-        0xf4ff0afd82ff1012,
-        0x7cbf20eb43a18800,
-        0x188da80eb03090f6
-    ],
-    [
-        0x73f977a11e794811,
-        0x631011ed6b24cdd5,
-        0x07192b95ffc8da78
-    ],
-    P192_ONE
+    [0xf4ff0afd82ff1012, 0x7cbf20eb43a18800, 0x188da80eb03090f6],
+    [0x73f977a11e794811, 0x631011ed6b24cdd5, 0x07192b95ffc8da78],
+    P192_ONE,
 );
 
 const INFINITY: P192Point = ([0, 0, 0], [1, 0, 0], [0, 0, 0]);
 
-const_monty_params!(P192Q, U192, "ffffffffffffffffffffffff99def836146bc9b1b4d22831");
-
+const_monty_params!(
+    P192Q,
+    U192,
+    "ffffffffffffffffffffffff99def836146bc9b1b4d22831"
+);
 
 #[inline]
 fn p192_less_than(x: &P192AddResult, y: &P192AddResult) -> bool {
@@ -162,7 +149,6 @@ fn p192_mul_const(x: &P192Element, y: u64) -> P192Element {
     let mut t: u128;
     let mut k: u128 = 0;
 
-
     for i in 0..LIMBS {
         t = x[i] as u128 * y as u128 + unreduced[i] as u128 + k;
         unreduced[i] = t as u64;
@@ -225,26 +211,23 @@ fn p192_sqr_n_times(x: &P192Element, n: usize) -> P192Element {
 }
 
 #[inline]
-fn p192_pt_eq(
-    (px, py, pz): &P192Point,
-    (qx, qy, qz): &P192Point
-) -> bool {
+fn p192_pt_eq((px, py, pz): &P192Point, (qx, qy, qz): &P192Point) -> bool {
     return *px == *qx && *py == *qy && *pz == *qz;
 }
 
 fn p192_pt_normalize((x, y, z): &P192Point) -> P192Point {
-    let z2  = p192_mul(&p192_sqr(&z), &z);
-    let z3  = p192_mul(&p192_sqr(&z2), &z);
-    let z6  = p192_mul(&p192_sqr_n_times(&z3, 3), &z3);
-    let z7  = p192_mul(&p192_sqr(&z6), &z);
+    let z2 = p192_mul(&p192_sqr(&z), &z);
+    let z3 = p192_mul(&p192_sqr(&z2), &z);
+    let z6 = p192_mul(&p192_sqr_n_times(&z3, 3), &z3);
+    let z7 = p192_mul(&p192_sqr(&z6), &z);
     let z14 = p192_mul(&p192_sqr_n_times(&z7, 7), &z7);
     let z15 = p192_mul(&p192_sqr(&z14), &z);
     let z30 = p192_mul(&p192_sqr_n_times(&z15, 15), &z15);
     let z31 = p192_mul(&p192_sqr(&z30), &z);
     let z62 = p192_mul(&p192_sqr_n_times(&z31, 31), &z31);
     let z63 = p192_mul(&p192_sqr(&z62), &z);
-    let z126= p192_mul(&p192_sqr_n_times(&z63, 63), &z63);
-    let z127= p192_mul(&p192_sqr(&z126), &z);
+    let z126 = p192_mul(&p192_sqr_n_times(&z63, 63), &z63);
+    let z127 = p192_mul(&p192_sqr(&z126), &z);
 
     let mut zinv = p192_sqr(&z127);
     zinv = p192_mul(&p192_sqr_n_times(&zinv, 62), &z62);
@@ -272,7 +255,7 @@ fn p192_pt_double(p @ (x1, y1, z1): &P192Point) -> P192Point {
     let t1 = p192_sqr(&t0);
     let t2 = p192_sub(&t1, &xx);
     let t3 = p192_sub(&t2, &yyyy);
-    let s= p192_mul_const(&t3, 2);
+    let s = p192_mul_const(&t3, 2);
     let t4 = p192_sqr(&zz);
     let t5 = p192_mul(&P192_A, &t4);
     let t6 = p192_mul_const(&xx, 3);
@@ -293,10 +276,7 @@ fn p192_pt_double(p @ (x1, y1, z1): &P192Point) -> P192Point {
     return (x3, y3, z3);
 }
 
-fn p192_pt_add(
-    p @ (x1, y1, z1): &P192Point,
-    q @ (x2, y2, z2): &P192Point,
-) -> P192Point {
+fn p192_pt_add(p @ (x1, y1, z1): &P192Point, q @ (x2, y2, z2): &P192Point) -> P192Point {
     if p192_pt_eq(p, &INFINITY) {
         return *q;
     } else if p192_pt_eq(q, &INFINITY) {
@@ -374,7 +354,7 @@ fn p192_pt_mul(p: &P192Point, n: &[u8]) -> P192Point {
 
 fn p192_shamir(p: &P192Point, q: &P192Point, n: &[u8], m: &[u8]) -> P192Point {
     let mut j = n.len() * 8 - 1;
-    while !test_bit(n, j)  && !test_bit(m, j) {
+    while !test_bit(n, j) && !test_bit(m, j) {
         j -= 1;
     }
 
@@ -422,17 +402,13 @@ fn bytes_to_p192(x: &[u8]) -> P192Element {
 
 #[pyfunction]
 pub fn p192_scale_point(n: &[u8]) -> (Vec<u8>, Vec<u8>) {
-    let (x, y, _) = p192_pt_normalize(
-        &p192_pt_mul(&P192_G, n)
-    );
+    let (x, y, _) = p192_pt_normalize(&p192_pt_mul(&P192_G, n));
     return (p192_to_bytes(&x), p192_to_bytes(&y));
 }
 
 #[pyfunction]
 pub fn p192_sign(msg: &[u8], d_bytes: &[u8], k_bytes: &[u8]) -> (Vec<u8>, Vec<u8>) {
-    let (r_p192, _, _) = p192_pt_normalize(
-        &p192_pt_mul(&P192_G, &k_bytes)
-    );
+    let (r_p192, _, _) = p192_pt_normalize(&p192_pt_mul(&P192_G, &k_bytes));
     let r_bytes = &p192_to_bytes(&r_p192);
 
     let k = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(k_bytes));
@@ -444,12 +420,18 @@ pub fn p192_sign(msg: &[u8], d_bytes: &[u8], k_bytes: &[u8]) -> (Vec<u8>, Vec<u8
 
     return (
         r.retrieve().to_le_bytes().to_vec(),
-        s.retrieve().to_le_bytes().to_vec()
+        s.retrieve().to_le_bytes().to_vec(),
     );
 }
 
 #[pyfunction]
-pub fn p192_verify(r_bytes: &[u8], s_bytes: &[u8], msg: &[u8], qx_bytes: &[u8], qy_bytes: &[u8]) -> bool {
+pub fn p192_verify(
+    r_bytes: &[u8],
+    s_bytes: &[u8],
+    msg: &[u8],
+    qx_bytes: &[u8],
+    qy_bytes: &[u8],
+) -> bool {
     let q: P192Point = (bytes_to_p192(&qx_bytes), bytes_to_p192(&qy_bytes), P192_ONE);
     let z = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(msg));
     let s = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(s_bytes));
@@ -458,9 +440,12 @@ pub fn p192_verify(r_bytes: &[u8], s_bytes: &[u8], msg: &[u8], qx_bytes: &[u8], 
     let u1 = z * sinv;
     let u2 = r * sinv;
 
-    let (x, _, _) = p192_pt_normalize(
-        &p192_shamir(&P192_G, &q, &u1.retrieve().to_le_bytes().to_vec(), &u2.retrieve().to_le_bytes().to_vec())
-    );
+    let (x, _, _) = p192_pt_normalize(&p192_shamir(
+        &P192_G,
+        &q,
+        &u1.retrieve().to_le_bytes().to_vec(),
+        &u2.retrieve().to_le_bytes().to_vec(),
+    ));
     let xq = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(&p192_to_bytes(&x)));
     return xq == r;
 }
@@ -471,18 +456,14 @@ mod tests {
 
     #[test]
     fn test_p192_reduce_mul() {
-        let expected: P192Element = [
-            0x1d971573098a6847,
-            0xa6548a41ca47a71f,
-            0x8a4ab71f6cc7e431
-        ];
+        let expected: P192Element = [0x1d971573098a6847, 0xa6548a41ca47a71f, 0x8a4ab71f6cc7e431];
         let x: P192MulResult = [
             0x853922c6d05a85d8,
             0xac9ec312b6d991b2,
             0x056a05340cb1b062,
             0x74d51543b357e19e,
             0x6157d482da3e32fd,
-            0x2388dd6885d800d1
+            0x2388dd6885d800d1,
         ];
         let actual = p192_reduce_mul(&x);
         assert_eq!(actual, expected);
@@ -490,58 +471,26 @@ mod tests {
 
     #[test]
     fn test_p192_add() {
-        let expected: P192Element = [
-            0xa089952d255cdd2a,
-            0xdbba7de21d7656ed,
-            0xd76729cc37f69111
-        ];
-        let x: P192Element = [
-            0x2d2b1be584243c86,
-            0x66ce8e3ae5ab02e4,
-            0x9dba9c2dc998e2b8
-        ];
-        let y: P192Element = [
-            0x735e7947a138a0a4,
-            0x74ebefa737cb5409,
-            0x39ac8d9e6e5dae59
-        ];
+        let expected: P192Element = [0xa089952d255cdd2a, 0xdbba7de21d7656ed, 0xd76729cc37f69111];
+        let x: P192Element = [0x2d2b1be584243c86, 0x66ce8e3ae5ab02e4, 0x9dba9c2dc998e2b8];
+        let y: P192Element = [0x735e7947a138a0a4, 0x74ebefa737cb5409, 0x39ac8d9e6e5dae59];
         let actual = p192_add(&x, &y);
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn test_p192_add_overflow() {
-        let expected: P192Element = [
-            0xfffffffffffffff9,
-            0xfffffffffffffffe,
-            0xffffffffffffffff
-        ];
+        let expected: P192Element = [0xfffffffffffffff9, 0xfffffffffffffffe, 0xffffffffffffffff];
         let actual = p192_add(&P192_A, &P192_A);
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn test_p192_sub() {
-        let expected1: P192Element = [
-            0x7e3c52c04b6f31e2,
-            0xc266a5b17cba31b0,
-            0x78606659f6705e81
-        ];
-        let expected2: P192Element = [
-            0x81c3ad3fb490ce1d,
-            0x3d995a4e8345ce4e,
-            0x879f99a6098fa17e
-        ];
-        let x: P192Element = [
-            0x8b835b1d28af72bf,
-            0x07091bce0c8df610,
-            0x0bd6c66f205f074d
-        ];
-        let y: P192Element = [
-            0x0d47085cdd4040dc,
-            0x44a2761c8fd3c45f,
-            0x9376601529eea8cb
-        ];
+        let expected1: P192Element = [0x7e3c52c04b6f31e2, 0xc266a5b17cba31b0, 0x78606659f6705e81];
+        let expected2: P192Element = [0x81c3ad3fb490ce1d, 0x3d995a4e8345ce4e, 0x879f99a6098fa17e];
+        let x: P192Element = [0x8b835b1d28af72bf, 0x07091bce0c8df610, 0x0bd6c66f205f074d];
+        let y: P192Element = [0x0d47085cdd4040dc, 0x44a2761c8fd3c45f, 0x9376601529eea8cb];
         let actual = p192_sub(&x, &y);
         assert_eq!(actual, expected1);
         let actual = p192_sub(&y, &x);
@@ -557,21 +506,9 @@ mod tests {
 
     #[test]
     fn test_p192_mul() {
-        let expected: P192Element = [
-            0x1d971573098a6847,
-            0xa6548a41ca47a71f,
-            0x8a4ab71f6cc7e431
-        ];
-        let x: P192Element = [
-            0x2d2b1be584243c86,
-            0x66ce8e3ae5ab02e4,
-            0x9dba9c2dc998e2b8
-        ];
-        let y: P192Element = [
-            0x735e7947a138a0a4,
-            0x74ebefa737cb5409,
-            0x39ac8d9e6e5dae59
-        ];
+        let expected: P192Element = [0x1d971573098a6847, 0xa6548a41ca47a71f, 0x8a4ab71f6cc7e431];
+        let x: P192Element = [0x2d2b1be584243c86, 0x66ce8e3ae5ab02e4, 0x9dba9c2dc998e2b8];
+        let y: P192Element = [0x735e7947a138a0a4, 0x74ebefa737cb5409, 0x39ac8d9e6e5dae59];
         let actual = p192_mul(&x, &y);
         assert_eq!(actual, expected);
     }
@@ -579,59 +516,31 @@ mod tests {
     #[test]
     fn test_p192_mul_overflow() {
         let expected: P192Element = [0x2, 0x0, 0x0];
-        let x: P192Element = [
-            0xfffffffffffffffe,
-            0xfffffffffffffffe,
-            0xffffffffffffffff
-        ];
-        let y: P192Element = [
-            0xfffffffffffffffd,
-            0xfffffffffffffffe,
-            0xffffffffffffffff
-        ];
+        let x: P192Element = [0xfffffffffffffffe, 0xfffffffffffffffe, 0xffffffffffffffff];
+        let y: P192Element = [0xfffffffffffffffd, 0xfffffffffffffffe, 0xffffffffffffffff];
         let actual = p192_mul(&x, &y);
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn test_p192_mul_const() {
-        let expected: P192Element = [
-            0x6a3842e6ea0206e4,
-            0x2513b0e47e9e22fc,
-            0x9bb300a94f75465a
-        ];
-        let x: P192Element = [
-            0x0d47085cdd4040dc,
-            0x44a2761c8fd3c45f,
-            0x9376601529eea8cb
-        ];
+        let expected: P192Element = [0x6a3842e6ea0206e4, 0x2513b0e47e9e22fc, 0x9bb300a94f75465a];
+        let x: P192Element = [0x0d47085cdd4040dc, 0x44a2761c8fd3c45f, 0x9376601529eea8cb];
         let actual = p192_mul_const(&x, 8);
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn test_p192_mul_const_overflow() {
-        let expected: P192Element = [
-            0xffffffffffffffe7,
-            0xfffffffffffffffe,
-            0xffffffffffffffff
-        ];
+        let expected: P192Element = [0xffffffffffffffe7, 0xfffffffffffffffe, 0xffffffffffffffff];
         let actual = p192_mul_const(&P192_A, 8);
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn test_p192_sqr() {
-        let expected: P192Element = [
-            0x688af0c9317b0985,
-            0x6a0a88edeb0b04cd,
-            0x6a83ae974272591f
-        ];
-        let x: P192Element = [
-            0x2d2b1be584243c86,
-            0x66ce8e3ae5ab02e4,
-            0x9dba9c2dc998e2b8
-        ];
+        let expected: P192Element = [0x688af0c9317b0985, 0x6a0a88edeb0b04cd, 0x6a83ae974272591f];
+        let x: P192Element = [0x2d2b1be584243c86, 0x66ce8e3ae5ab02e4, 0x9dba9c2dc998e2b8];
         let actual = p192_sqr(&x);
         assert_eq!(actual, expected);
     }
@@ -646,30 +555,14 @@ mod tests {
     #[test]
     fn test_p192_pt_normalize() {
         let expected: P192Point = (
-            [
-                0x541c568df21c571e,
-                0x9c153c8beb11f2aa,
-                0x7481847368e8f3a9
-            ],
-            [
-                0xcb680de985de90e4,
-                0xddbe398d88b582e1,
-                0x2fab99516849cf33
-            ],
-            P192_ONE
+            [0x541c568df21c571e, 0x9c153c8beb11f2aa, 0x7481847368e8f3a9],
+            [0xcb680de985de90e4, 0xddbe398d88b582e1, 0x2fab99516849cf33],
+            P192_ONE,
         );
         let p: P192Point = (
-            [
-                0xf4ff0afd82ff1012,
-                0x7cbf20eb43a18800,
-                0x188da80eb03090f6
-            ],
-            [
-                0x73f977a11e794811,
-                0x631011ed6b24cdd5,
-                0x07192b95ffc8da78
-            ],
-            [0x3, 0x0, 0x0]
+            [0xf4ff0afd82ff1012, 0x7cbf20eb43a18800, 0x188da80eb03090f6],
+            [0x73f977a11e794811, 0x631011ed6b24cdd5, 0x07192b95ffc8da78],
+            [0x3, 0x0, 0x0],
         );
         let actual = p192_pt_normalize(&p);
         assert_eq!(actual, expected);
@@ -678,17 +571,9 @@ mod tests {
     #[test]
     fn test_p192_pt_double() {
         let expected: P192Point = (
-            [
-                0x29a70fb16982a888,
-                0xd35534631588a3f6,
-                0xdafebf5828783f2a
-            ],
-            [
-                0x59331afa5c7e93ab,
-                0x46b27bbc141b868f,
-                0xdd6bda0d993da0fa
-            ],
-            P192_ONE
+            [0x29a70fb16982a888, 0xd35534631588a3f6, 0xdafebf5828783f2a],
+            [0x59331afa5c7e93ab, 0x46b27bbc141b868f, 0xdd6bda0d993da0fa],
+            P192_ONE,
         );
         let actual = p192_pt_normalize(&p192_pt_double(&P192_G));
         assert_eq!(actual, expected);
@@ -697,30 +582,14 @@ mod tests {
     #[test]
     fn test_p192_pt_add() {
         let expected: P192Point = (
-            [
-                0x0ace8ecb93d23f2a,
-                0x98bf5bd1aa667832,
-                0xa37abc6c431f9ac3
-            ],
-            [
-                0x081f7c5710bc68f0,
-                0xfed7040a1bbda90e,
-                0x851b3caec99908db
-            ],
-            P192_ONE
+            [0x0ace8ecb93d23f2a, 0x98bf5bd1aa667832, 0xa37abc6c431f9ac3],
+            [0x081f7c5710bc68f0, 0xfed7040a1bbda90e, 0x851b3caec99908db],
+            P192_ONE,
         );
         let p: P192Point = (
-            [
-                0x590118ebdd7ff590,
-                0x3e078d9c300e1605,
-                0x10bb8e9840049b18
-            ],
-            [
-                0x312b72543cceaea1,
-                0xadc9f836e62762be,
-                0x31361008476f917b
-            ],
-            P192_ONE
+            [0x590118ebdd7ff590, 0x3e078d9c300e1605, 0x10bb8e9840049b18],
+            [0x312b72543cceaea1, 0xadc9f836e62762be, 0x31361008476f917b],
+            P192_ONE,
         );
         let actual = p192_pt_normalize(&p192_pt_add(&p, &P192_G));
         assert_eq!(actual, expected);
@@ -729,22 +598,13 @@ mod tests {
     #[test]
     fn test_p192_pt_mul() {
         let expected: P192Point = (
-            [
-                0x68e728029b0fe24d,
-                0xb4b2b06dd6150b6d,
-                0x9678db6b4d967d06
-            ],
-            [
-                0x2e117578d179d852,
-                0x209fe7ced5fea8c8,
-                0x7c4b9db69f06a18d
-            ],
-            P192_ONE
+            [0x68e728029b0fe24d, 0xb4b2b06dd6150b6d, 0x9678db6b4d967d06],
+            [0x2e117578d179d852, 0x209fe7ced5fea8c8, 0x7c4b9db69f06a18d],
+            P192_ONE,
         );
         let n: [u8; 24] = [
-            0x27, 0xe5, 0x06, 0x66, 0x93, 0xff, 0x12, 0xec,
-            0x17, 0x0f, 0x29, 0x4a, 0x65, 0xe1, 0x38, 0x55,
-            0x74, 0x6d, 0x68, 0x64, 0x72, 0x63, 0xa4, 0xdb
+            0x27, 0xe5, 0x06, 0x66, 0x93, 0xff, 0x12, 0xec, 0x17, 0x0f, 0x29, 0x4a, 0x65, 0xe1,
+            0x38, 0x55, 0x74, 0x6d, 0x68, 0x64, 0x72, 0x63, 0xa4, 0xdb,
         ];
         let actual = p192_pt_normalize(&p192_pt_mul(&P192_G, &n));
         assert_eq!(actual, expected);
