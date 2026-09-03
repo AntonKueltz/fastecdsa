@@ -2,10 +2,12 @@ from binascii import hexlify
 from hashlib import sha256
 
 from fastecdsa import _ecdsa  # type: ignore[attr-defined]
-from .curve import Curve, P256
+from .curve import Curve, P192, P256
 from .point import Point
 from .typing import EcdsaSignature, HashFunction, SignableMessage
 from .util import RFC6979, msg_bytes
+
+import fastecdsa_rs
 
 
 class EcdsaError(Exception):
@@ -39,15 +41,20 @@ def sign(
     rfc6979 = RFC6979(msg, d, curve.q, hashfunc, prehashed=prehashed)
     k = rfc6979.gen_nonce()
 
-    # Fix the bit-length of the random nonce,
+    # TODO - Fix the bit-length of the random nonce,
     # so that it doesn't leak via timing.
     # This does not change that ks (mod n) = kt (mod n) = k (mod n)
-    ks = k + curve.q
-    kt = ks + curve.q
-    if ks.bit_length() == curve.q.bit_length():
-        k = kt
-    else:
-        k = ks
+    # ks = k + curve.q
+    # kt = ks + curve.q
+    # if ks.bit_length() == curve.q.bit_length():
+    #     k = kt
+    # else:
+    #     k = ks
+
+    if curve in {P192}:
+        return rust_sign(
+            msg, d.to_bytes(24, "little"), k.to_bytes(24, "little"), hashfunc
+        )
 
     hashed = _hex_digest(msg, hashfunc, prehashed)
 
@@ -63,6 +70,13 @@ def sign(
         str(curve.gy),
     )
     return int(r), int(s)
+
+
+def rust_sign(m: SignableMessage, d: bytes, k: bytes, h) -> EcdsaSignature:
+    z = int.from_bytes(h(msg_bytes(m)).digest(), "big")
+    z >>= max(h().digest_size * 8 - 192, 0)
+    r, s = fastecdsa_rs.p192_sign(z.to_bytes(24, "little"), d, k)
+    return int.from_bytes(r, "little"), int.from_bytes(s, "little")
 
 
 def verify(
@@ -107,6 +121,9 @@ def verify(
             "Invalid Signature: s is not a positive integer smaller than the curve order"
         )
 
+    if curve in {P192}:
+        return rust_verify(r, s, msg, Q, hashfunc)
+
     hashed = _hex_digest(msg, hashfunc, prehashed)
 
     return _ecdsa.verify(
@@ -121,6 +138,18 @@ def verify(
         str(curve.q),
         str(curve.gx),
         str(curve.gy),
+    )
+
+
+def rust_verify(r: int, s: int, m: SignableMessage, Q: Point, h) -> bool:
+    z = int.from_bytes(h(msg_bytes(m)).digest(), "big")
+    z >>= max(h().digest_size * 8 - 192, 0)
+    return fastecdsa_rs.p192_verify(
+        r.to_bytes(24, "little"),
+        s.to_bytes(24, "little"),
+        z.to_bytes(24, "little"),
+        Q.x.to_bytes(24, "little"),
+        Q.y.to_bytes(24, "little"),
     )
 
 

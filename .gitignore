@@ -1,7 +1,7 @@
 build/
 dist/
 wheelhouse/
-venv*/
+*venv*/
 docs/_*/
 .mypy_cache/
 .pytest_cache/

@@ -1,9 +1,13 @@
 [project]
 name = "fastecdsa"
-version = "3.1.0a2"
+version = "4.0.0a0"
 description = "Fast elliptic curve digital signatures"
 readme = "README.rst"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
+dependencies = [
+    "fastecdsa-rs",
+]
+
 license = "CC0-1.0"
 license-files = ["LICENSE"]
 authors = [
@@ -14,13 +18,26 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Topic :: Security :: Cryptography",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: POSIX :: Linux"
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.0.1",
+    "pytest>=8.3.4",
+    "ruff>=0.8.4",
+    "setuptools>=77.0.3",
+    "sphinx-rtd-theme>=3.0.2",
+    "sphinx>=7.4.7",
+    "pytest-cov>=6.0.0",
+    "gcovr>=8.3",
+    "ty>=0.0.2",
+    "maturin>=1.15.0",
 ]
 
 [project.urls]
@@ -32,8 +49,8 @@ pypi = "https://pypi.org/project/fastecdsa/"
 benchmark = "fastecdsa.benchmark:run"
 
 [build-system]
-requires = ["setuptools>=77.0.3"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.coverage.run]
 omit = [
@@ -48,15 +65,5 @@ addopts = "--cov=fastecdsa --cov-report=term-missing --cov-fail-under=95"
 [tool.setuptools.packages.find]
 include = ['fastecdsa*']
 
-[dependency-groups]
-dev = [
-    "pre-commit>=4.0.1",
-    "pytest>=8.3.4",
-    "ruff>=0.8.4",
-    "setuptools>=77.0.3",
-    "sphinx-rtd-theme>=3.0.2",
-    "sphinx>=7.4.7",
-    "pytest-cov>=6.0.0",
-    "gcovr>=8.3",
-    "ty>=0.0.2",
-]
+[tool.uv.sources]
+fastecdsa-rs = { path = "rust", editable = true }
