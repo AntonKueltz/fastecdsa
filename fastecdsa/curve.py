@@ -1,4 +1,6 @@
 from __future__ import annotations
+from functools import cache
+from math import ceil, log2
 from typing import Dict, Optional, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -134,6 +136,11 @@ class Curve:
         from .point import Point
 
         return Point(self.gx, self.gy, self)
+
+    @property
+    @cache
+    def q_size_bytes(self) -> int:
+        return ceil(log2(self.q) / 8)
 
 
 # see https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186-draft.pdf

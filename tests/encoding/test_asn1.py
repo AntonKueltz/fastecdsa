@@ -8,7 +8,7 @@ class TestAsn1(TestCase):
     def test_asn1_oid(self):
         expected = b""
 
-        curve = Curve("", 0, 0, 0, 0, 0, 0)
+        curve = Curve("", 1, 1, 1, 1, 1, 1)
         actual = asn1_oid(curve)
 
         self.assertEqual(expected, actual)

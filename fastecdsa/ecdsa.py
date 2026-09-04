@@ -1,10 +1,11 @@
-from binascii import hexlify
+from _hashlib import HASH
+from collections.abc import Callable
 from hashlib import sha256
 
 from fastecdsa import _ecdsa  # type: ignore[attr-defined]
 from .curve import Curve, P192, P256
 from .point import Point
-from .typing import EcdsaSignature, HashFunction, SignableMessage
+from .typing import EcdsaSignature, SignableMessage
 from .util import RFC6979, msg_bytes
 
 import fastecdsa_rs
@@ -19,7 +20,7 @@ def sign(
     msg: SignableMessage,
     d: int,
     curve: Curve = P256,
-    hashfunc: HashFunction = sha256,
+    hashfunc: Callable[[], HASH] = sha256,
     prehashed: bool = False,
 ) -> EcdsaSignature:
     """Sign a message using the elliptic curve digital signature algorithm.
@@ -37,6 +38,8 @@ def sign(
     Returns:
         (int, int): The signature (r, s) as a tuple.
     """
+    hashed, hash_size = _hash(msg, hashfunc, prehashed)
+
     # generate a deterministic nonce per RFC6979
     rfc6979 = RFC6979(msg, d, curve.q, hashfunc, prehashed=prehashed)
     k = rfc6979.gen_nonce()
@@ -52,14 +55,30 @@ def sign(
     #     k = ks
 
     if curve in {P192}:
+        field_size = curve.q_size_bytes
         return rust_sign(
-            msg, d.to_bytes(24, "little"), k.to_bytes(24, "little"), hashfunc
+            hashed,
+            d.to_bytes(field_size, "little"),
+            k.to_bytes(field_size, "little"),
+            hash_size,
+            field_size,
         )
+    else:
+        return _c_sign(hashed, d, k, curve)
 
-    hashed = _hex_digest(msg, hashfunc, prehashed)
 
+def rust_sign(
+    hashed: bytes, d: bytes, k: bytes, hash_size_bytes: int, field_size: int
+) -> EcdsaSignature:
+    z = int.from_bytes(hashed, "big")
+    z >>= max(hash_size_bytes * 8 - field_size * 8, 0)
+    r, s = fastecdsa_rs.p192_sign(z.to_bytes(field_size, "little"), d, k)
+    return int.from_bytes(r, "little"), int.from_bytes(s, "little")
+
+
+def _c_sign(hashed: bytes, d: int, k: int, curve: Curve) -> EcdsaSignature:
     r, s = _ecdsa.sign(
-        hashed,
+        hashed.hex(),
         str(d),
         str(k),
         str(curve.p),
@@ -72,19 +91,12 @@ def sign(
     return int(r), int(s)
 
 
-def rust_sign(m: SignableMessage, d: bytes, k: bytes, h) -> EcdsaSignature:
-    z = int.from_bytes(h(msg_bytes(m)).digest(), "big")
-    z >>= max(h().digest_size * 8 - 192, 0)
-    r, s = fastecdsa_rs.p192_sign(z.to_bytes(24, "little"), d, k)
-    return int.from_bytes(r, "little"), int.from_bytes(s, "little")
-
-
 def verify(
     sig: EcdsaSignature,
     msg: SignableMessage,
     Q: Point,
     curve: Curve = P256,
-    hashfunc: HashFunction = sha256,
+    hashfunc: Callable[[], HASH] = sha256,
     prehashed: bool = False,
 ) -> bool:
     """Verify a message signature using the elliptic curve digital signature algorithm.
@@ -121,15 +133,35 @@ def verify(
             "Invalid Signature: s is not a positive integer smaller than the curve order"
         )
 
+    hashed, hash_size = _hash(msg, hashfunc, prehashed)
     if curve in {P192}:
-        return rust_verify(r, s, msg, Q, hashfunc)
+        return _rust_verify(sig, hashed, Q, hash_size, curve.q_size_bytes)
+    else:
+        return _c_verify(sig, hashed, Q, curve)
 
-    hashed = _hex_digest(msg, hashfunc, prehashed)
+
+def _rust_verify(
+    sig: EcdsaSignature, hashed: bytes, Q: Point, hash_size_bytes: int, field_size: int
+) -> bool:
+    r, s = sig
+    z = int.from_bytes(hashed, "big")
+    z >>= max(hash_size_bytes * 8 - field_size * 8, 0)
+    return fastecdsa_rs.p192_verify(
+        r.to_bytes(field_size, "little"),
+        s.to_bytes(field_size, "little"),
+        z.to_bytes(field_size, "little"),
+        Q.x.to_bytes(field_size, "little"),
+        Q.y.to_bytes(field_size, "little"),
+    )
+
+
+def _c_verify(sig: EcdsaSignature, hashed: bytes, Q: Point, curve: Curve) -> bool:
+    r, s = sig
 
     return _ecdsa.verify(
         str(r),
         str(s),
-        hashed,
+        hashed.hex(),
         str(Q.x),
         str(Q.y),
         str(curve.p),
@@ -141,22 +173,15 @@ def verify(
     )
 
 
-def rust_verify(r: int, s: int, m: SignableMessage, Q: Point, h) -> bool:
-    z = int.from_bytes(h(msg_bytes(m)).digest(), "big")
-    z >>= max(h().digest_size * 8 - 192, 0)
-    return fastecdsa_rs.p192_verify(
-        r.to_bytes(24, "little"),
-        s.to_bytes(24, "little"),
-        z.to_bytes(24, "little"),
-        Q.x.to_bytes(24, "little"),
-        Q.y.to_bytes(24, "little"),
-    )
-
-
-def _hex_digest(msg: SignableMessage, hashfunc: HashFunction, prehashed: bool) -> str:
+def _hash(
+    msg: SignableMessage, hashfunc: Callable[[], HASH], prehashed: bool
+) -> tuple[bytes, int]:
     if prehashed:
         if not isinstance(msg, (bytes, bytearray)):
             raise TypeError(f"Prehashed message must be bytes, got {type(msg)}")
-        return hexlify(msg).decode()
+        bs = msg_bytes(msg)
+        return bs, len(bs)
     else:
-        return hashfunc(msg_bytes(msg)).hexdigest()
+        h = hashfunc()
+        h.update(msg_bytes(msg))
+        return h.digest(), h.digest_size
