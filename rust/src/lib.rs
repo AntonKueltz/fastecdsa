@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
 
 pub mod p192;
+pub mod p224;
 
 #[pymodule]
 fn fastecdsa_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {

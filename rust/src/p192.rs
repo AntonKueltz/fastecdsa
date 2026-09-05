@@ -146,11 +146,11 @@ impl P192MulResult {
     }
 }
 
-impl P192Element {
-    fn from_bytes(x: &[u8]) -> Self {
+impl From<&[u8]> for P192Element {
+    fn from(x: &[u8]) -> Self {
         let mut result: Self = Self { x: [0; LIMBS] };
 
-        for i in 0..3 {
+        for i in 0..LIMBS {
             for j in 0..8 {
                 result.x[i] |= (x[i * 8 + j] as u64) << (j * 8);
             }
@@ -158,46 +158,19 @@ impl P192Element {
 
         result
     }
+}
 
-    fn to_bytes(&self) -> Vec<u8> {
+impl From<P192Element> for Vec<u8> {
+    fn from(x: P192Element) -> Vec<u8> {
         let mut result: [u8; 24] = [0; 24];
 
         for i in 0..LIMBS {
             for j in 0..8 {
-                result[i * 8 + j] = (self.x[i] >> (j * 8)) as u8;
+                result[i * 8 + j] = (x.x[i] >> (j * 8)) as u8;
             }
         }
 
         result.to_vec()
-    }
-
-    fn sqr(&self) -> Self {
-        let mut unreduced: P192MulResult = P192MulResult { x: [0; LIMBS << 1] };
-        let mut t: u128;
-        let mut k: usize;
-
-        for i in 0..LIMBS {
-            t = self.x[i] as u128 * self.x[i] as u128;
-            unreduced.sqr_helper(2 * i, t);
-
-            for j in (i + 1)..LIMBS {
-                t = self.x[i] as u128 * self.x[j] as u128;
-                k = i + j;
-
-                unreduced.sqr_helper(k, t);
-                unreduced.sqr_helper(k, t);
-            }
-        }
-
-        unreduced.reduce()
-    }
-
-    fn sqr_n_times(&self, n: usize) -> Self {
-        let mut result = self.clone();
-        for _ in 0..n {
-            result = result.sqr();
-        }
-        result
     }
 }
 
@@ -293,6 +266,110 @@ impl Mul<u64> for P192Element {
     }
 }
 
+impl P192Element {
+    fn sqr(&self) -> Self {
+        let mut unreduced: P192MulResult = P192MulResult { x: [0; LIMBS << 1] };
+        let mut t: u128;
+        let mut k: usize;
+
+        for i in 0..LIMBS {
+            t = self.x[i] as u128 * self.x[i] as u128;
+            unreduced.sqr_helper(2 * i, t);
+
+            for j in (i + 1)..LIMBS {
+                t = self.x[i] as u128 * self.x[j] as u128;
+                k = i + j;
+
+                unreduced.sqr_helper(k, t);
+                unreduced.sqr_helper(k, t);
+            }
+        }
+
+        unreduced.reduce()
+    }
+
+    fn sqr_n_times(&self, n: usize) -> Self {
+        let mut result = self.clone();
+        for _ in 0..n {
+            result = result.sqr();
+        }
+        result
+    }
+}
+
+impl Add for P192Point {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self::Output {
+        if self == INFINITY {
+            return other.clone();
+        } else if other == INFINITY {
+            return self.clone();
+        } else if self == other {
+            return self.double();
+        }
+
+        let x1 = self.x;
+        let x2 = other.x;
+        let y1 = self.y;
+        let y2 = other.y;
+        let z1 = self.z;
+        let z2 = other.z;
+
+        // https://hyperelliptic.org/EFD/g1p/auto-code/shortw/jacobian-3/addition/add-2007-bl.op3
+        let z1z1 = z1.sqr();
+        let z2z2 = z2.sqr();
+        let u1 = x1 * z2z2;
+        let u2 = x2 * z1z1;
+        let s1 = y1 * z2 * z2z2;
+        let s2 = y2 * z1 * z1z1;
+        let h = u2 - u1;
+        let i = (h * 2).sqr();
+        let j = h * i;
+        let r = (s2 - s1) * 2;
+        let v = u1 * i;
+        let x3 = r.sqr() - j - v * 2;
+        let y3 = r * (v - x3) - s1 * j * 2;
+        let z3 = ((z1 + z2).sqr() - z1z1 - z2z2) * h;
+
+        Self {
+            x: x3,
+            y: y3,
+            z: z3,
+        }
+    }
+}
+
+impl Mul<&[u8]> for P192Point {
+    type Output = Self;
+
+    fn mul(self, n: &[u8]) -> Self::Output {
+        if n.len() == 0 {
+            return INFINITY;
+        }
+
+        let mut j = n.len() * 8 - 1;
+        while !test_bit(n, j) {
+            j -= 1;
+        }
+
+        let mut r0: Self = INFINITY;
+        let mut r1: Self = self.clone();
+
+        for i in (0..j + 1).rev() {
+            if test_bit(n, i) {
+                r0 = r0 + r1;
+                r1 = r1.double();
+            } else {
+                r1 = r1 + r0;
+                r0 = r0.double();
+            }
+        }
+
+        r0
+    }
+}
+
 impl P192Point {
     fn normalize(&self) -> P192Point {
         let z = self.z;
@@ -371,79 +448,6 @@ impl P192Point {
     }
 }
 
-impl Add for P192Point {
-    type Output = Self;
-
-    fn add(self, other: Self) -> Self::Output {
-        if self == INFINITY {
-            return other.clone();
-        } else if other == INFINITY {
-            return self.clone();
-        } else if self == other {
-            return self.double();
-        }
-
-        let x1 = self.x;
-        let x2 = other.x;
-        let y1 = self.y;
-        let y2 = other.y;
-        let z1 = self.z;
-        let z2 = other.z;
-
-        // https://hyperelliptic.org/EFD/g1p/auto-code/shortw/jacobian-3/addition/add-2007-bl.op3
-        let z1z1 = z1.sqr();
-        let z2z2 = z2.sqr();
-        let u1 = x1 * z2z2;
-        let u2 = x2 * z1z1;
-        let s1 = y1 * z2 * z2z2;
-        let s2 = y2 * z1 * z1z1;
-        let h = u2 - u1;
-        let i = (h * 2).sqr();
-        let j = h * i;
-        let r = (s2 - s1) * 2;
-        let v = u1 * i;
-        let x3 = r.sqr() - j - v * 2;
-        let y3 = r * (v - x3) - s1 * j * 2;
-        let z3 = ((z1 + z2).sqr() - z1z1 - z2z2) * h;
-
-        Self {
-            x: x3,
-            y: y3,
-            z: z3,
-        }
-    }
-}
-
-impl Mul<&[u8]> for P192Point {
-    type Output = Self;
-
-    fn mul(self, n: &[u8]) -> Self::Output {
-        if n.len() == 0 {
-            return INFINITY;
-        }
-
-        let mut j = n.len() * 8 - 1;
-        while !test_bit(n, j) {
-            j -= 1;
-        }
-
-        let mut r0: Self = INFINITY;
-        let mut r1: Self = self.clone();
-
-        for i in (0..j + 1).rev() {
-            if test_bit(n, i) {
-                r0 = r0 + r1;
-                r1 = r1.double();
-            } else {
-                r1 = r1 + r0;
-                r0 = r0.double();
-            }
-        }
-
-        r0
-    }
-}
-
 #[inline]
 fn test_bit(n: &[u8], j: usize) -> bool {
     let byte = j >> 3;
@@ -456,13 +460,13 @@ fn test_bit(n: &[u8], j: usize) -> bool {
 pub fn p192_scale_point(n: &[u8]) -> (Vec<u8>, Vec<u8>) {
     let p = P192_G.mul(n).normalize();
 
-    (p.x.to_bytes(), p.y.to_bytes())
+    (P192Element::into(p.x), P192Element::into(p.y))
 }
 
 #[pyfunction]
 pub fn p192_sign(msg: &[u8], d_bytes: &[u8], k_bytes: &[u8]) -> (Vec<u8>, Vec<u8>) {
     let p = P192_G.mul(&k_bytes).normalize();
-    let r_bytes = p.x.to_bytes();
+    let r_bytes: Vec<u8> = P192Element::into(p.x);
 
     let k = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(k_bytes));
     let z = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(msg));
@@ -486,8 +490,8 @@ pub fn p192_verify(
     qy_bytes: &[u8],
 ) -> bool {
     let q: P192Point = P192Point {
-        x: P192Element::from_bytes(&qx_bytes),
-        y: P192Element::from_bytes(&qy_bytes),
+        x: P192Element::from(qx_bytes),
+        y: P192Element::from(qy_bytes),
         z: P192_ONE,
     };
     let z = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(msg));
@@ -504,7 +508,8 @@ pub fn p192_verify(
         &u2.retrieve().to_le_bytes().to_vec(),
     )
     .normalize();
-    let xq = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(&p.x.to_bytes()));
+    let x_bytes: Vec<u8> = P192Element::into(p.x);
+    let xq = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(&x_bytes));
 
     xq == r
 }
