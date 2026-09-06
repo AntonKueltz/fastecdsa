@@ -102,7 +102,9 @@ impl P192AddResult {
 
 impl P192MulResult {
     fn reduce(&self) -> P192Element {
-        let mut somewhat_reduced: P192AddResult = P192AddResult { x: [0; P192_LIMBS + 1] };
+        let mut somewhat_reduced: P192AddResult = P192AddResult {
+            x: [0; P192_LIMBS + 1],
+        };
 
         let mut sum: u128 = self.x[0] as u128 + self.x[3] as u128 + self.x[5] as u128;
         somewhat_reduced.x[0] = sum as u64;
@@ -178,7 +180,9 @@ impl Add for P192Element {
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
-        let mut unreduced: P192AddResult = P192AddResult { x: [0; P192_LIMBS + 1] };
+        let mut unreduced: P192AddResult = P192AddResult {
+            x: [0; P192_LIMBS + 1],
+        };
 
         let mut t = self.x[0] as u128 + other.x[0] as u128;
         unreduced.x[0] = t as u64;
@@ -202,7 +206,9 @@ impl Sub for P192Element {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self::Output {
-        let mut unreduced: P192AddResult = P192AddResult { x: [0; P192_LIMBS + 1] };
+        let mut unreduced: P192AddResult = P192AddResult {
+            x: [0; P192_LIMBS + 1],
+        };
         let mut t: i128;
         let mut k: i128;
 
@@ -226,7 +232,9 @@ impl Mul for P192Element {
     type Output = Self;
 
     fn mul(self, other: Self) -> Self::Output {
-        let mut unreduced: P192MulResult = P192MulResult { x: [0; P192_LIMBS << 1] };
+        let mut unreduced: P192MulResult = P192MulResult {
+            x: [0; P192_LIMBS << 1],
+        };
         let mut k: usize;
         let mut t: u128;
 
@@ -251,7 +259,9 @@ impl Mul<u64> for P192Element {
     type Output = Self;
 
     fn mul(self, y: u64) -> Self::Output {
-        let mut unreduced: P192MulResult = P192MulResult { x: [0; P192_LIMBS << 1] };
+        let mut unreduced: P192MulResult = P192MulResult {
+            x: [0; P192_LIMBS << 1],
+        };
         let mut t: u128;
         let mut k: u128 = 0;
 
@@ -268,7 +278,9 @@ impl Mul<u64> for P192Element {
 
 impl P192Element {
     fn sqr(&self) -> Self {
-        let mut unreduced: P192MulResult = P192MulResult { x: [0; P192_LIMBS << 1] };
+        let mut unreduced: P192MulResult = P192MulResult {
+            x: [0; P192_LIMBS << 1],
+        };
         let mut t: u128;
         let mut k: usize;
 

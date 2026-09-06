@@ -133,7 +133,9 @@ impl P224AddResult {
 
 impl P224MulResult {
     fn reduce(&self) -> P224Element {
-        let mut somewhat_reduced: P224AddResult = P224AddResult { x: [0; P224_LIMBS + 1] };
+        let mut somewhat_reduced: P224AddResult = P224AddResult {
+            x: [0; P224_LIMBS + 1],
+        };
 
         let mut sum: i64 = 0x2 + self.x[0] as i64 - self.x[7] as i64 - self.x[11] as i64;
         somewhat_reduced.x[0] = sum as u32;
@@ -228,7 +230,9 @@ impl Add for P224Element {
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
-        let mut unreduced: P224AddResult = P224AddResult { x: [0; P224_LIMBS + 1] };
+        let mut unreduced: P224AddResult = P224AddResult {
+            x: [0; P224_LIMBS + 1],
+        };
         let mut t: u64;
         let mut k: u64 = 0;
 
@@ -247,7 +251,9 @@ impl Sub for P224Element {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self::Output {
-        let mut unreduced: P224AddResult = P224AddResult { x: [0; P224_LIMBS + 1] };
+        let mut unreduced: P224AddResult = P224AddResult {
+            x: [0; P224_LIMBS + 1],
+        };
         let mut t: i64;
         let mut k: i64 = 0;
 
@@ -266,7 +272,9 @@ impl Mul for P224Element {
     type Output = Self;
 
     fn mul(self, other: Self) -> Self::Output {
-        let mut unreduced: P224MulResult = P224MulResult { x: [0; P224_LIMBS << 1] };
+        let mut unreduced: P224MulResult = P224MulResult {
+            x: [0; P224_LIMBS << 1],
+        };
         let mut k: usize;
         let mut t: u64;
 
@@ -291,7 +299,9 @@ impl Mul<u32> for P224Element {
     type Output = Self;
 
     fn mul(self, y: u32) -> Self::Output {
-        let mut unreduced: P224MulResult = P224MulResult { x: [0; P224_LIMBS << 1] };
+        let mut unreduced: P224MulResult = P224MulResult {
+            x: [0; P224_LIMBS << 1],
+        };
         let mut t: u64;
         let mut k: u64 = 0;
 
@@ -308,7 +318,9 @@ impl Mul<u32> for P224Element {
 
 impl P224Element {
     fn sqr(&self) -> Self {
-        let mut unreduced: P224MulResult = P224MulResult { x: [0; P224_LIMBS << 1] };
+        let mut unreduced: P224MulResult = P224MulResult {
+            x: [0; P224_LIMBS << 1],
+        };
         let mut t: u64;
         let mut k: usize;
 
@@ -540,7 +552,7 @@ pub fn p224_verify(
     };
     let z = monty_form(msg);
     let s = monty_form(s_bytes);
-    let r =monty_form(r_bytes);
+    let r = monty_form(r_bytes);
     let sinv = s.invert().unwrap();
     let u1 = z * sinv;
     let u2 = r * sinv;

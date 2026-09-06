@@ -4,7 +4,14 @@ from functools import cache
 from math import ceil, log2
 from typing import Dict, Optional, Tuple, TYPE_CHECKING
 
-from fastecdsa_rs import p192_sign, p192_verify, p224_sign, p224_verify
+from fastecdsa_rs import (
+    p192_sign,
+    p192_verify,
+    p224_sign,
+    p224_verify,
+    p256_sign,
+    p256_verify,
+)
 
 if TYPE_CHECKING:
     # allow the type checker to use Point
@@ -185,6 +192,8 @@ P256 = Curve(
     48439561293906451759052585252797914202762949526041747995844080717082404635286,
     36134250956749795798585127919587881956611106672985015071877198253568414405109,
     b"\x2a\x86\x48\xce\x3d\x03\x01\x07",
+    p256_sign,
+    p256_verify,
 )
 P384 = Curve(
     "P384",
