@@ -9,5 +9,5 @@ name = "fastecdsa_rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-crypto-bigint = "0.7.5"
+crypto-bigint = { version = "0.7.5" }
 pyo3 = "0.29.0"

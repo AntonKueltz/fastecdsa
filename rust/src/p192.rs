@@ -3,10 +3,10 @@ use std::ops::{Add, Mul, Sub};
 use crypto_bigint::{const_monty_params, modular::ConstMontyForm, U192};
 use pyo3::prelude::*;
 
-const LIMBS: usize = 3;
+const P192_LIMBS: usize = 3;
 
 struct P192AddResult {
-    x: [u64; LIMBS + 1],
+    x: [u64; P192_LIMBS + 1],
 }
 const P192_P_4: P192AddResult = P192AddResult {
     x: [
@@ -18,12 +18,12 @@ const P192_P_4: P192AddResult = P192AddResult {
 };
 
 struct P192MulResult {
-    x: [u64; LIMBS << 1],
+    x: [u64; P192_LIMBS << 1],
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct P192Element {
-    x: [u64; LIMBS],
+    x: [u64; P192_LIMBS],
 }
 const P192_ONE: P192Element = P192Element { x: [0x1, 0x0, 0x0] };
 const P192_P: P192Element = P192Element {
@@ -62,7 +62,7 @@ const_monty_params!(
 
 impl P192AddResult {
     fn less_than(&self, other: &P192AddResult) -> bool {
-        for i in (0..LIMBS + 1).rev() {
+        for i in (0..P192_LIMBS + 1).rev() {
             if self.x[i] < other.x[i] {
                 return true;
             } else if self.x[i] > other.x[i] {
@@ -102,7 +102,7 @@ impl P192AddResult {
 
 impl P192MulResult {
     fn reduce(&self) -> P192Element {
-        let mut somewhat_reduced: P192AddResult = P192AddResult { x: [0; LIMBS + 1] };
+        let mut somewhat_reduced: P192AddResult = P192AddResult { x: [0; P192_LIMBS + 1] };
 
         let mut sum: u128 = self.x[0] as u128 + self.x[3] as u128 + self.x[5] as u128;
         somewhat_reduced.x[0] = sum as u64;
@@ -148,9 +148,9 @@ impl P192MulResult {
 
 impl From<&[u8]> for P192Element {
     fn from(x: &[u8]) -> Self {
-        let mut result: Self = Self { x: [0; LIMBS] };
+        let mut result: Self = Self { x: [0; P192_LIMBS] };
 
-        for i in 0..LIMBS {
+        for i in 0..P192_LIMBS {
             for j in 0..8 {
                 result.x[i] |= (x[i * 8 + j] as u64) << (j * 8);
             }
@@ -164,7 +164,7 @@ impl From<P192Element> for Vec<u8> {
     fn from(x: P192Element) -> Vec<u8> {
         let mut result: [u8; 24] = [0; 24];
 
-        for i in 0..LIMBS {
+        for i in 0..P192_LIMBS {
             for j in 0..8 {
                 result[i * 8 + j] = (x.x[i] >> (j * 8)) as u8;
             }
@@ -178,7 +178,7 @@ impl Add for P192Element {
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
-        let mut unreduced: P192AddResult = P192AddResult { x: [0; LIMBS + 1] };
+        let mut unreduced: P192AddResult = P192AddResult { x: [0; P192_LIMBS + 1] };
 
         let mut t = self.x[0] as u128 + other.x[0] as u128;
         unreduced.x[0] = t as u64;
@@ -202,7 +202,7 @@ impl Sub for P192Element {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self::Output {
-        let mut unreduced: P192AddResult = P192AddResult { x: [0; LIMBS + 1] };
+        let mut unreduced: P192AddResult = P192AddResult { x: [0; P192_LIMBS + 1] };
         let mut t: i128;
         let mut k: i128;
 
@@ -226,21 +226,21 @@ impl Mul for P192Element {
     type Output = Self;
 
     fn mul(self, other: Self) -> Self::Output {
-        let mut unreduced: P192MulResult = P192MulResult { x: [0; LIMBS << 1] };
+        let mut unreduced: P192MulResult = P192MulResult { x: [0; P192_LIMBS << 1] };
         let mut k: usize;
         let mut t: u128;
 
-        for i in 0..LIMBS {
+        for i in 0..P192_LIMBS {
             let mut carry: u128 = 0;
 
-            for j in 0..LIMBS {
+            for j in 0..P192_LIMBS {
                 k = i + j;
                 t = self.x[i] as u128 * other.x[j] as u128 + unreduced.x[k] as u128 + carry;
                 unreduced.x[k] = t as u64;
                 carry = t >> 64;
             }
 
-            unreduced.x[i + LIMBS] = carry as u64;
+            unreduced.x[i + P192_LIMBS] = carry as u64;
         }
 
         unreduced.reduce()
@@ -251,16 +251,16 @@ impl Mul<u64> for P192Element {
     type Output = Self;
 
     fn mul(self, y: u64) -> Self::Output {
-        let mut unreduced: P192MulResult = P192MulResult { x: [0; LIMBS << 1] };
+        let mut unreduced: P192MulResult = P192MulResult { x: [0; P192_LIMBS << 1] };
         let mut t: u128;
         let mut k: u128 = 0;
 
-        for i in 0..LIMBS {
+        for i in 0..P192_LIMBS {
             t = self.x[i] as u128 * y as u128 + unreduced.x[i] as u128 + k;
             unreduced.x[i] = t as u64;
             k = t >> 64;
         }
-        unreduced.x[LIMBS] = k as u64;
+        unreduced.x[P192_LIMBS] = k as u64;
 
         unreduced.reduce()
     }
@@ -268,15 +268,15 @@ impl Mul<u64> for P192Element {
 
 impl P192Element {
     fn sqr(&self) -> Self {
-        let mut unreduced: P192MulResult = P192MulResult { x: [0; LIMBS << 1] };
+        let mut unreduced: P192MulResult = P192MulResult { x: [0; P192_LIMBS << 1] };
         let mut t: u128;
         let mut k: usize;
 
-        for i in 0..LIMBS {
+        for i in 0..P192_LIMBS {
             t = self.x[i] as u128 * self.x[i] as u128;
             unreduced.sqr_helper(2 * i, t);
 
-            for j in (i + 1)..LIMBS {
+            for j in (i + 1)..P192_LIMBS {
                 t = self.x[i] as u128 * self.x[j] as u128;
                 k = i + j;
 

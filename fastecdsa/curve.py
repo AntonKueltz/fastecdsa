@@ -1,7 +1,10 @@
 from __future__ import annotations
+from collections.abc import Callable
 from functools import cache
 from math import ceil, log2
 from typing import Dict, Optional, Tuple, TYPE_CHECKING
+
+from fastecdsa_rs import p192_sign, p192_verify, p224_sign, p224_verify
 
 if TYPE_CHECKING:
     # allow the type checker to use Point
@@ -40,6 +43,8 @@ class Curve:
         gx: int,
         gy: int,
         oid: Optional[bytes] = None,
+        sign: Callable[[bytes, bytes, bytes], tuple[bytes, bytes]] | None = None,
+        verify: Callable[[bytes, bytes, bytes, bytes, bytes], bool] | None = None,
     ) -> None:
         r"""Initialize the parameters of an elliptic curve.
 
@@ -68,6 +73,8 @@ class Curve:
         self.gx = gx
         self.gy = gy
         self.oid = oid
+        self.sign = sign
+        self.verify = verify
 
         if oid is not None:
             self._oid_lookup[oid] = self
@@ -154,6 +161,8 @@ P192 = Curve(
     602046282375688656758213480587526111916698976636884684818,
     174050332293622031404857552280219410364023488927386650641,
     b"\x2a\x86\x48\xce\x3d\x03\x01\x01",
+    p192_sign,
+    p192_verify,
 )
 P224 = Curve(
     "P224",
@@ -164,6 +173,8 @@ P224 = Curve(
     19277929113566293071110308034699488026831934219452440156649784352033,
     19926808758034470970197974370888749184205991990603949537637343198772,
     b"\x2b\x81\x04\x00\x21",
+    p224_sign,
+    p224_verify,
 )
 P256 = Curve(
     "P256",

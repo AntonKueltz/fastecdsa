@@ -3,12 +3,10 @@ from collections.abc import Callable
 from hashlib import sha256
 
 from fastecdsa import _ecdsa  # type: ignore[attr-defined]
-from .curve import Curve, P192, P256
+from .curve import Curve, P256
 from .point import Point
 from .typing import EcdsaSignature, SignableMessage
 from .util import RFC6979, msg_bytes
-
-import fastecdsa_rs
 
 
 class EcdsaError(Exception):
@@ -54,25 +52,27 @@ def sign(
     # else:
     #     k = ks
 
-    if curve in {P192}:
-        field_size = curve.q_size_bytes
-        return rust_sign(
-            hashed,
-            d.to_bytes(field_size, "little"),
-            k.to_bytes(field_size, "little"),
-            hash_size,
-            field_size,
-        )
+    if curve.sign is not None:
+        return _rust_sign(hashed, d, k, hash_size, curve)
     else:
         return _c_sign(hashed, d, k, curve)
 
 
-def rust_sign(
-    hashed: bytes, d: bytes, k: bytes, hash_size_bytes: int, field_size: int
+def _rust_sign(
+    hashed: bytes, d: int, k: int, hash_size_bytes: int, curve: Curve
 ) -> EcdsaSignature:
+    if curve.sign is None:
+        raise ValueError(
+            "Tried to sign with rust backend for curve with no implementation"
+        )
+
+    field_size = curve.q_size_bytes
+    db = d.to_bytes(field_size, "little")
+    kb = k.to_bytes(field_size, "little")
     z = int.from_bytes(hashed, "big")
     z >>= max(hash_size_bytes * 8 - field_size * 8, 0)
-    r, s = fastecdsa_rs.p192_sign(z.to_bytes(field_size, "little"), d, k)
+
+    r, s = curve.sign(z.to_bytes(field_size, "little"), db, kb)
     return int.from_bytes(r, "little"), int.from_bytes(s, "little")
 
 
@@ -134,19 +134,26 @@ def verify(
         )
 
     hashed, hash_size = _hash(msg, hashfunc, prehashed)
-    if curve in {P192}:
-        return _rust_verify(sig, hashed, Q, hash_size, curve.q_size_bytes)
+    if curve.verify is not None:
+        return _rust_verify(sig, hashed, Q, hash_size, curve)
     else:
         return _c_verify(sig, hashed, Q, curve)
 
 
 def _rust_verify(
-    sig: EcdsaSignature, hashed: bytes, Q: Point, hash_size_bytes: int, field_size: int
+    sig: EcdsaSignature, hashed: bytes, Q: Point, hash_size_bytes: int, curve: Curve
 ) -> bool:
+    if curve.verify is None:
+        raise ValueError(
+            "Tried to verify with rust backend for curve with no implementation"
+        )
+
     r, s = sig
+    field_size = curve.q_size_bytes
     z = int.from_bytes(hashed, "big")
     z >>= max(hash_size_bytes * 8 - field_size * 8, 0)
-    return fastecdsa_rs.p192_verify(
+
+    return curve.verify(
         r.to_bytes(field_size, "little"),
         s.to_bytes(field_size, "little"),
         z.to_bytes(field_size, "little"),
