@@ -36,7 +36,7 @@ const P224_A: P224Element = P224Element {
     ],
 };
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 struct P224Point {
     x: P224Element,
     y: P224Element,
@@ -57,7 +57,7 @@ const P224_G: P224Point = P224Point {
 };
 const INFINITY: P224Point = P224Point {
     x: P224Element {
-        x: [0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0],
+        x: [0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0],
     },
     y: P224Element {
         x: [0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0],
@@ -67,6 +67,8 @@ const INFINITY: P224Point = P224Point {
     },
 };
 
+const P224_Q: U256 =
+    U256::from_be_hex("00000000ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d");
 const_monty_params!(
     P224Q,
     U256,
@@ -349,13 +351,22 @@ impl P224Element {
     }
 }
 
+impl PartialEq for P224Point {
+    fn eq(&self, other: &Self) -> bool {
+        self.x * other.z * other.z == other.x * self.z * self.z
+            && self.y * other.z * other.z * other.z == other.y * self.z * self.z * self.z
+    }
+}
+
+impl Eq for P224Point {}
+
 impl Add for P224Point {
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
-        if self == INFINITY {
+        if self.is_point_at_infinity() {
             return other.clone();
-        } else if other == INFINITY {
+        } else if other.is_point_at_infinity() {
             return self.clone();
         } else if self == other {
             return self.double();
@@ -423,7 +434,15 @@ impl Mul<&[u8]> for P224Point {
 }
 
 impl P224Point {
+    fn is_point_at_infinity(&self) -> bool {
+        self.z.x == [0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]
+    }
+
     fn normalize(&self) -> P224Point {
+        if self.is_point_at_infinity() {
+            return INFINITY;
+        }
+
         let z = self.z;
         let z2 = z.sqr() * z;
         let z3 = z2.sqr() * z;
@@ -456,7 +475,7 @@ impl P224Point {
     }
 
     fn double(&self) -> P224Point {
-        if *self == INFINITY {
+        if self.is_point_at_infinity() {
             return INFINITY;
         }
 
@@ -537,6 +556,22 @@ pub fn p224_sign(msg: &[u8], d_bytes: &[u8], k_bytes: &[u8]) -> (Vec<u8>, Vec<u8
     )
 }
 
+fn is_valid_sig(r_bytes: &[u8], s_bytes: &[u8]) -> bool {
+    let mut r_padded: [u8; 32] = [0; 32];
+    let mut s_padded: [u8; 32] = [0; 32];
+    r_padded[..28].copy_from_slice(&r_bytes[..28]);
+    s_padded[..28].copy_from_slice(&s_bytes[..28]);
+
+    let r = U256::from_le_slice(&r_padded);
+    let s = U256::from_le_slice(&s_padded);
+
+    if r.is_zero().into() || r >= P224_Q || s.is_zero().into() || s >= P224_Q {
+        return false;
+    }
+
+    true
+}
+
 #[pyfunction]
 pub fn p224_verify(
     r_bytes: &[u8],
@@ -545,6 +580,10 @@ pub fn p224_verify(
     qx_bytes: &[u8],
     qy_bytes: &[u8],
 ) -> bool {
+    if !is_valid_sig(r_bytes, s_bytes) {
+        return false;
+    }
+
     let q: P224Point = P224Point {
         x: P224Element::from(qx_bytes),
         y: P224Element::from(qy_bytes),

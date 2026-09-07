@@ -33,7 +33,7 @@ const P192_A: P192Element = P192Element {
     x: [0xfffffffffffffffc, 0xfffffffffffffffe, 0xffffffffffffffff],
 };
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 struct P192Point {
     x: P192Element,
     y: P192Element,
@@ -49,11 +49,13 @@ const P192_G: P192Point = P192Point {
     z: P192_ONE,
 };
 const INFINITY: P192Point = P192Point {
-    x: P192Element { x: [0x0, 0x0, 0x0] },
+    x: P192Element { x: [0x1, 0x0, 0x0] },
     y: P192Element { x: [0x1, 0x0, 0x0] },
     z: P192Element { x: [0x0, 0x0, 0x0] },
 };
 
+const P192_Q: U192 =
+    U192::from_be_hex("ffffffffffffffffffffffff99def836146bc9b1b4d22831");
 const_monty_params!(
     P192Q,
     U192,
@@ -309,13 +311,22 @@ impl P192Element {
     }
 }
 
+impl PartialEq for P192Point {
+    fn eq(&self, other: &Self) -> bool {
+        self.x * other.z * other.z == other.x * self.z * self.z
+            && self.y * other.z * other.z * other.z == other.y * self.z * self.z * self.z
+    }
+}
+
+impl Eq for P192Point {}
+
 impl Add for P192Point {
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
-        if self == INFINITY {
+        if self.is_point_at_infinity() {
             return other.clone();
-        } else if other == INFINITY {
+        } else if other.is_point_at_infinity() {
             return self.clone();
         } else if self == other {
             return self.double();
@@ -383,7 +394,15 @@ impl Mul<&[u8]> for P192Point {
 }
 
 impl P192Point {
+    fn is_point_at_infinity(&self) -> bool {
+        self.z.x == [0x0, 0x0, 0x0]
+    }
+
     fn normalize(&self) -> P192Point {
+        if self.is_point_at_infinity() {
+            return INFINITY;
+        }
+
         let z = self.z;
         let z2 = z.sqr() * z;
         let z3 = z2.sqr() * z;
@@ -413,7 +432,7 @@ impl P192Point {
     }
 
     fn double(&self) -> P192Point {
-        if *self == INFINITY {
+        if self.is_point_at_infinity() {
             return INFINITY;
         }
 
@@ -493,6 +512,17 @@ pub fn p192_sign(msg: &[u8], d_bytes: &[u8], k_bytes: &[u8]) -> (Vec<u8>, Vec<u8
     )
 }
 
+fn is_valid_sig(r_bytes: &[u8], s_bytes: &[u8]) -> bool {
+    let r = U192::from_le_slice(r_bytes);
+    let s = U192::from_le_slice(s_bytes);
+
+    if r.is_zero().into() || r >= P192_Q || s.is_zero().into() || s >= P192_Q {
+        return false;
+    }
+
+    true
+}
+
 #[pyfunction]
 pub fn p192_verify(
     r_bytes: &[u8],
@@ -501,6 +531,10 @@ pub fn p192_verify(
     qx_bytes: &[u8],
     qy_bytes: &[u8],
 ) -> bool {
+    if !is_valid_sig(r_bytes, s_bytes) {
+        return false;
+    }
+
     let q: P192Point = P192Point {
         x: P192Element::from(qx_bytes),
         y: P192Element::from(qy_bytes),
