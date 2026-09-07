@@ -3,36 +3,32 @@ use std::ops::{Add, Mul, Sub};
 use crypto_bigint::{const_monty_params, modular::ConstMontyForm, U256};
 use pyo3::prelude::*;
 
-const P224_LIMBS: usize = 7;
+const P224_LIMBS: usize = 4;
 
 struct P224AddResult {
-    x: [u32; P224_LIMBS + 1],
+    x: [u64; P224_LIMBS],
 }
-const P224_P_8: P224AddResult = P224AddResult {
-    x: [
-        0x00000001, 0x00000000, 0x00000000, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0x0,
-    ],
-};
 
 struct P224MulResult {
-    x: [u32; P224_LIMBS << 1],
+    x: [u64; P224_LIMBS << 1],
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct P224Element {
-    x: [u32; P224_LIMBS],
+    x: [u64; P224_LIMBS],
 }
 const P224_ONE: P224Element = P224Element {
-    x: [0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0],
+    x: [0x1, 0x0, 0x0, 0x0],
 };
 const P224_P: P224Element = P224Element {
-    x: [
-        0x00000001, 0x00000000, 0x00000000, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
-    ],
+    x: [0x1, 0xffffffff00000000, 0xffffffffffffffff, 0xffffffff],
 };
 const P224_A: P224Element = P224Element {
     x: [
-        0xfffffffe, 0xffffffff, 0xffffffff, 0xfffffffe, 0xffffffff, 0xffffffff, 0xffffffff,
+        0xfffffffffffffffe,
+        0xfffffffeffffffff,
+        0xffffffffffffffff,
+        0xffffffff,
     ],
 };
 
@@ -45,25 +41,31 @@ struct P224Point {
 const P224_G: P224Point = P224Point {
     x: P224Element {
         x: [
-            0x115c1d21, 0x343280d6, 0x56c21122, 0x4a03c1d3, 0x321390b9, 0x6bb4bf7f, 0xb70e0cbd,
+            0x343280d6115c1d21,
+            0x4a03c1d356c21122,
+            0x6bb4bf7f321390b9,
+            0xb70e0cbd,
         ],
     },
     y: P224Element {
         x: [
-            0x85007e34, 0x44d58199, 0x5a074764, 0xcd4375a0, 0x4c22dfe6, 0xb5f723fb, 0xbd376388,
+            0x44d5819985007e34,
+            0xcd4375a05a074764,
+            0xb5f723fb4c22dfe6,
+            0xbd376388,
         ],
     },
     z: P224_ONE,
 };
 const INFINITY: P224Point = P224Point {
     x: P224Element {
-        x: [0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0],
+        x: [0x1, 0x0, 0x0, 0x0],
     },
     y: P224Element {
-        x: [0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0],
+        x: [0x1, 0x0, 0x0, 0x0],
     },
     z: P224Element {
-        x: [0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0],
+        x: [0x0, 0x0, 0x0, 0x0],
     },
 };
 
@@ -76,8 +78,8 @@ const_monty_params!(
 );
 
 impl P224AddResult {
-    fn less_than(&self, other: &P224AddResult) -> bool {
-        for i in (0..P224_LIMBS + 1).rev() {
+    fn less_than(&self, other: &P224Element) -> bool {
+        for i in (0..P224_LIMBS).rev() {
             if self.x[i] < other.x[i] {
                 return true;
             } else if self.x[i] > other.x[i] {
@@ -89,112 +91,102 @@ impl P224AddResult {
     }
 
     fn reduce(&mut self) -> P224Element {
-        let mut t: i64;
-        let mut k: i64;
+        let mut t: i128;
+        let mut k: i128;
 
-        while !self.less_than(&P224_P_8) {
-            t = self.x[0] as i64 - P224_P_8.x[0] as i64;
-            self.x[0] = t as u32;
-            k = t >> 32;
+        while !self.less_than(&P224_P) {
+            k = 0;
 
-            t = self.x[1] as i64 - P224_P_8.x[1] as i64 + k;
-            self.x[1] = t as u32;
-            k = t >> 32;
-
-            t = self.x[2] as i64 - P224_P_8.x[2] as i64 + k;
-            self.x[2] = t as u32;
-            k = t >> 32;
-
-            t = self.x[3] as i64 - P224_P_8.x[3] as i64 + k;
-            self.x[3] = t as u32;
-            k = t >> 32;
-
-            t = self.x[4] as i64 - P224_P_8.x[4] as i64 + k;
-            self.x[4] = t as u32;
-            k = t >> 32;
-
-            t = self.x[5] as i64 - P224_P_8.x[5] as i64 + k;
-            self.x[5] = t as u32;
-            k = t >> 32;
-
-            t = self.x[6] as i64 - P224_P_8.x[6] as i64 + k;
-            self.x[6] = t as u32;
-            k = t >> 32;
-
-            t = self.x[7] as i64 + k;
-            self.x[7] = t as u32;
+            for j in 0..P224_LIMBS {
+                t = self.x[j] as i128 - P224_P.x[j] as i128 + k;
+                self.x[j] = t as u64;
+                k = t >> 64;
+            }
         }
 
         P224Element {
-            x: [
-                self.x[0], self.x[1], self.x[2], self.x[3], self.x[4], self.x[5], self.x[6],
-            ],
+            x: [self.x[0], self.x[1], self.x[2], self.x[3]],
         }
     }
 }
 
 impl P224MulResult {
     fn reduce(&self) -> P224Element {
-        let mut somewhat_reduced: P224AddResult = P224AddResult {
-            x: [0; P224_LIMBS + 1],
+        let mut somewhat_reduced: P224AddResult = P224AddResult { x: [0; P224_LIMBS] };
+
+        /*
+        [0] c0|c1
+        [1] c2|c3
+        [2] c4|c5
+        [3] c6|c7
+        [4] c8|c9
+        [5] c10|c11
+        [6] c12|c13
+         */
+
+        let s1 = P224Element {
+            x: [self.x[0], self.x[1], self.x[2], self.x[3] & 0xffffffff],
+        };
+        let s2 = P224Element {
+            x: [
+                0x0,
+                self.x[3] & 0xffffffff00000000,
+                self.x[4],
+                self.x[5] & 0xffffffff,
+            ],
+        };
+        let s3 = P224Element {
+            x: [0x0, self.x[5] & 0xffffffff00000000, self.x[6], 0x0],
+        };
+        let s4 = P224Element {
+            x: [
+                (self.x[3] >> 32) | ((self.x[4] & 0xffffffff) << 32),
+                (self.x[4] >> 32) | ((self.x[5] & 0xffffffff) << 32),
+                (self.x[5] >> 32) | ((self.x[6] & 0xffffffff) << 32),
+                self.x[6] >> 32,
+            ],
+        };
+        let s5 = P224Element {
+            x: [
+                (self.x[5] >> 32) | ((self.x[6] & 0xffffffff) << 32),
+                self.x[6] >> 32,
+                0x0,
+                0x0,
+            ],
         };
 
-        let mut sum: i64 = 0x2 + self.x[0] as i64 - self.x[7] as i64 - self.x[11] as i64;
-        somewhat_reduced.x[0] = sum as u32;
-        let mut carry: i64 = sum >> 32;
+        let mut t: i128;
+        let mut k: i128 = 0;
 
-        sum = self.x[1] as i64 - self.x[8] as i64 - self.x[12] as i64 + carry;
-        somewhat_reduced.x[1] = sum as u32;
-        carry = sum >> 32;
-
-        sum = self.x[2] as i64 - self.x[9] as i64 - self.x[13] as i64 + carry;
-        somewhat_reduced.x[2] = sum as u32;
-        carry = sum >> 32;
-
-        sum = 0x1fffffffe + self.x[3] as i64 + self.x[7] as i64 + self.x[11] as i64
-            - self.x[10] as i64
-            + carry;
-        somewhat_reduced.x[3] = sum as u32;
-        carry = sum >> 32;
-
-        sum = 0x1fffffffe + self.x[4] as i64 + self.x[8] as i64 + self.x[12] as i64
-            - self.x[11] as i64
-            + carry;
-        somewhat_reduced.x[4] = sum as u32;
-        carry = sum >> 32;
-
-        sum = 0x1fffffffe + self.x[5] as i64 + self.x[9] as i64 + self.x[13] as i64
-            - self.x[12] as i64
-            + carry;
-        somewhat_reduced.x[5] = sum as u32;
-        carry = sum >> 32;
-
-        sum = 0x1fffffffe + self.x[6] as i64 + self.x[10] as i64 - self.x[13] as i64 + carry;
-        somewhat_reduced.x[6] = sum as u32;
-        carry = sum >> 32;
-
-        somewhat_reduced.x[7] = carry as u32;
+        for j in 0..P224_LIMBS {
+            t = ((P224_P.x[j] as i128) << 1) + s1.x[j] as i128 + s2.x[j] as i128 + s3.x[j] as i128
+                - s4.x[j] as i128
+                - s5.x[j] as i128
+                + k;
+            somewhat_reduced.x[j] = t as u64;
+            k = t >> 64;
+        }
 
         return somewhat_reduced.reduce();
     }
 
-    fn sqr_helper(&mut self, k: usize, t: u64) {
-        let lo = t as u32;
-        let hi = (t >> 32) as u32;
+    fn sqr_helper(&mut self, k: usize, t: u128) {
+        let lo = t as u64;
+        let hi = (t >> 64) as u64;
 
         let (sumk, ck) = self.x[k].overflowing_add(lo);
         self.x[k] = sumk;
 
         let (sumk1, ck1a) = self.x[k + 1].overflowing_add(hi);
-        let (sumk1, ck1b) = sumk1.overflowing_add(ck as u32);
+        let (sumk1, ck1b) = sumk1.overflowing_add(ck as u64);
         self.x[k + 1] = sumk1;
 
-        let mut carry = (ck1a || ck1b) as u32;
+        let mut carry = (ck1a || ck1b) as u64;
         let mut l = k + 2;
         while carry != 0 {
             let (s, c) = self.x[l].overflowing_add(carry);
             self.x[l] = s;
-            carry = c as u32;
+            carry = c as u64;
             l += 1;
         }
     }
@@ -204,10 +196,14 @@ impl From<&[u8]> for P224Element {
     fn from(x: &[u8]) -> Self {
         let mut result: Self = Self { x: [0; P224_LIMBS] };
 
-        for i in 0..P224_LIMBS {
-            for j in 0..4 {
-                result.x[i] |= (x[i * 4 + j] as u32) << (j * 8);
+        for i in 0..(P224_LIMBS-1) {
+            for j in 0..8 {
+                result.x[i] |= (x[i * 8 + j] as u64) << (j * 8);
             }
+        }
+
+        for j in 0..4 {
+            result.x[3] |= (x[3 * 8 + j] as u64) << (j * 8);
         }
 
         result
@@ -218,10 +214,14 @@ impl From<P224Element> for Vec<u8> {
     fn from(x: P224Element) -> Vec<u8> {
         let mut result: [u8; 28] = [0; 28];
 
-        for i in 0..P224_LIMBS {
-            for j in 0..4 {
-                result[i * 4 + j] = (x.x[i] >> (j * 8)) as u8;
+        for i in 0..(P224_LIMBS-1) {
+            for j in 0..8 {
+                result[i * 8 + j] = (x.x[i] >> (j * 8)) as u8;
             }
+        }
+
+        for j in 0..4 {
+            result[3 * 8 + j] = (x.x[3] >> (j * 8)) as u8;
         }
 
         result.to_vec()
@@ -232,19 +232,16 @@ impl Add for P224Element {
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
-        let mut unreduced: P224AddResult = P224AddResult {
-            x: [0; P224_LIMBS + 1],
-        };
-        let mut t: u64;
-        let mut k: u64 = 0;
+        let mut unreduced: P224AddResult = P224AddResult { x: [0; P224_LIMBS] };
+        let mut t: u128;
+        let mut k: u128 = 0;
 
         for i in 0..P224_LIMBS {
-            t = self.x[i] as u64 + other.x[i] as u64 + k;
-            unreduced.x[i] = t as u32;
-            k = t >> 32;
+            t = self.x[i] as u128 + other.x[i] as u128 + k;
+            unreduced.x[i] = t as u64;
+            k = t >> 64;
         }
 
-        unreduced.x[P224_LIMBS] = k as u32;
         unreduced.reduce()
     }
 }
@@ -253,19 +250,16 @@ impl Sub for P224Element {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self::Output {
-        let mut unreduced: P224AddResult = P224AddResult {
-            x: [0; P224_LIMBS + 1],
-        };
-        let mut t: i64;
-        let mut k: i64 = 0;
+        let mut unreduced: P224AddResult = P224AddResult { x: [0; P224_LIMBS] };
+        let mut t: i128;
+        let mut k: i128 = 0;
 
         for i in 0..P224_LIMBS {
-            t = ((P224_P.x[i] as i64) << 1) - other.x[i] as i64 + self.x[i] as i64 + k;
-            unreduced.x[i] = t as u32;
-            k = t >> 32;
+            t = ((P224_P.x[i] as i128) << 1) - other.x[i] as i128 + self.x[i] as i128 + k;
+            unreduced.x[i] = t as u64;
+            k = t >> 64;
         }
 
-        unreduced.x[P224_LIMBS] = k as u32;
         unreduced.reduce()
     }
 }
@@ -278,42 +272,42 @@ impl Mul for P224Element {
             x: [0; P224_LIMBS << 1],
         };
         let mut k: usize;
-        let mut t: u64;
+        let mut t: u128;
 
         for i in 0..P224_LIMBS {
-            let mut carry: u64 = 0;
+            let mut carry: u128 = 0;
 
             for j in 0..P224_LIMBS {
                 k = i + j;
-                t = self.x[i] as u64 * other.x[j] as u64 + unreduced.x[k] as u64 + carry;
-                unreduced.x[k] = t as u32;
-                carry = t >> 32;
+                t = self.x[i] as u128 * other.x[j] as u128 + unreduced.x[k] as u128 + carry;
+                unreduced.x[k] = t as u64;
+                carry = t >> 64;
             }
 
-            unreduced.x[i + P224_LIMBS] = carry as u32;
+            unreduced.x[i + P224_LIMBS] = carry as u64;
         }
 
         unreduced.reduce()
     }
 }
 
-impl Mul<u32> for P224Element {
+impl Mul<u64> for P224Element {
     type Output = Self;
 
-    fn mul(self, y: u32) -> Self::Output {
+    fn mul(self, y: u64) -> Self::Output {
         let mut unreduced: P224MulResult = P224MulResult {
             x: [0; P224_LIMBS << 1],
         };
-        let mut t: u64;
-        let mut k: u64 = 0;
+        let mut t: u128;
+        let mut k: u128 = 0;
 
         for i in 0..P224_LIMBS {
-            t = self.x[i] as u64 * y as u64 + unreduced.x[i] as u64 + k;
-            unreduced.x[i] = t as u32;
-            k = t >> 32;
+            t = self.x[i] as u128 * y as u128 + unreduced.x[i] as u128 + k;
+            unreduced.x[i] = t as u64;
+            k = t >> 64;
         }
 
-        unreduced.x[P224_LIMBS] = k as u32;
+        unreduced.x[P224_LIMBS] = k as u64;
         unreduced.reduce()
     }
 }
@@ -323,15 +317,15 @@ impl P224Element {
         let mut unreduced: P224MulResult = P224MulResult {
             x: [0; P224_LIMBS << 1],
         };
-        let mut t: u64;
+        let mut t: u128;
         let mut k: usize;
 
         for i in 0..P224_LIMBS {
-            t = self.x[i] as u64 * self.x[i] as u64;
+            t = self.x[i] as u128 * self.x[i] as u128;
             unreduced.sqr_helper(2 * i, t);
 
             for j in (i + 1)..P224_LIMBS {
-                t = self.x[i] as u64 * self.x[j] as u64;
+                t = self.x[i] as u128 * self.x[j] as u128;
                 k = i + j;
 
                 unreduced.sqr_helper(k, t);
@@ -435,7 +429,7 @@ impl Mul<&[u8]> for P224Point {
 
 impl P224Point {
     fn is_point_at_infinity(&self) -> bool {
-        self.z.x == [0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]
+        self.z.x == [0x0, 0x0, 0x0, 0x0]
     }
 
     fn normalize(&self) -> P224Point {
