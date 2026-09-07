@@ -11,6 +11,8 @@ from fastecdsa_rs import (
     p224_verify,
     p256_sign,
     p256_verify,
+    p384_sign,
+    p384_verify,
 )
 
 if TYPE_CHECKING:
@@ -219,6 +221,8 @@ P384 = Curve(
         "60392947333078086511627871"
     ),
     b"\x2b\x81\x04\x00\x22",
+    p384_sign,
+    p384_verify,
 )
 P521 = Curve(
     "P521",

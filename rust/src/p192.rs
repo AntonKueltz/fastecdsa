@@ -54,8 +54,7 @@ const INFINITY: P192Point = P192Point {
     z: P192Element { x: [0x0, 0x0, 0x0] },
 };
 
-const P192_Q: U192 =
-    U192::from_be_hex("ffffffffffffffffffffffff99def836146bc9b1b4d22831");
+const P192_Q: U192 = U192::from_be_hex("ffffffffffffffffffffffff99def836146bc9b1b4d22831");
 const_monty_params!(
     P192Q,
     U192,

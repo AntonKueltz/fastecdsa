@@ -422,5 +422,5 @@ fn test_p256_pt_mul_order() {
         0xff, 0xff,
     ];
     let actual = (P256_G * &n).normalize();
-    assert_eq!(actual.z.x, [0x0, 0x0, 0x0, 0x0]);
+    assert!(actual.is_point_at_infinity());
 }

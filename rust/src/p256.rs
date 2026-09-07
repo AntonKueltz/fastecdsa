@@ -491,23 +491,21 @@ impl P256Point {
         }
 
         let z = self.z;
-        let z2 = z.sqr() * z;
+        let t0 = z.sqr();
+        let z2 = t0 * z;
         let z4 = z2.sqr_n_times(2) * z2;
-        let z8 = z4.sqr_n_times(4) * z4;
-        let z16 = z8.sqr_n_times(8) * z8;
-        let z32 = z16.sqr_n_times(16) * z16;
-        let z64 = z32.sqr_n_times(32) * z32;
-        let z24 = z16.sqr_n_times(8) * z8;
-        let z28 = z24.sqr_n_times(4) * z4;
-        let z30 = z28.sqr_n_times(2) * z2;
-        let z94 = z64.sqr_n_times(30) * z30;
+        let z6 = z4.sqr_n_times(2) * z2;
+        let z12 = z6.sqr_n_times(6) * z6;
+        let z24 = z12.sqr_n_times(12) * z12;
+        let z30 = z24.sqr_n_times(6) * z6;
+        let z32 = z30.sqr_n_times(2) * z2;
 
-        let mut zinv = z32;
-        zinv = zinv.sqr_n_times(32) * z;
-        zinv = zinv.sqr_n_times(96);
-        zinv = zinv.sqr_n_times(94) * z94;
-        zinv = zinv.sqr();
-        zinv = zinv.sqr() * z;
+        let mut zinv = z32.sqr_n_times(32) * z;
+        zinv = zinv.sqr_n_times(128) * z32;
+        zinv = zinv.sqr_n_times(32);
+        zinv = (z32 * zinv).sqr_n_times(30) * z30;
+        zinv = zinv.sqr_n_times(2);
+        zinv = zinv * z;
 
         let zinv2 = zinv.sqr();
         let zinv3 = zinv2 * zinv;
