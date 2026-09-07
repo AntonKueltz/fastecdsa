@@ -1,155 +1,118 @@
-use std::ops::{Add, Mul, Sub};
-
 use crypto_bigint::{const_monty_params, modular::ConstMontyForm, U256};
 use pyo3::prelude::*;
 
-const P224_LIMBS: usize = 4;
+use crate::curve::{AddResult, Curve, Field, MulResult, Point};
 
-struct P224AddResult {
-    x: [u64; P224_LIMBS],
-}
+#[derive(Debug)]
+pub struct P224;
 
-struct P224MulResult {
-    x: [u64; P224_LIMBS << 1],
-}
+impl Curve for P224 {
+    type Limbs = [u64; 4];
+    type Wide = [u64; 4];
+    type Double = [u64; 8];
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-struct P224Element {
-    x: [u64; P224_LIMBS],
-}
-const P224_ONE: P224Element = P224Element {
-    x: [0x1, 0x0, 0x0, 0x0],
-};
-const P224_P: P224Element = P224Element {
-    x: [0x1, 0xffffffff00000000, 0xffffffffffffffff, 0xffffffff],
-};
-const P224_A: P224Element = P224Element {
-    x: [
-        0xfffffffffffffffe,
-        0xfffffffeffffffff,
-        0xffffffffffffffff,
-        0xffffffff,
-    ],
-};
+    const LIMB_SZ: usize = 4;
+    const WIDE_SZ: usize = 4;
+    const FIELD_BYTES: usize = 28;
 
-#[derive(Clone, Copy, Debug)]
-struct P224Point {
-    x: P224Element,
-    y: P224Element,
-    z: P224Element,
-}
-const P224_G: P224Point = P224Point {
-    x: P224Element {
+    const P: Field<Self> = Field {
+        x: [0x1, 0xffffffff00000000, 0xffffffffffffffff, 0xffffffff],
+    };
+    const P_WIDE: AddResult<Self> = AddResult {
+        x: [0x1, 0xffffffff00000000, 0xffffffffffffffff, 0xffffffff],
+    };
+    const A: Field<Self> = Field {
         x: [
-            0x343280d6115c1d21,
-            0x4a03c1d356c21122,
-            0x6bb4bf7f321390b9,
-            0xb70e0cbd,
+            0xfffffffffffffffe,
+            0xfffffffeffffffff,
+            0xffffffffffffffff,
+            0xffffffff,
         ],
-    },
-    y: P224Element {
-        x: [
-            0x44d5819985007e34,
-            0xcd4375a05a074764,
-            0xb5f723fb4c22dfe6,
-            0xbd376388,
-        ],
-    },
-    z: P224_ONE,
-};
-const INFINITY: P224Point = P224Point {
-    x: P224Element {
-        x: [0x1, 0x0, 0x0, 0x0],
-    },
-    y: P224Element {
-        x: [0x1, 0x0, 0x0, 0x0],
-    },
-    z: P224Element {
+    };
+    const ZERO: Field<Self> = Field {
         x: [0x0, 0x0, 0x0, 0x0],
-    },
-};
+    };
+    const ONE: Field<Self> = Field {
+        x: [0x1, 0x0, 0x0, 0x0],
+    };
+    const G: Point<Self> = Point {
+        x: Field {
+            x: [
+                0x343280d6115c1d21,
+                0x4a03c1d356c21122,
+                0x6bb4bf7f321390b9,
+                0xb70e0cbd,
+            ],
+        },
+        y: Field {
+            x: [
+                0x44d5819985007e34,
+                0xcd4375a05a074764,
+                0xb5f723fb4c22dfe6,
+                0xbd376388,
+            ],
+        },
+        z: Self::ONE,
+    };
+    const INFINITY: Point<Self> = Point {
+        x: Self::ONE,
+        y: Self::ONE,
+        z: Self::ZERO,
+    };
 
-const P224_Q: U256 =
-    U256::from_be_hex("00000000ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d");
-const_monty_params!(
-    P224Q,
-    U256,
-    "00000000ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d"
-);
+    fn reduce_add_result(unreduced: &mut AddResult<Self>) -> Field<Self> {
+        let n = Self::WIDE_SZ;
+        let p = Self::P_WIDE;
 
-impl P224AddResult {
-    fn less_than(&self, other: &P224Element) -> bool {
-        for i in (0..P224_LIMBS).rev() {
-            if self.x[i] < other.x[i] {
-                return true;
-            } else if self.x[i] > other.x[i] {
-                return false;
-            }
-        }
-
-        false
-    }
-
-    fn reduce(&mut self) -> P224Element {
         let mut t: i128;
         let mut k: i128;
 
-        while !self.less_than(&P224_P) {
+        while !unreduced.less_than(&Self::P_WIDE) {
+            let a = unreduced.x.as_mut();
+            let q = p.x.as_ref();
             k = 0;
 
-            for j in 0..P224_LIMBS {
-                t = self.x[j] as i128 - P224_P.x[j] as i128 + k;
-                self.x[j] = t as u64;
+            for j in 0..n {
+                t = a[j] as i128 - q[j] as i128 + k;
+                a[j] = t as u64;
                 k = t >> 64;
             }
         }
 
-        P224Element {
-            x: [self.x[0], self.x[1], self.x[2], self.x[3]],
+        Field {
+            x: unreduced.x.clone(),
         }
     }
-}
 
-impl P224MulResult {
-    fn reduce(&self) -> P224Element {
-        let mut somewhat_reduced: P224AddResult = P224AddResult { x: [0; P224_LIMBS] };
-
-        /*
-        [0] c0|c1
-        [1] c2|c3
-        [2] c4|c5
-        [3] c6|c7
-        [4] c8|c9
-        [5] c10|c11
-        [6] c12|c13
-         */
-
-        let s1 = P224Element {
-            x: [self.x[0], self.x[1], self.x[2], self.x[3] & 0xffffffff],
+    fn reduce_mul_result(unreduced: &MulResult<Self>) -> Field<Self> {
+        let mut somewhat_reduced = AddResult::<Self> {
+            x: Self::Wide::default(),
         };
-        let s2 = P224Element {
+        let a = unreduced.x.as_ref();
+        let c = somewhat_reduced.x.as_mut();
+        let p = Self::P.x.as_ref();
+
+        let s1 = Field::<Self> {
+            x: [a[0], a[1], a[2], a[3] & 0xffffffff],
+        };
+        let s2 = Field::<Self> {
+            x: [0x0, a[3] & 0xffffffff00000000, a[4], a[5] & 0xffffffff],
+        };
+        let s3 = Field::<Self> {
+            x: [0x0, a[5] & 0xffffffff00000000, a[6], 0x0],
+        };
+        let s4 = Field::<Self> {
             x: [
-                0x0,
-                self.x[3] & 0xffffffff00000000,
-                self.x[4],
-                self.x[5] & 0xffffffff,
+                (a[3] >> 32) | ((a[4] & 0xffffffff) << 32),
+                (a[4] >> 32) | ((a[5] & 0xffffffff) << 32),
+                (a[5] >> 32) | ((a[6] & 0xffffffff) << 32),
+                a[6] >> 32,
             ],
         };
-        let s3 = P224Element {
-            x: [0x0, self.x[5] & 0xffffffff00000000, self.x[6], 0x0],
-        };
-        let s4 = P224Element {
+        let s5 = Field::<Self> {
             x: [
-                (self.x[3] >> 32) | ((self.x[4] & 0xffffffff) << 32),
-                (self.x[4] >> 32) | ((self.x[5] & 0xffffffff) << 32),
-                (self.x[5] >> 32) | ((self.x[6] & 0xffffffff) << 32),
-                self.x[6] >> 32,
-            ],
-        };
-        let s5 = P224Element {
-            x: [
-                (self.x[5] >> 32) | ((self.x[6] & 0xffffffff) << 32),
-                self.x[6] >> 32,
+                (a[5] >> 32) | ((a[6] & 0xffffffff) << 32),
+                a[6] >> 32,
                 0x0,
                 0x0,
             ],
@@ -158,286 +121,67 @@ impl P224MulResult {
         let mut t: i128;
         let mut k: i128 = 0;
 
-        for j in 0..P224_LIMBS {
-            t = ((P224_P.x[j] as i128) << 1) + s1.x[j] as i128 + s2.x[j] as i128 + s3.x[j] as i128
+        for j in 0..Self::LIMB_SZ {
+            t = ((p[j] as i128) << 1) + s1.x[j] as i128 + s2.x[j] as i128 + s3.x[j] as i128
                 - s4.x[j] as i128
                 - s5.x[j] as i128
                 + k;
-            somewhat_reduced.x[j] = t as u64;
+            c[j] = t as u64;
             k = t >> 64;
         }
 
-        return somewhat_reduced.reduce();
+        somewhat_reduced.reduce()
     }
 
-    fn sqr_helper(&mut self, k: usize, t: u128) {
-        let lo = t as u64;
-        let hi = (t >> 64) as u64;
+    fn field_add(op1: &Field<Self>, op2: &Field<Self>) -> Field<Self> {
+        let mut unreduced = AddResult::<Self> {
+            x: Self::Wide::default(),
+        };
 
-        let (sumk, ck) = self.x[k].overflowing_add(lo);
-        self.x[k] = sumk;
+        let a: &[u64] = op1.x.as_ref();
+        let b = op2.x.as_ref();
+        let c = unreduced.x.as_mut();
 
-        let (sumk1, ck1a) = self.x[k + 1].overflowing_add(hi);
-        let (sumk1, ck1b) = sumk1.overflowing_add(ck as u64);
-        self.x[k + 1] = sumk1;
-
-        let mut carry = (ck1a || ck1b) as u64;
-        let mut l = k + 2;
-        while carry != 0 {
-            let (s, c) = self.x[l].overflowing_add(carry);
-            self.x[l] = s;
-            carry = c as u64;
-            l += 1;
-        }
-    }
-}
-
-impl From<&[u8]> for P224Element {
-    fn from(x: &[u8]) -> Self {
-        let mut result: Self = Self { x: [0; P224_LIMBS] };
-
-        for i in 0..(P224_LIMBS-1) {
-            for j in 0..8 {
-                result.x[i] |= (x[i * 8 + j] as u64) << (j * 8);
-            }
-        }
-
-        for j in 0..4 {
-            result.x[3] |= (x[3 * 8 + j] as u64) << (j * 8);
-        }
-
-        result
-    }
-}
-
-impl From<P224Element> for Vec<u8> {
-    fn from(x: P224Element) -> Vec<u8> {
-        let mut result: [u8; 28] = [0; 28];
-
-        for i in 0..(P224_LIMBS-1) {
-            for j in 0..8 {
-                result[i * 8 + j] = (x.x[i] >> (j * 8)) as u8;
-            }
-        }
-
-        for j in 0..4 {
-            result[3 * 8 + j] = (x.x[3] >> (j * 8)) as u8;
-        }
-
-        result.to_vec()
-    }
-}
-
-impl Add for P224Element {
-    type Output = Self;
-
-    fn add(self, other: Self) -> Self::Output {
-        let mut unreduced: P224AddResult = P224AddResult { x: [0; P224_LIMBS] };
         let mut t: u128;
         let mut k: u128 = 0;
 
-        for i in 0..P224_LIMBS {
-            t = self.x[i] as u128 + other.x[i] as u128 + k;
-            unreduced.x[i] = t as u64;
+        for j in 0..Self::LIMB_SZ {
+            t = a[j] as u128 + b[j] as u128 + k;
+            c[j] = t as u64;
             k = t >> 64;
         }
 
         unreduced.reduce()
     }
-}
 
-impl Sub for P224Element {
-    type Output = Self;
+    fn field_sub(op1: &Field<Self>, op2: &Field<Self>) -> Field<Self> {
+        let mut unreduced = AddResult::<Self> {
+            x: Self::Wide::default(),
+        };
 
-    fn sub(self, other: Self) -> Self::Output {
-        let mut unreduced: P224AddResult = P224AddResult { x: [0; P224_LIMBS] };
+        let a = op1.x.as_ref();
+        let b = op2.x.as_ref();
+        let c = unreduced.x.as_mut();
+        let p = Self::P;
+
         let mut t: i128;
         let mut k: i128 = 0;
 
-        for i in 0..P224_LIMBS {
-            t = ((P224_P.x[i] as i128) << 1) - other.x[i] as i128 + self.x[i] as i128 + k;
-            unreduced.x[i] = t as u64;
+        for j in 0..Self::LIMB_SZ {
+            let q = p.x.as_ref();
+            t = ((q[j] as i128) << 1) - b[j] as i128 + a[j] as i128 + k;
+            c[j] = t as u64;
             k = t >> 64;
         }
 
         unreduced.reduce()
     }
-}
 
-impl Mul for P224Element {
-    type Output = Self;
-
-    fn mul(self, other: Self) -> Self::Output {
-        let mut unreduced: P224MulResult = P224MulResult {
-            x: [0; P224_LIMBS << 1],
-        };
-        let mut k: usize;
-        let mut t: u128;
-
-        for i in 0..P224_LIMBS {
-            let mut carry: u128 = 0;
-
-            for j in 0..P224_LIMBS {
-                k = i + j;
-                t = self.x[i] as u128 * other.x[j] as u128 + unreduced.x[k] as u128 + carry;
-                unreduced.x[k] = t as u64;
-                carry = t >> 64;
-            }
-
-            unreduced.x[i + P224_LIMBS] = carry as u64;
+    fn normalize_point(point: &Point<Self>) -> Point<Self> {
+        if point.is_point_at_infinity() {
+            return Self::INFINITY;
         }
-
-        unreduced.reduce()
-    }
-}
-
-impl Mul<u64> for P224Element {
-    type Output = Self;
-
-    fn mul(self, y: u64) -> Self::Output {
-        let mut unreduced: P224MulResult = P224MulResult {
-            x: [0; P224_LIMBS << 1],
-        };
-        let mut t: u128;
-        let mut k: u128 = 0;
-
-        for i in 0..P224_LIMBS {
-            t = self.x[i] as u128 * y as u128 + unreduced.x[i] as u128 + k;
-            unreduced.x[i] = t as u64;
-            k = t >> 64;
-        }
-
-        unreduced.x[P224_LIMBS] = k as u64;
-        unreduced.reduce()
-    }
-}
-
-impl P224Element {
-    fn sqr(&self) -> Self {
-        let mut unreduced: P224MulResult = P224MulResult {
-            x: [0; P224_LIMBS << 1],
-        };
-        let mut t: u128;
-        let mut k: usize;
-
-        for i in 0..P224_LIMBS {
-            t = self.x[i] as u128 * self.x[i] as u128;
-            unreduced.sqr_helper(2 * i, t);
-
-            for j in (i + 1)..P224_LIMBS {
-                t = self.x[i] as u128 * self.x[j] as u128;
-                k = i + j;
-
-                unreduced.sqr_helper(k, t);
-                unreduced.sqr_helper(k, t);
-            }
-        }
-
-        unreduced.reduce()
-    }
-
-    fn sqr_n_times(&self, n: usize) -> Self {
-        let mut result = self.clone();
-        for _ in 0..n {
-            result = result.sqr();
-        }
-        result
-    }
-}
-
-impl PartialEq for P224Point {
-    fn eq(&self, other: &Self) -> bool {
-        self.x * other.z * other.z == other.x * self.z * self.z
-            && self.y * other.z * other.z * other.z == other.y * self.z * self.z * self.z
-    }
-}
-
-impl Eq for P224Point {}
-
-impl Add for P224Point {
-    type Output = Self;
-
-    fn add(self, other: Self) -> Self::Output {
-        if self.is_point_at_infinity() {
-            return other.clone();
-        } else if other.is_point_at_infinity() {
-            return self.clone();
-        } else if self == other {
-            return self.double();
-        }
-
-        let x1 = self.x;
-        let x2 = other.x;
-        let y1 = self.y;
-        let y2 = other.y;
-        let z1 = self.z;
-        let z2 = other.z;
-
-        // https://hyperelliptic.org/EFD/g1p/auto-code/shortw/jacobian-3/addition/add-2007-bl.op3
-        let z1z1 = z1.sqr();
-        let z2z2 = z2.sqr();
-        let u1 = x1 * z2z2;
-        let u2 = x2 * z1z1;
-        let s1 = y1 * z2 * z2z2;
-        let s2 = y2 * z1 * z1z1;
-        let h = u2 - u1;
-        let i = (h * 2).sqr();
-        let j = h * i;
-        let r = (s2 - s1) * 2;
-        let v = u1 * i;
-        let x3 = r.sqr() - j - v * 2;
-        let y3 = r * (v - x3) - s1 * j * 2;
-        let z3 = ((z1 + z2).sqr() - z1z1 - z2z2) * h;
-
-        Self {
-            x: x3,
-            y: y3,
-            z: z3,
-        }
-    }
-}
-
-impl Mul<&[u8]> for P224Point {
-    type Output = Self;
-
-    fn mul(self, n: &[u8]) -> Self::Output {
-        if n.len() == 0 {
-            return INFINITY;
-        }
-
-        let mut j = n.len() * 8 - 1;
-        while !test_bit(n, j) {
-            j -= 1;
-        }
-
-        let mut r0: Self = INFINITY;
-        let mut r1: Self = self.clone();
-
-        for i in (0..j + 1).rev() {
-            if test_bit(n, i) {
-                r0 = r0 + r1;
-                r1 = r1.double();
-            } else {
-                r1 = r1 + r0;
-                r0 = r0.double();
-            }
-        }
-
-        r0
-    }
-}
-
-impl P224Point {
-    fn is_point_at_infinity(&self) -> bool {
-        self.z.x == [0x0, 0x0, 0x0, 0x0]
-    }
-
-    fn normalize(&self) -> P224Point {
-        if self.is_point_at_infinity() {
-            return INFINITY;
-        }
-
-        let z = self.z;
+        let z = point.z;
         let z2 = z.sqr() * z;
         let z3 = z2.sqr() * z;
         let z6 = z3.sqr_n_times(3) * z3;
@@ -461,68 +205,21 @@ impl P224Point {
         let zinv2 = zinv.sqr();
         let zinv3 = zinv2 * zinv;
 
-        Self {
-            x: self.x * zinv2,
-            y: self.y * zinv3,
-            z: P224_ONE,
+        Point::<Self> {
+            x: point.x * zinv2,
+            y: point.y * zinv3,
+            z: Self::ONE,
         }
-    }
-
-    fn double(&self) -> P224Point {
-        if self.is_point_at_infinity() {
-            return INFINITY;
-        }
-
-        let x1 = self.x;
-        let y1 = self.y;
-        let z1 = self.z;
-
-        // https://hyperelliptic.org/EFD/g1p/auto-code/shortw/jacobian-3/doubling/dbl-2007-bl.op3
-        let xx = x1.sqr();
-        let yy = y1.sqr();
-        let yyyy = yy.sqr();
-        let zz = z1.sqr();
-        let s = ((x1 + yy).sqr() - xx - yyyy) * 2;
-        let m = xx * 3 + P224_A * zz.sqr();
-        let t = m.sqr() - s * 2;
-        let y3 = m * (s - t) - yyyy * 8;
-        let z3 = (y1 + z1).sqr() - yy - zz;
-
-        Self { x: t, y: y3, z: z3 }
-    }
-
-    fn shamir(p: &P224Point, q: &P224Point, n: &[u8], m: &[u8]) -> P224Point {
-        let mut j = n.len() * 8 - 1;
-        while !test_bit(n, j) && !test_bit(m, j) {
-            j -= 1;
-        }
-
-        let pq = *p + *q;
-        let mut r = INFINITY;
-
-        for i in (0..j + 1).rev() {
-            r = r.double();
-
-            if test_bit(n, i) && test_bit(m, i) {
-                r = r + pq;
-            } else if test_bit(n, i) {
-                r = r + *p;
-            } else if test_bit(m, i) {
-                r = r + *q;
-            }
-        }
-
-        r
     }
 }
 
-#[inline]
-fn test_bit(n: &[u8], j: usize) -> bool {
-    let byte = j >> 3;
-    let bit = j & 0b111;
-
-    ((n[byte] >> bit) & 1) == 1
-}
+const P224_Q: U256 =
+    U256::from_be_hex("00000000ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d");
+const_monty_params!(
+    P224Q,
+    U256,
+    "00000000ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d"
+);
 
 #[inline]
 fn monty_form(n: &[u8]) -> ConstMontyForm<P224Q, 4> {
@@ -534,8 +231,8 @@ fn monty_form(n: &[u8]) -> ConstMontyForm<P224Q, 4> {
 
 #[pyfunction]
 pub fn p224_sign(msg: &[u8], d_bytes: &[u8], k_bytes: &[u8]) -> (Vec<u8>, Vec<u8>) {
-    let p = P224_G.mul(&k_bytes).normalize();
-    let r_bytes: Vec<u8> = P224Element::into(p.x);
+    let p = (P224::G * &k_bytes).normalize();
+    let r_bytes: Vec<u8> = Field::<P224>::into(p.x);
 
     let k = monty_form(k_bytes);
     let z = monty_form(msg);
@@ -578,10 +275,10 @@ pub fn p224_verify(
         return false;
     }
 
-    let q: P224Point = P224Point {
-        x: P224Element::from(qx_bytes),
-        y: P224Element::from(qy_bytes),
-        z: P224_ONE,
+    let q = Point::<P224> {
+        x: Field::<P224>::from(qx_bytes),
+        y: Field::<P224>::from(qy_bytes),
+        z: P224::ONE,
     };
     let z = monty_form(msg);
     let s = monty_form(s_bytes);
@@ -590,14 +287,14 @@ pub fn p224_verify(
     let u1 = z * sinv;
     let u2 = r * sinv;
 
-    let p = P224Point::shamir(
-        &P224_G,
+    let p = Point::<P224>::shamir(
+        &P224::G,
         &q,
         &u1.retrieve().to_le_bytes().to_vec(),
         &u2.retrieve().to_le_bytes().to_vec(),
     )
     .normalize();
-    let x_bytes: Vec<u8> = P224Element::into(p.x);
+    let x_bytes: Vec<u8> = Field::<P224>::into(p.x);
     let xq = monty_form(&x_bytes);
 
     xq == r

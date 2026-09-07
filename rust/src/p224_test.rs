@@ -2,7 +2,7 @@ use crate::p224::*;
 
 #[test]
 fn test_p224_mul_reduce() {
-    let expected: P224Element = P224Element {
+    let expected: Field<P224> = Field::<P224> {
         x: [
             0x493d883344cad88a,
             0x57c802985f6d8313,
@@ -10,7 +10,7 @@ fn test_p224_mul_reduce() {
             0xf49af314,
         ],
     };
-    let n: P224MulResult = P224MulResult {
+    let n: MulResult<P224> = MulResult::<P224> {
         x: [
             0x5f05da840370bd88,
             0x808ebc77e3ab4d61,
@@ -28,7 +28,7 @@ fn test_p224_mul_reduce() {
 
 #[test]
 fn test_p224_from_bytes() {
-    let expected: P224Element = P224Element {
+    let expected: Field<P224> = Field::<P224> {
         x: [
             0x493d883344cad88a,
             0x57c802985f6d8313,
@@ -40,7 +40,7 @@ fn test_p224_from_bytes() {
         0x8a, 0xd8, 0xca, 0x44, 0x33, 0x88, 0x3d, 0x49, 0x13, 0x83, 0x6d, 0x5f, 0x98, 0x02, 0xc8,
         0x57, 0x7c, 0x70, 0xf8, 0xb7, 0xf2, 0xd0, 0x7c, 0x64, 0x14, 0xf3, 0x9a, 0xf4,
     ];
-    let actual = P224Element::from(n);
+    let actual = Field::<P224>::from(n);
     assert_eq!(actual, expected);
 }
 
@@ -51,7 +51,7 @@ fn test_p224_to_bytes() {
         0x57, 0x7c, 0x70, 0xf8, 0xb7, 0xf2, 0xd0, 0x7c, 0x64, 0x14, 0xf3, 0x9a, 0xf4,
     ]
     .to_vec();
-    let n: P224Element = P224Element {
+    let n: Field<P224> = Field::<P224> {
         x: [
             0x493d883344cad88a,
             0x57c802985f6d8313,
@@ -59,13 +59,13 @@ fn test_p224_to_bytes() {
             0xf49af314,
         ],
     };
-    let actual: Vec<u8> = P224Element::into(n);
+    let actual: Vec<u8> = Field::<P224>::into(n);
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p224_add() {
-    let expected: P224Element = P224Element {
+    let expected: Field<P224> = Field::<P224> {
         x: [
             0x08cbc61e236627aa,
             0xc6215d38ba81db7b,
@@ -73,7 +73,7 @@ fn test_p224_add() {
             0x7c7aac97,
         ],
     };
-    let n: P224Element = P224Element {
+    let n: Field<P224> = Field::<P224> {
         x: [
             0xfd3b4da73de54a8e,
             0x3a1c81c8f57e81d4,
@@ -81,7 +81,7 @@ fn test_p224_add() {
             0x063c9f95,
         ],
     };
-    let m: P224Element = P224Element {
+    let m: Field<P224> = Field::<P224> {
         x: [
             0x0b907876e580dd1c,
             0x8c04db6fc50359a6,
@@ -95,7 +95,7 @@ fn test_p224_add() {
 
 #[test]
 fn test_p224_add_overflow() {
-    let expected: P224Element = P224Element {
+    let expected: Field<P224> = Field::<P224> {
         x: [
             0xfffffffffffffffb,
             0xfffffffeffffffff,
@@ -103,13 +103,13 @@ fn test_p224_add_overflow() {
             0xffffffff,
         ],
     };
-    let actual = P224_A + P224_A;
+    let actual = P224::A + P224::A;
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p224_sub() {
-    let expected1: P224Element = P224Element {
+    let expected1: Field<P224> = Field::<P224> {
         x: [
             0xf1aad53058646d73,
             0xae17a658307b282e,
@@ -117,7 +117,7 @@ fn test_p224_sub() {
             0x8ffe9294,
         ],
     };
-    let expected2: P224Element = P224Element {
+    let expected2: Field<P224> = Field::<P224> {
         x: [
             0x0e552acfa79b928e,
             0x51e859a6cf84d7d1,
@@ -125,7 +125,7 @@ fn test_p224_sub() {
             0x70016d6b,
         ],
     };
-    let n: P224Element = P224Element {
+    let n: Field<P224> = Field::<P224> {
         x: [
             0xfd3b4da73de54a8e,
             0x3a1c81c8f57e81d4,
@@ -133,7 +133,7 @@ fn test_p224_sub() {
             0x063c9f95,
         ],
     };
-    let m: P224Element = P224Element {
+    let m: Field<P224> = Field::<P224> {
         x: [
             0x0b907876e580dd1c,
             0x8c04db6fc50359a6,
@@ -149,19 +149,19 @@ fn test_p224_sub() {
 
 #[test]
 fn test_p224_sub_overflow() {
-    let expected: P224Element = P224Element {
+    let expected: Field<P224> = Field::<P224> {
         x: [0x3, 0x0, 0x0, 0x0],
     };
-    let n = P224Element {
+    let n = Field::<P224> {
         x: [0x0, 0x0, 0x0, 0x0],
     };
-    let actual = n - P224_A;
+    let actual = n - P224::A;
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p224_mul() {
-    let expected: P224Element = P224Element {
+    let expected: Field<P224> = Field::<P224> {
         x: [
             0x493d883344cad88a,
             0x57c802985f6d8313,
@@ -169,7 +169,7 @@ fn test_p224_mul() {
             0xf49af314,
         ],
     };
-    let n: P224Element = P224Element {
+    let n: Field<P224> = Field::<P224> {
         x: [
             0xfd3b4da73de54a8e,
             0x3a1c81c8f57e81d4,
@@ -177,7 +177,7 @@ fn test_p224_mul() {
             0x063c9f95,
         ],
     };
-    let m: P224Element = P224Element {
+    let m: Field<P224> = Field::<P224> {
         x: [
             0x0b907876e580dd1c,
             0x8c04db6fc50359a6,
@@ -191,13 +191,13 @@ fn test_p224_mul() {
 
 #[test]
 fn test_p224_mul_overflow() {
-    let expected: P224Element = P224Element {
+    let expected: Field<P224> = Field::<P224> {
         x: [0x2, 0x0, 0x0, 0x0],
     };
-    let n: P224Element = P224Element {
+    let n: Field<P224> = Field::<P224> {
         x: [0x0, 0xffffffff00000000, 0xffffffffffffffff, 0xffffffff],
     };
-    let m: P224Element = P224Element {
+    let m: Field<P224> = Field::<P224> {
         x: [
             0xffffffffffffffff,
             0xfffffffeffffffff,
@@ -211,7 +211,7 @@ fn test_p224_mul_overflow() {
 
 #[test]
 fn test_p224_mul_const() {
-    let expected: P224Element = P224Element {
+    let expected: Field<P224> = Field::<P224> {
         x: [
             0xe9da6d39ef2a5470,
             0xd0e40e47abf40ea7,
@@ -219,7 +219,7 @@ fn test_p224_mul_const() {
             0x31e4fcae,
         ],
     };
-    let n: P224Element = P224Element {
+    let n: Field<P224> = Field::<P224> {
         x: [
             0xfd3b4da73de54a8e,
             0x3a1c81c8f57e81d4,
@@ -233,7 +233,7 @@ fn test_p224_mul_const() {
 
 #[test]
 fn test_p224_mul_const_overflow() {
-    let expected: P224Element = P224Element {
+    let expected: Field<P224> = Field::<P224> {
         x: [
             0xffffffffffffffe9,
             0xfffffffeffffffff,
@@ -241,13 +241,13 @@ fn test_p224_mul_const_overflow() {
             0xffffffff,
         ],
     };
-    let actual = P224_A * 8;
+    let actual = P224::A * 8;
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p224_sqr() {
-    let expected: P224Element = P224Element {
+    let expected: Field<P224> = Field::<P224> {
         x: [
             0xaa26ed998a59a7d1,
             0x024d53cd1ea2eddd,
@@ -255,7 +255,7 @@ fn test_p224_sqr() {
             0xb7713872,
         ],
     };
-    let n: P224Element = P224Element {
+    let n: Field<P224> = Field::<P224> {
         x: [
             0xfd3b4da73de54a8e,
             0x3a1c81c8f57e81d4,
@@ -269,17 +269,17 @@ fn test_p224_sqr() {
 
 #[test]
 fn test_p224_sqr_overflow() {
-    let expected: P224Element = P224Element {
+    let expected: Field<P224> = Field::<P224> {
         x: [0x9, 0x0, 0x0, 0x0],
     };
-    let actual = P224_A.sqr();
+    let actual = P224::A.sqr();
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p224_pt_normalize() {
-    let expected: P224Point = P224Point {
-        x: P224Element {
+    let expected: Point<P224> = Point::<P224> {
+        x: Field::<P224> {
             x: [
                 0x94059c899026ade8,
                 0x24ab15887b6ae575,
@@ -287,7 +287,7 @@ fn test_p224_pt_normalize() {
                 0xdb7356bf,
             ],
         },
-        y: P224Element {
+        y: Field::<P224> {
             x: [
                 0xa3bc0e480e685087,
                 0x2d873d3e7e97f929,
@@ -295,12 +295,12 @@ fn test_p224_pt_normalize() {
                 0x5c576280,
             ],
         },
-        z: P224_ONE,
+        z: P224::ONE,
     };
-    let p: P224Point = P224Point {
-        x: P224_G.x,
-        y: P224_G.y,
-        z: P224Element {
+    let p: Point<P224> = Point::<P224> {
+        x: P224::G.x,
+        y: P224::G.y,
+        z: Field::<P224> {
             x: [0x3, 0x0, 0x0, 0x0],
         },
     };
@@ -310,8 +310,8 @@ fn test_p224_pt_normalize() {
 
 #[test]
 fn test_p224_pt_double() {
-    let expected: P224Point = P224Point {
-        x: P224Element {
+    let expected: Point<P224> = Point::<P224> {
+        x: Field::<P224> {
             x: [
                 0x32d268fd1a704fa6,
                 0x89474788d16dc180,
@@ -319,7 +319,7 @@ fn test_p224_pt_double() {
                 0x706a46dc,
             ],
         },
-        y: P224Element {
+        y: Field::<P224> {
             x: [
                 0x7acf3709d2e4e8bb,
                 0x86892849fca62948,
@@ -327,16 +327,16 @@ fn test_p224_pt_double() {
                 0x1c2b76a7,
             ],
         },
-        z: P224_ONE,
+        z: P224::ONE,
     };
-    let actual = P224_G.double().normalize();
+    let actual = P224::G.double().normalize();
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p224_pt_add() {
-    let expected: P224Point = P224Point {
-        x: P224Element {
+    let expected: Point<P224> = Point::<P224> {
+        x: Field::<P224> {
             x: [
                 0x79fe0d08fd896d04,
                 0x58b9d2cc75c21802,
@@ -344,7 +344,7 @@ fn test_p224_pt_add() {
                 0xdf1b1d66,
             ],
         },
-        y: P224Element {
+        y: Field::<P224> {
             x: [
                 0x4e1af3591981a925,
                 0x30130ddf77d31734,
@@ -352,10 +352,10 @@ fn test_p224_pt_add() {
                 0xa3f7f03c,
             ],
         },
-        z: P224_ONE,
+        z: P224::ONE,
     };
-    let p: P224Point = P224Point {
-        x: P224Element {
+    let p: Point<P224> = Point::<P224> {
+        x: Field::<P224> {
             x: [
                 0x32d268fd1a704fa6,
                 0x89474788d16dc180,
@@ -363,7 +363,7 @@ fn test_p224_pt_add() {
                 0x706a46dc,
             ],
         },
-        y: P224Element {
+        y: Field::<P224> {
             x: [
                 0x7acf3709d2e4e8bb,
                 0x86892849fca62948,
@@ -371,16 +371,16 @@ fn test_p224_pt_add() {
                 0x1c2b76a7,
             ],
         },
-        z: P224_ONE,
+        z: P224::ONE,
     };
-    let actual = (p + P224_G).normalize();
+    let actual = (p + P224::G).normalize();
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p224_pt_mul() {
-    let expected: P224Point = P224Point {
-        x: P224Element {
+    let expected: Point<P224> = Point::<P224> {
+        x: Field::<P224> {
             x: [
                 0x58cc0de7c32b2c04,
                 0x0904e80dd3cba915,
@@ -388,7 +388,7 @@ fn test_p224_pt_mul() {
                 0xdb938d39,
             ],
         },
-        y: P224Element {
+        y: Field::<P224> {
             x: [
                 0xee325576d272b6e8,
                 0xed2602c1304218f3,
@@ -396,12 +396,12 @@ fn test_p224_pt_mul() {
                 0xb279687d,
             ],
         },
-        z: P224_ONE,
+        z: P224::ONE,
     };
     let n: [u8; 28] = [
         0xa4, 0xab, 0xb3, 0xdb, 0x51, 0x6d, 0xdb, 0xc6, 0xad, 0x35, 0x8f, 0x2f, 0x28, 0x4c, 0x4f,
         0x1c, 0x85, 0xbf, 0x57, 0x64, 0x6f, 0xd4, 0x09, 0xe8, 0x1b, 0xee, 0xb2, 0x17,
     ];
-    let actual = (P224_G * &n).normalize();
+    let actual = (P224::G * &n).normalize();
     assert_eq!(actual, expected);
 }

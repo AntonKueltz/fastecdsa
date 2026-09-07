@@ -2,7 +2,7 @@ use crate::p256::*;
 
 #[test]
 fn test_p256_mul_reduce() {
-    let expected: P256Element = P256Element {
+    let expected: Field<P256> = Field::<P256> {
         x: [
             0xae892a213489686c,
             0xb6f1d25e3569310b,
@@ -10,7 +10,7 @@ fn test_p256_mul_reduce() {
             0x3601c5b3196e68e2,
         ],
     };
-    let n: P256MulResult = P256MulResult {
+    let n: MulResult<P256> = MulResult::<P256> {
         x: [
             0x78af0c46c60d189b,
             0xe4235a4da53be257,
@@ -28,7 +28,7 @@ fn test_p256_mul_reduce() {
 
 #[test]
 fn test_p256_from_bytes() {
-    let expected: P256Element = P256Element {
+    let expected: Field<P256> = Field::<P256> {
         x: [
             0x98f30938d11ca647,
             0xd24dea34c2cd3128,
@@ -41,7 +41,7 @@ fn test_p256_from_bytes() {
         0xd2, 0x23, 0x8c, 0x76, 0x56, 0xcd, 0x25, 0x2e, 0x39, 0xc2, 0x17, 0x5f, 0x55, 0x09, 0x11,
         0x39, 0x77,
     ];
-    let actual = P256Element::from(n);
+    let actual = Field::<P256>::from(n);
     assert_eq!(actual, expected);
 }
 
@@ -53,7 +53,7 @@ fn test_p256_to_bytes() {
         0x39, 0x77,
     ]
     .to_vec();
-    let n: P256Element = P256Element {
+    let n: Field<P256> = Field::<P256> {
         x: [
             0x98f30938d11ca647,
             0xd24dea34c2cd3128,
@@ -61,13 +61,13 @@ fn test_p256_to_bytes() {
             0x77391109555f17c2,
         ],
     };
-    let actual: Vec<u8> = P256Element::into(n);
+    let actual: Vec<u8> = Field::<P256>::into(n);
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p256_add() {
-    let expected: P256Element = P256Element {
+    let expected: Field<P256> = Field::<P256> {
         x: [
             0x28a0dc67eae74754,
             0xdd10edbca91db3a5,
@@ -75,7 +75,7 @@ fn test_p256_add() {
             0xae3cbc2f6612d12b,
         ],
     };
-    let n: P256Element = P256Element {
+    let n: Field<P256> = Field::<P256> {
         x: [
             0x98f30938d11ca647,
             0xd24dea34c2cd3128,
@@ -83,7 +83,7 @@ fn test_p256_add() {
             0x77391109555f17c2,
         ],
     };
-    let m: P256Element = P256Element {
+    let m: Field<P256> = Field::<P256> {
         x: [
             0x8fadd32f19caa10d,
             0x0ac30387e650827c,
@@ -97,7 +97,7 @@ fn test_p256_add() {
 
 #[test]
 fn test_p256_add_overflow() {
-    let expected: P256Element = P256Element {
+    let expected: Field<P256> = Field::<P256> {
         x: [
             0xfffffffffffffff9,
             0x00000000ffffffff,
@@ -105,13 +105,13 @@ fn test_p256_add_overflow() {
             0xffffffff00000001,
         ],
     };
-    let actual = P256_A + P256_A;
+    let actual = P256::A + P256::A;
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p256_sub() {
-    let expected1: P256Element = P256Element {
+    let expected1: Field<P256> = Field::<P256> {
         x: [
             0x09453609b752053a,
             0xc78ae6acdc7caeac,
@@ -119,7 +119,7 @@ fn test_p256_sub() {
             0x403565e344ab5e58,
         ],
     };
-    let expected2: P256Element = P256Element {
+    let expected2: Field<P256> = Field::<P256> {
         x: [
             0xf6bac9f648adfac5,
             0x3875195423835153,
@@ -127,7 +127,7 @@ fn test_p256_sub() {
             0xbfca9a1bbb54a1a8,
         ],
     };
-    let n: P256Element = P256Element {
+    let n: Field<P256> = Field::<P256> {
         x: [
             0x98f30938d11ca647,
             0xd24dea34c2cd3128,
@@ -135,7 +135,7 @@ fn test_p256_sub() {
             0x77391109555f17c2,
         ],
     };
-    let m: P256Element = P256Element {
+    let m: Field<P256> = Field::<P256> {
         x: [
             0x8fadd32f19caa10d,
             0x0ac30387e650827c,
@@ -151,19 +151,19 @@ fn test_p256_sub() {
 
 #[test]
 fn test_p256_sub_overflow() {
-    let expected: P256Element = P256Element {
+    let expected: Field<P256> = Field::<P256> {
         x: [0x3, 0x0, 0x0, 0x0],
     };
-    let n: P256Element = P256Element {
+    let n: Field<P256> = Field::<P256> {
         x: [0x0, 0x0, 0x0, 0x0],
     };
-    let actual = n - P256_A;
+    let actual = n - P256::A;
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p256_mul() {
-    let expected: P256Element = P256Element {
+    let expected: Field<P256> = Field::<P256> {
         x: [
             0xae892a213489686c,
             0xb6f1d25e3569310b,
@@ -171,7 +171,7 @@ fn test_p256_mul() {
             0x3601c5b3196e68e2,
         ],
     };
-    let n: P256Element = P256Element {
+    let n: Field<P256> = Field::<P256> {
         x: [
             0x98f30938d11ca647,
             0xd24dea34c2cd3128,
@@ -179,7 +179,7 @@ fn test_p256_mul() {
             0x77391109555f17c2,
         ],
     };
-    let m: P256Element = P256Element {
+    let m: Field<P256> = Field::<P256> {
         x: [
             0x8fadd32f19caa10d,
             0x0ac30387e650827c,
@@ -193,10 +193,10 @@ fn test_p256_mul() {
 
 #[test]
 fn test_p256_mul_overflow() {
-    let expected: P256Element = P256Element {
+    let expected: Field<P256> = Field::<P256> {
         x: [0x2, 0x0, 0x0, 0x0],
     };
-    let n: P256Element = P256Element {
+    let n: Field<P256> = Field::<P256> {
         x: [
             0xfffffffffffffffe,
             0x00000000ffffffff,
@@ -204,7 +204,7 @@ fn test_p256_mul_overflow() {
             0xffffffff00000001,
         ],
     };
-    let m: P256Element = P256Element {
+    let m: Field<P256> = Field::<P256> {
         x: [
             0xfffffffffffffffd,
             0x00000000ffffffff,
@@ -218,7 +218,7 @@ fn test_p256_mul_overflow() {
 
 #[test]
 fn test_p256_mul_const() {
-    let expected: P256Element = P256Element {
+    let expected: Field<P256> = Field::<P256> {
         x: [
             0xc79849c688e5323b,
             0x926f51a316698944,
@@ -226,7 +226,7 @@ fn test_p256_mul_const() {
             0xb9c8884daaf8be0e,
         ],
     };
-    let n: P256Element = P256Element {
+    let n: Field<P256> = Field::<P256> {
         x: [
             0x98f30938d11ca647,
             0xd24dea34c2cd3128,
@@ -240,7 +240,7 @@ fn test_p256_mul_const() {
 
 #[test]
 fn test_p256_mul_const_overflow() {
-    let expected: P256Element = P256Element {
+    let expected: Field<P256> = Field::<P256> {
         x: [
             0xffffffffffffffe7,
             0x00000000ffffffff,
@@ -248,13 +248,13 @@ fn test_p256_mul_const_overflow() {
             0xffffffff00000001,
         ],
     };
-    let actual = P256_A * 8;
+    let actual = P256::A * 8;
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p256_sqr() {
-    let expected: P256Element = P256Element {
+    let expected: Field<P256> = Field::<P256> {
         x: [
             0x4d7215408d8ebe64,
             0x0d1006ab74962f42,
@@ -262,7 +262,7 @@ fn test_p256_sqr() {
             0x23203afdbb49b5f0,
         ],
     };
-    let n: P256Element = P256Element {
+    let n: Field<P256> = Field::<P256> {
         x: [
             0x98f30938d11ca647,
             0xd24dea34c2cd3128,
@@ -276,17 +276,17 @@ fn test_p256_sqr() {
 
 #[test]
 fn test_p256_sqr_overflow() {
-    let expected: P256Element = P256Element {
+    let expected: Field<P256> = Field::<P256> {
         x: [0x9, 0x0, 0x0, 0x0],
     };
-    let actual = P256_A.sqr();
+    let actual = P256::A.sqr();
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p256_pt_normalize() {
-    let expected: P256Point = P256Point {
-        x: P256Element {
+    let expected: Point<P256> = Point::<P256> {
+        x: Field::<P256> {
             x: [
                 0x8cf578243482c049,
                 0xf0c77fb9935305bc,
@@ -294,7 +294,7 @@ fn test_p256_pt_normalize() {
                 0x9a1f175351e87924,
             ],
         },
-        y: P256Element {
+        y: Field::<P256> {
             x: [
                 0xfe103b463af41f7a,
                 0x3a82e575de0b4f5c,
@@ -302,12 +302,12 @@ fn test_p256_pt_normalize() {
                 0xdd086ac52f565094,
             ],
         },
-        z: P256_ONE,
+        z: P256::ONE,
     };
-    let p: P256Point = P256Point {
-        x: P256_G.x,
-        y: P256_G.y,
-        z: P256Element {
+    let p: Point<P256> = Point::<P256> {
+        x: P256::G.x,
+        y: P256::G.y,
+        z: Field::<P256> {
             x: [0x3, 0x0, 0x0, 0x0],
         },
     };
@@ -317,8 +317,8 @@ fn test_p256_pt_normalize() {
 
 #[test]
 fn test_p256_pt_double() {
-    let expected: P256Point = P256Point {
-        x: P256Element {
+    let expected: Point<P256> = Point::<P256> {
+        x: Field::<P256> {
             x: [
                 0xa60b48fc47669978,
                 0xc08969e277f21b35,
@@ -326,7 +326,7 @@ fn test_p256_pt_double() {
                 0x7cf27b188d034f7e,
             ],
         },
-        y: P256Element {
+        y: Field::<P256> {
             x: [
                 0x9e04b79d227873d1,
                 0xba7dade63ce98229,
@@ -334,16 +334,16 @@ fn test_p256_pt_double() {
                 0x07775510db8ed040,
             ],
         },
-        z: P256_ONE,
+        z: P256::ONE,
     };
-    let actual = P256_G.double().normalize();
+    let actual = P256::G.double().normalize();
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p256_pt_add() {
-    let expected: P256Point = P256Point {
-        x: P256Element {
+    let expected: Point<P256> = Point::<P256> {
+        x: Field::<P256> {
             x: [
                 0xfb41661bc6e7fd6c,
                 0xe6c6b721efada985,
@@ -351,7 +351,7 @@ fn test_p256_pt_add() {
                 0x5ecbe4d1a6330a44,
             ],
         },
-        y: P256Element {
+        y: Field::<P256> {
             x: [
                 0x9a79b127a27d5032,
                 0xd82ab036384fb83d,
@@ -359,10 +359,10 @@ fn test_p256_pt_add() {
                 0x8734640c4998ff7e,
             ],
         },
-        z: P256_ONE,
+        z: P256::ONE,
     };
-    let n: P256Point = P256Point {
-        x: P256Element {
+    let n: Point<P256> = Point::<P256> {
+        x: Field::<P256> {
             x: [
                 0xa60b48fc47669978,
                 0xc08969e277f21b35,
@@ -370,7 +370,7 @@ fn test_p256_pt_add() {
                 0x7cf27b188d034f7e,
             ],
         },
-        y: P256Element {
+        y: Field::<P256> {
             x: [
                 0x9e04b79d227873d1,
                 0xba7dade63ce98229,
@@ -378,16 +378,16 @@ fn test_p256_pt_add() {
                 0x07775510db8ed040,
             ],
         },
-        z: P256_ONE,
+        z: P256::ONE,
     };
-    let actual = (n + P256_G).normalize();
+    let actual = (n + P256::G).normalize();
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p256_pt_mul() {
-    let expected: P256Point = P256Point {
-        x: P256Element {
+    let expected: Point<P256> = Point::<P256> {
+        x: Field::<P256> {
             x: [
                 0x31aaee5563e0e8b3,
                 0x1a46bea87c4323a6,
@@ -395,7 +395,7 @@ fn test_p256_pt_mul() {
                 0x4577970b464a4920,
             ],
         },
-        y: P256Element {
+        y: Field::<P256> {
             x: [
                 0x11782ec0c78d507c,
                 0xef9cc511aa9f24a2,
@@ -403,14 +403,14 @@ fn test_p256_pt_mul() {
                 0x736d4e4e6584fab6,
             ],
         },
-        z: P256_ONE,
+        z: P256::ONE,
     };
     let n: [u8; 32] = [
         0x5e, 0xda, 0x47, 0x80, 0x6a, 0x6d, 0xff, 0xbf, 0x44, 0xdf, 0x82, 0x61, 0xac, 0x74, 0x29,
         0xf6, 0x5d, 0x18, 0xed, 0xc2, 0x32, 0x4a, 0xc4, 0x84, 0xa3, 0x69, 0x61, 0xc3, 0xdd, 0x23,
         0x14, 0xf4,
     ];
-    let actual = (P256_G * &n).normalize();
+    let actual = (P256::G * &n).normalize();
     assert_eq!(actual, expected);
 }
 
@@ -421,6 +421,6 @@ fn test_p256_pt_mul_order() {
         0xbc, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff,
         0xff, 0xff,
     ];
-    let actual = (P256_G * &n).normalize();
+    let actual = (P256::G * &n).normalize();
     assert!(actual.is_point_at_infinity());
 }

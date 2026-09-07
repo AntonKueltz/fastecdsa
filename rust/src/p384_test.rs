@@ -2,7 +2,7 @@ use crate::p384::*;
 
 #[test]
 fn test_p384_mul_reduce() {
-    let expected: P384Element = P384Element {
+    let expected: Field<P384> = Field::<P384> {
         x: [
             0x781aeaba7bc96200,
             0xefa481fda9ee8d39,
@@ -12,7 +12,7 @@ fn test_p384_mul_reduce() {
             0x375ac19f39a9d9b1,
         ],
     };
-    let n: P384MulResult = P384MulResult {
+    let n: MulResult<P384> = MulResult::<P384> {
         x: [
             0x8a89eb16c9de6ddc,
             0x14ecd97053d488a8,
@@ -34,7 +34,7 @@ fn test_p384_mul_reduce() {
 
 #[test]
 fn test_p384_from_bytes() {
-    let expected: P384Element = P384Element {
+    let expected: Field<P384> = Field::<P384> {
         x: [
             0xec16fc4c3e7d795f,
             0x555fff21f283837f,
@@ -50,7 +50,7 @@ fn test_p384_from_bytes() {
         0x18, 0x86, 0x58, 0xec, 0xa5, 0x5c, 0x1e, 0x70, 0x3b, 0x42, 0xc8, 0x8e, 0x9a, 0x5f, 0xe7,
         0x46, 0xd4, 0xc4,
     ];
-    let actual = P384Element::from(n);
+    let actual = Field::<P384>::from(n);
     assert_eq!(actual, expected);
 }
 
@@ -63,7 +63,7 @@ fn test_p384_to_bytes() {
         0x46, 0xd4, 0xc4,
     ]
     .to_vec();
-    let n: P384Element = P384Element {
+    let n: Field<P384> = Field::<P384> {
         x: [
             0xec16fc4c3e7d795f,
             0x555fff21f283837f,
@@ -73,13 +73,13 @@ fn test_p384_to_bytes() {
             0xc4d446e75f9a8ec8,
         ],
     };
-    let actual: Vec<u8> = P384Element::into(n);
+    let actual: Vec<u8> = Field::<P384>::into(n);
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p384_add() {
-    let expected: P384Element = P384Element {
+    let expected: Field<P384> = Field::<P384> {
         x: [
             0x91318fcf22e6ed04,
             0x56df65c86b8def39,
@@ -89,7 +89,7 @@ fn test_p384_add() {
             0x5b3f25e168435d94,
         ],
     };
-    let n: P384Element = P384Element {
+    let n: Field<P384> = Field::<P384> {
         x: [
             0xec16fc4c3e7d795f,
             0x555fff21f283837f,
@@ -99,7 +99,7 @@ fn test_p384_add() {
             0xc4d446e75f9a8ec8,
         ],
     };
-    let m: P384Element = P384Element {
+    let m: Field<P384> = Field::<P384> {
         x: [
             0xa51a9383e46973a4,
             0x017f66a5790a6bb9,
@@ -115,7 +115,7 @@ fn test_p384_add() {
 
 #[test]
 fn test_p384_add_overflow() {
-    let expected: P384Element = P384Element {
+    let expected: Field<P384> = Field::<P384> {
         x: [
             0x00000000fffffff9,
             0xffffffff00000000,
@@ -125,13 +125,13 @@ fn test_p384_add_overflow() {
             0xffffffffffffffff,
         ],
     };
-    let actual = P384_A + P384_A;
+    let actual = P384::A + P384::A;
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p384_sub() {
-    let expected1: P384Element = P384Element {
+    let expected1: Field<P384> = Field::<P384> {
         x: [
             0x46fc68c85a1405bb,
             0x53e0987c797917c6,
@@ -141,7 +141,7 @@ fn test_p384_sub() {
             0x2e6967ed56f1bffb,
         ],
     };
-    let expected2: P384Element = P384Element {
+    let expected2: Field<P384> = Field::<P384> {
         x: [
             0xb9039738a5ebfa44,
             0xac1f67828686e839,
@@ -151,7 +151,7 @@ fn test_p384_sub() {
             0xd1969812a90e4004,
         ],
     };
-    let n: P384Element = P384Element {
+    let n: Field<P384> = Field::<P384> {
         x: [
             0xec16fc4c3e7d795f,
             0x555fff21f283837f,
@@ -161,7 +161,7 @@ fn test_p384_sub() {
             0xc4d446e75f9a8ec8,
         ],
     };
-    let m: P384Element = P384Element {
+    let m: Field<P384> = Field::<P384> {
         x: [
             0xa51a9383e46973a4,
             0x017f66a5790a6bb9,
@@ -179,19 +179,19 @@ fn test_p384_sub() {
 
 #[test]
 fn test_p384_sub_overflow() {
-    let expected: P384Element = P384Element {
+    let expected: Field<P384> = Field::<P384> {
         x: [0x3, 0x0, 0x0, 0x0, 0x0, 0x0],
     };
-    let n: P384Element = P384Element {
+    let n: Field<P384> = Field::<P384> {
         x: [0x0, 0x0, 0x0, 0x0, 0x0, 0x0],
     };
-    let actual = n - P384_A;
+    let actual = n - P384::A;
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p384_mul() {
-    let expected: P384Element = P384Element {
+    let expected: Field<P384> = Field::<P384> {
         x: [
             0x781aeaba7bc96200,
             0xefa481fda9ee8d39,
@@ -201,7 +201,7 @@ fn test_p384_mul() {
             0x375ac19f39a9d9b1,
         ],
     };
-    let n: P384Element = P384Element {
+    let n: Field<P384> = Field::<P384> {
         x: [
             0xec16fc4c3e7d795f,
             0x555fff21f283837f,
@@ -211,7 +211,7 @@ fn test_p384_mul() {
             0xc4d446e75f9a8ec8,
         ],
     };
-    let m: P384Element = P384Element {
+    let m: Field<P384> = Field::<P384> {
         x: [
             0xa51a9383e46973a4,
             0x017f66a5790a6bb9,
@@ -227,10 +227,10 @@ fn test_p384_mul() {
 
 #[test]
 fn test_p384_mul_overflow() {
-    let expected: P384Element = P384Element {
+    let expected: Field<P384> = Field::<P384> {
         x: [0x2, 0x0, 0x0, 0x0, 0x0, 0x0],
     };
-    let n: P384Element = P384Element {
+    let n: Field<P384> = Field::<P384> {
         x: [
             0x00000000fffffffe,
             0xffffffff00000000,
@@ -240,7 +240,7 @@ fn test_p384_mul_overflow() {
             0xffffffffffffffff,
         ],
     };
-    let m: P384Element = P384Element {
+    let m: Field<P384> = Field::<P384> {
         x: [
             0x00000000fffffffd,
             0xffffffff00000000,
@@ -256,7 +256,7 @@ fn test_p384_mul_overflow() {
 
 #[test]
 fn test_p384_mul_const() {
-    let expected: P384Element = P384Element {
+    let expected: Field<P384> = Field::<P384> {
         x: [
             0x60b7e25bf3ebcafe,
             0xaafff915941c1bff,
@@ -266,7 +266,7 @@ fn test_p384_mul_const() {
             0x26a2373afcd47642,
         ],
     };
-    let n: P384Element = P384Element {
+    let n: Field<P384> = Field::<P384> {
         x: [
             0xec16fc4c3e7d795f,
             0x555fff21f283837f,
@@ -282,7 +282,7 @@ fn test_p384_mul_const() {
 
 #[test]
 fn test_p384_mul_const_overflow() {
-    let expected: P384Element = P384Element {
+    let expected: Field<P384> = Field::<P384> {
         x: [
             0x00000000ffffffe7,
             0xffffffff00000000,
@@ -292,13 +292,13 @@ fn test_p384_mul_const_overflow() {
             0xffffffffffffffff,
         ],
     };
-    let actual = P384_A * 8;
+    let actual = P384::A * 8;
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p384_sqr() {
-    let expected: P384Element = P384Element {
+    let expected: Field<P384> = Field::<P384> {
         x: [
             0xf6aff7f3676e0760,
             0xee9eff734d3f9583,
@@ -308,7 +308,7 @@ fn test_p384_sqr() {
             0xdb4f1dcd6dc0ecb2,
         ],
     };
-    let n: P384Element = P384Element {
+    let n: Field<P384> = Field::<P384> {
         x: [
             0xec16fc4c3e7d795f,
             0x555fff21f283837f,
@@ -324,17 +324,17 @@ fn test_p384_sqr() {
 
 #[test]
 fn test_p384_sqr_overflow() {
-    let expected: P384Element = P384Element {
+    let expected: Field<P384> = Field::<P384> {
         x: [0x9, 0x0, 0x0, 0x0, 0x0, 0x0],
     };
-    let actual = P384_A.sqr();
+    let actual = P384::A.sqr();
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p384_pt_normalize() {
-    let expected: P384Point = P384Point {
-        x: P384Element {
+    let expected: Point<P384> = Point::<P384> {
+        x: Field::<P384> {
             x: [
                 0x5bd07c3f459b5686,
                 0xb41cc59887097661,
@@ -344,7 +344,7 @@ fn test_p384_pt_normalize() {
                 0x2f646bcaf8ba1d06,
             ],
         },
-        y: P384Element {
+        y: Field::<P384> {
             x: [
                 0x177dbeb9b008ab32,
                 0x55b7babadb2a9c81,
@@ -354,12 +354,12 @@ fn test_p384_pt_normalize() {
                 0xef0a5d90fc146075,
             ],
         },
-        z: P384_ONE,
+        z: P384::ONE,
     };
-    let p: P384Point = P384Point {
-        x: P384_G.x,
-        y: P384_G.y,
-        z: P384Element {
+    let p: Point<P384> = Point::<P384> {
+        x: P384::G.x,
+        y: P384::G.y,
+        z: Field::<P384> {
             x: [0x3, 0x0, 0x0, 0x0, 0x0, 0x0],
         },
     };
@@ -369,8 +369,8 @@ fn test_p384_pt_normalize() {
 
 #[test]
 fn test_p384_pt_double() {
-    let expected: P384Point = P384Point {
-        x: P384Element {
+    let expected: Point<P384> = Point::<P384> {
+        x: Field::<P384> {
             x: [
                 0x5b96a9c75295df61,
                 0x4fe0e86ebe0e64f8,
@@ -380,7 +380,7 @@ fn test_p384_pt_double() {
                 0x08d999057ba3d2d9,
             ],
         },
-        y: P384Element {
+        y: Field::<P384> {
             x: [
                 0x61501e700a940e80,
                 0x5ffd43e94d39e22d,
@@ -390,16 +390,16 @@ fn test_p384_pt_double() {
                 0x8e80f1fa5b1b3ced,
             ],
         },
-        z: P384_ONE,
+        z: P384::ONE,
     };
-    let actual = P384_G.double().normalize();
+    let actual = P384::G.double().normalize();
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p384_pt_add() {
-    let expected: P384Point = P384Point {
-        x: P384Element {
+    let expected: Point<P384> = Point::<P384> {
+        x: Field::<P384> {
             x: [
                 0x02d7e5c70500c831,
                 0xb408bbae5026580d,
@@ -409,7 +409,7 @@ fn test_p384_pt_add() {
                 0x077a41d4606ffa14,
             ],
         },
-        y: P384Element {
+        y: Field::<P384> {
             x: [
                 0xb65f28600a2f1df1,
                 0xc24abd6be4b5d298,
@@ -419,10 +419,10 @@ fn test_p384_pt_add() {
                 0xc995f7ca0b0c4283,
             ],
         },
-        z: P384_ONE,
+        z: P384::ONE,
     };
-    let n: P384Point = P384Point {
-        x: P384Element {
+    let n: Point<P384> = Point::<P384> {
+        x: Field::<P384> {
             x: [
                 0x5b96a9c75295df61,
                 0x4fe0e86ebe0e64f8,
@@ -432,7 +432,7 @@ fn test_p384_pt_add() {
                 0x08d999057ba3d2d9,
             ],
         },
-        y: P384Element {
+        y: Field::<P384> {
             x: [
                 0x61501e700a940e80,
                 0x5ffd43e94d39e22d,
@@ -442,16 +442,16 @@ fn test_p384_pt_add() {
                 0x8e80f1fa5b1b3ced,
             ],
         },
-        z: P384_ONE,
+        z: P384::ONE,
     };
-    let actual = (n + P384_G).normalize();
+    let actual = (n + P384::G).normalize();
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn test_p384_pt_mul() {
-    let expected: P384Point = P384Point {
-        x: P384Element {
+    let expected: Point<P384> = Point::<P384> {
+        x: Field::<P384> {
             x: [
                 0xfe712caf245e39f4,
                 0x4fd25d4784ba695b,
@@ -461,7 +461,7 @@ fn test_p384_pt_mul() {
                 0x354429756fd492a2,
             ],
         },
-        y: P384Element {
+        y: Field::<P384> {
             x: [
                 0x2f285d4a305d37e1,
                 0x3ceb2e5d4eb3051c,
@@ -471,7 +471,7 @@ fn test_p384_pt_mul() {
                 0xd0f89ce5ada72abf,
             ],
         },
-        z: P384_ONE,
+        z: P384::ONE,
     };
     let n: [u8; 48] = [
         0x50, 0x8b, 0x23, 0x44, 0x0b, 0x21, 0xf7, 0xb3, 0xe6, 0xf8, 0xfc, 0x5b, 0xbb, 0x31, 0x48,
@@ -479,7 +479,7 @@ fn test_p384_pt_mul() {
         0x63, 0xd5, 0xbd, 0x11, 0xdf, 0x66, 0x87, 0xc1, 0xd4, 0xdc, 0xe0, 0xf8, 0x9b, 0x9e, 0x69,
         0x1f, 0x9f, 0x76,
     ];
-    let actual = (P384_G * &n).normalize();
+    let actual = (P384::G * &n).normalize();
     assert_eq!(actual, expected);
 }
 
@@ -491,6 +491,6 @@ fn test_p384_pt_mul_order() {
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
         0xff, 0xff, 0xff,
     ];
-    let actual = (P384_G * &n).normalize();
+    let actual = (P384::G * &n).normalize();
     assert!(actual.is_point_at_infinity());
 }
