@@ -22,83 +22,8 @@ pub trait Curve: Sized {
     const G: Point<Self>;
     const INFINITY: Point<Self>;
 
-    fn reduce_add_result(_unreduced: &mut AddResult<Self>) -> Field<Self> {
-        let n = Self::WIDE_SZ - 1;
-        let p = Self::P_WIDE;
-
-        let mut t: i128;
-        let mut k: i128;
-
-        while !_unreduced.less_than(&Self::P_WIDE) {
-            let a = _unreduced.x.as_mut();
-            let q = p.x.as_ref();
-            k = 0;
-
-            for j in 0..n {
-                t = a[j] as i128 - q[j] as i128 + k;
-                a[j] = t as u64;
-                k = t >> 64;
-            }
-
-            t = a[n] as i128 + k;
-            a[n] = t as u64;
-        }
-
-        let mut result = Self::Limbs::default();
-        result
-            .as_mut()
-            .copy_from_slice(&_unreduced.x.as_ref()[..Self::LIMB_SZ]);
-        Field { x: result }
-    }
-
     fn reduce_mul_result(_unreduced: &MulResult<Self>) -> Field<Self> {
         todo!()
-    }
-
-    fn field_add(op1: &Field<Self>, op2: &Field<Self>) -> Field<Self> {
-        let mut unreduced = AddResult::<Self> {
-            x: Self::Wide::default(),
-        };
-
-        let a = op1.x.as_ref();
-        let b = op2.x.as_ref();
-        let c = unreduced.x.as_mut();
-
-        let mut t: u128;
-        let mut k: u128 = 0;
-
-        for j in 0..Self::LIMB_SZ {
-            t = a[j] as u128 + b[j] as u128 + k;
-            c[j] = t as u64;
-            k = t >> 64;
-        }
-
-        c[Self::LIMB_SZ] = k as u64;
-        unreduced.reduce()
-    }
-
-    fn field_sub(op1: &Field<Self>, op2: &Field<Self>) -> Field<Self> {
-        let mut unreduced = AddResult::<Self> {
-            x: Self::Wide::default(),
-        };
-
-        let a = op1.x.as_ref();
-        let b = op2.x.as_ref();
-        let c = unreduced.x.as_mut();
-        let p = Self::P;
-
-        let mut t: i128;
-        let mut k: i128 = 0;
-
-        for j in 0..Self::LIMB_SZ {
-            let q = p.x.as_ref();
-            t = ((q[j] as i128) << 1) - b[j] as i128 + a[j] as i128 + k;
-            c[j] = t as u64;
-            k = t >> 64;
-        }
-
-        c[Self::LIMB_SZ] = k as u64;
-        unreduced.reduce()
     }
 
     fn normalize_point(_point: &Point<Self>) -> Point<Self> {
@@ -141,7 +66,37 @@ impl<C: Curve> AddResult<C> {
     }
 
     pub fn reduce(&mut self) -> Field<C> {
-        C::reduce_add_result(self)
+        let n = C::WIDE_SZ - 1;
+        let p = C::P_WIDE;
+
+        let mut t: i128;
+        let mut k: i128;
+
+        while !self.less_than(&C::P_WIDE) {
+            let a = self.x.as_mut();
+            let q = p.x.as_ref();
+            k = 0;
+
+            for j in 0..n {
+                t = a[j] as i128 - q[j] as i128 + k;
+                a[j] = t as u64;
+                k = t >> 64;
+            }
+
+            if C::WIDE_SZ != C::LIMB_SZ {
+                t = a[n] as i128 + k;
+                a[n] = t as u64;
+            } else {
+                t = a[n] as i128 - q[n] as i128 + k;
+                a[n] = t as u64;
+            }
+        }
+
+        let mut result = C::Limbs::default();
+        result
+            .as_mut()
+            .copy_from_slice(&self.x.as_ref()[..C::LIMB_SZ]);
+        Field { x: result }
     }
 }
 
@@ -224,7 +179,27 @@ impl<C: Curve> Add for Field<C> {
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
-        C::field_add(&self, &other)
+        let mut unreduced = AddResult::<C> {
+            x: C::Wide::default(),
+        };
+
+        let a = self.x.as_ref();
+        let b = other.x.as_ref();
+        let c = unreduced.x.as_mut();
+
+        let mut t: u128;
+        let mut k: u128 = 0;
+
+        for j in 0..C::LIMB_SZ {
+            t = a[j] as u128 + b[j] as u128 + k;
+            c[j] = t as u64;
+            k = t >> 64;
+        }
+
+        if C::WIDE_SZ != C::LIMB_SZ {
+            c[C::LIMB_SZ] = k as u64;
+        }
+        unreduced.reduce()
     }
 }
 
@@ -232,7 +207,29 @@ impl<C: Curve> Sub for Field<C> {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self::Output {
-        C::field_sub(&self, &other)
+        let mut unreduced = AddResult::<C> {
+            x: C::Wide::default(),
+        };
+
+        let a = self.x.as_ref();
+        let b = other.x.as_ref();
+        let c = unreduced.x.as_mut();
+        let p = C::P;
+
+        let mut t: i128;
+        let mut k: i128 = 0;
+
+        for j in 0..C::LIMB_SZ {
+            let q = p.x.as_ref();
+            t = ((q[j] as i128) << 1) - b[j] as i128 + a[j] as i128 + k;
+            c[j] = t as u64;
+            k = t >> 64;
+        }
+
+        if C::WIDE_SZ != C::LIMB_SZ {
+            c[C::LIMB_SZ] = k as u64;
+        }
+        unreduced.reduce()
     }
 }
 

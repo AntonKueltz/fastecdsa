@@ -75,30 +75,6 @@ impl Curve for P224 {
         z: Self::ZERO,
     };
 
-    fn reduce_add_result(unreduced: &mut AddResult<Self>) -> Field<Self> {
-        let n = Self::WIDE_SZ;
-        let p = Self::P_WIDE;
-
-        let mut t: i128;
-        let mut k: i128;
-
-        while !unreduced.less_than(&Self::P_WIDE) {
-            let a = unreduced.x.as_mut();
-            let q = p.x.as_ref();
-            k = 0;
-
-            for j in 0..n {
-                t = a[j] as i128 - q[j] as i128 + k;
-                a[j] = t as u64;
-                k = t >> 64;
-            }
-        }
-
-        Field {
-            x: unreduced.x.clone(),
-        }
-    }
-
     fn reduce_mul_result(unreduced: &MulResult<Self>) -> Field<Self> {
         let mut somewhat_reduced = AddResult::<Self> {
             x: Self::Wide::default(),
@@ -146,50 +122,6 @@ impl Curve for P224 {
         }
 
         somewhat_reduced.reduce()
-    }
-
-    fn field_add(op1: &Field<Self>, op2: &Field<Self>) -> Field<Self> {
-        let mut unreduced = AddResult::<Self> {
-            x: Self::Wide::default(),
-        };
-
-        let a: &[u64] = op1.x.as_ref();
-        let b = op2.x.as_ref();
-        let c = unreduced.x.as_mut();
-
-        let mut t: u128;
-        let mut k: u128 = 0;
-
-        for j in 0..Self::LIMB_SZ {
-            t = a[j] as u128 + b[j] as u128 + k;
-            c[j] = t as u64;
-            k = t >> 64;
-        }
-
-        unreduced.reduce()
-    }
-
-    fn field_sub(op1: &Field<Self>, op2: &Field<Self>) -> Field<Self> {
-        let mut unreduced = AddResult::<Self> {
-            x: Self::Wide::default(),
-        };
-
-        let a = op1.x.as_ref();
-        let b = op2.x.as_ref();
-        let c = unreduced.x.as_mut();
-        let p = Self::P;
-
-        let mut t: i128;
-        let mut k: i128 = 0;
-
-        for j in 0..Self::LIMB_SZ {
-            let q = p.x.as_ref();
-            t = ((q[j] as i128) << 1) - b[j] as i128 + a[j] as i128 + k;
-            c[j] = t as u64;
-            k = t >> 64;
-        }
-
-        unreduced.reduce()
     }
 
     fn normalize_point(point: &Point<Self>) -> Point<Self> {

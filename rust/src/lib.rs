@@ -5,6 +5,7 @@ use crate::p192::P192;
 use crate::p224::P224;
 use crate::p256::P256;
 use crate::p384::P384;
+use crate::p521::P521;
 
 pub mod curve;
 pub mod ecdsa;
@@ -12,6 +13,7 @@ pub mod p192;
 pub mod p224;
 pub mod p256;
 pub mod p384;
+pub mod p521;
 pub mod scalar;
 
 #[pyfunction]
@@ -54,6 +56,16 @@ pub fn p384_verify(r: &[u8], s: &[u8], msg: &[u8], qx: &[u8], qy: &[u8]) -> bool
     verify::<P384>(r, s, msg, qx, qy)
 }
 
+#[pyfunction]
+pub fn p521_sign(msg: &[u8], d_bytes: &[u8], k_bytes: &[u8]) -> (Vec<u8>, Vec<u8>) {
+    sign::<P521>(msg, d_bytes, k_bytes)
+}
+
+#[pyfunction]
+pub fn p521_verify(r: &[u8], s: &[u8], msg: &[u8], qx: &[u8], qy: &[u8]) -> bool {
+    verify::<P521>(r, s, msg, qx, qy)
+}
+
 #[pymodule]
 fn fastecdsa_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(p192_sign, m)?)?;
@@ -67,6 +79,9 @@ fn fastecdsa_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     m.add_function(wrap_pyfunction!(p384_sign, m)?)?;
     m.add_function(wrap_pyfunction!(p384_verify, m)?)?;
+
+    m.add_function(wrap_pyfunction!(p521_sign, m)?)?;
+    m.add_function(wrap_pyfunction!(p521_verify, m)?)?;
 
     return Ok(());
 }

@@ -13,6 +13,8 @@ from fastecdsa_rs import (
     p256_verify,
     p384_sign,
     p384_verify,
+    p521_sign,
+    p521_verify,
 )
 
 if TYPE_CHECKING:
@@ -248,6 +250,8 @@ P521 = Curve(
         "05012945539562144444537289428522585666729196580810124344277578376784"
     ),
     b"\x2b\x81\x04\x00\x23",
+    p521_sign,
+    p521_verify,
 )
 W25519 = Curve(
     "W25519",

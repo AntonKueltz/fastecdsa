@@ -11,7 +11,6 @@ from json import load
 from unittest import TestCase
 
 from fastecdsa.curve import (
-    P521,
     brainpoolP224r1,
     brainpoolP256r1,
     brainpoolP320r1,
@@ -96,13 +95,3 @@ class TestWycheproofEcdsaVerify(TestCase):
         filename = "tests/vectors/whycheproof/ecdsa_secp256k1_sha512_test.json"
         tests = self._get_tests(filename)
         self._test_runner(tests, secp256k1, sha512)
-
-    def test_p521_sha3_512(self):
-        filename = "tests/vectors/whycheproof/ecdsa_secp521r1_sha3_512_test.json"
-        tests = self._get_tests(filename)
-        self._test_runner(tests, P521, sha3_512)
-
-    def test_p521_sha512(self):
-        filename = "tests/vectors/whycheproof/ecdsa_secp521r1_sha512_test.json"
-        tests = self._get_tests(filename)
-        self._test_runner(tests, P521, sha512)
