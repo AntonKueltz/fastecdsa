@@ -336,22 +336,22 @@ fn test_p384_pt_normalize() {
     let expected: Point<P384> = Point::<P384> {
         x: Field::<P384> {
             x: [
-                0x5bd07c3f459b5686,
-                0xb41cc59887097661,
-                0x09ff0751d59792e9,
-                0x619178604867f4d8,
-                0x2c4ca458c5ae4c29,
-                0x2f646bcaf8ba1d06,
+                0x137174bdd0d20392,
+                0x1c5650c9951c6324,
+                0x1dfd15f580c6b8bd,
+                0x24b46920d937de88,
+                0x84e5ed0a510ae47c,
+                0x8e2d4360ea2e5712,
             ],
         },
         y: Field::<P384> {
             x: [
-                0x177dbeb9b008ab32,
-                0x55b7babadb2a9c81,
-                0x1b9fc8edc45e3fba,
-                0x4b974378c89d690e,
-                0xe705dfbb3e514a86,
-                0xef0a5d90fc146075,
+                0xd36bb47f304e04ca,
+                0x03759099b47f8089,
+                0xf89e105be7503d95,
+                0xa8515f3f0d88b17e,
+                0x1f34dd9530db9eb8,
+                0x675d4a18dcb76425,
             ],
         },
         z: P384::ONE,
@@ -392,7 +392,7 @@ fn test_p384_pt_double() {
         },
         z: P384::ONE,
     };
-    let actual = P384::G.double().normalize();
+    let actual = (P384::G + P384::G).normalize();
     assert_eq!(actual, expected);
 }
 

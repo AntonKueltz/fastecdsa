@@ -281,18 +281,18 @@ fn test_p224_pt_normalize() {
     let expected: Point<P224> = Point::<P224> {
         x: Field::<P224> {
             x: [
-                0x94059c899026ade8,
-                0x24ab15887b6ae575,
-                0xb6a24e2a93c948f8,
-                0xdb7356bf,
+                0xbc10d59cb07409b6,
+                0x6e01409b7240b060,
+                0x23e6ea7fbb5bdae8,
+                0x925a043f,
             ],
         },
         y: Field::<P224> {
             x: [
-                0xa3bc0e480e685087,
-                0x2d873d3e7e97f929,
-                0x52976025c07311c6,
-                0x5c576280,
+                0xc19c808881aad4bc,
+                0x99c127357357c276,
+                0xe7526153c40b9ff7,
+                0x3f127682,
             ],
         },
         z: P224::ONE,
@@ -329,7 +329,7 @@ fn test_p224_pt_double() {
         },
         z: P224::ONE,
     };
-    let actual = P224::G.double().normalize();
+    let actual = (P224::G + P224::G).normalize();
     assert_eq!(actual, expected);
 }
 

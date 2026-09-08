@@ -36,6 +36,14 @@ impl Curve for P224 {
             0xffffffff,
         ],
     };
+    const B: Field<Self> = Field {
+        x: [
+            0x270b39432355ffb4,
+            0x5044b0b7d7bfd8ba,
+            0x0c04b3abf5413256,
+            0xb4050a85,
+        ],
+    };
     const ZERO: Field<Self> = Field {
         x: [0x0, 0x0, 0x0, 0x0],
     };
@@ -62,7 +70,7 @@ impl Curve for P224 {
         z: Self::ONE,
     };
     const INFINITY: Point<Self> = Point {
-        x: Self::ONE,
+        x: Self::ZERO,
         y: Self::ONE,
         z: Self::ZERO,
     };
@@ -209,12 +217,10 @@ impl Curve for P224 {
         let z96 = z48.sqr_n_times(48) * z48;
 
         let zinv = z127.sqr_n_times(97) * z96;
-        let zinv2 = zinv.sqr();
-        let zinv3 = zinv2 * zinv;
 
         Point::<Self> {
-            x: point.x * zinv2,
-            y: point.y * zinv3,
+            x: point.x * zinv,
+            y: point.y * zinv,
             z: Self::ONE,
         }
     }

@@ -47,6 +47,14 @@ impl Curve for P256 {
             0xffffffff00000001,
         ],
     };
+    const B: Field<Self> = Field {
+        x: [
+            0x3bce3c3e27d2604b,
+            0x651d06b0cc53b0f6,
+            0xb3ebbd55769886bc,
+            0x5ac635d8aa3a93e7,
+        ],
+    };
     const ZERO: Field<Self> = Field {
         x: [0x0, 0x0, 0x0, 0x0],
     };
@@ -73,7 +81,7 @@ impl Curve for P256 {
         z: Self::ONE,
     };
     const INFINITY: Point<Self> = Point {
-        x: Self::ONE,
+        x: Self::ZERO,
         y: Self::ONE,
         z: Self::ZERO,
     };
@@ -186,12 +194,9 @@ impl Curve for P256 {
         zinv = zinv.sqr_n_times(2);
         zinv = zinv * z;
 
-        let zinv2 = zinv.sqr();
-        let zinv3 = zinv2 * zinv;
-
         Point::<Self> {
-            x: point.x * zinv2,
-            y: point.y * zinv3,
+            x: point.x * zinv,
+            y: point.y * zinv,
             z: Self::ONE,
         }
     }

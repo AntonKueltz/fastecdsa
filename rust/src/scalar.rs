@@ -1,4 +1,7 @@
-use crypto_bigint::{modular::{ConstMontyForm, ConstMontyParams}, Uint};
+use crypto_bigint::{
+    modular::{ConstMontyForm, ConstMontyParams},
+    Uint,
+};
 
 pub trait ScalarField: Copy + Sized {
     fn from_le_bytes(bytes: &[u8]) -> Self;
@@ -12,6 +15,10 @@ pub trait ScalarField: Copy + Sized {
     fn add(&self, other: &Self) -> Self;
 
     fn mul(&self, other: &Self) -> Self;
+
+    fn is_zero(&self) -> bool;
+
+    fn eq(&self, other: &Self) -> bool;
 }
 
 impl<MOD, const LIMBS: usize> ScalarField for ConstMontyForm<MOD, LIMBS>
@@ -50,5 +57,13 @@ where
 
     fn mul(&self, other: &Self) -> Self {
         *self * *other
+    }
+
+    fn is_zero(&self) -> bool {
+        bool::from(self.retrieve().is_zero())
+    }
+
+    fn eq(&self, other: &Self) -> bool {
+        *self == *other
     }
 }

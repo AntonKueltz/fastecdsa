@@ -53,6 +53,16 @@ impl Curve for P384 {
             0xffffffffffffffff,
         ],
     };
+    const B: Field<Self> = Field {
+        x: [
+            0x2a85c8edd3ec2aef,
+            0xc656398d8a2ed19d,
+            0x0314088f5013875a,
+            0x181d9c6efe814112,
+            0x988e056be3f82d19,
+            0xb3312fa7e23ee7e4,
+        ],
+    };
     const ZERO: Field<Self> = Field {
         x: [0x0, 0x0, 0x0, 0x0, 0x0, 0x0],
     };
@@ -83,7 +93,7 @@ impl Curve for P384 {
         z: Self::ONE,
     };
     const INFINITY: Point<Self> = Point {
-        x: Self::ONE,
+        x: Self::ZERO,
         y: Self::ONE,
         z: Self::ZERO,
     };
@@ -221,12 +231,9 @@ impl Curve for P384 {
         zinv = zinv.sqr();
         zinv = zinv.sqr() * z;
 
-        let zinv2 = zinv.sqr();
-        let zinv3 = zinv2 * zinv;
-
         Point::<Self> {
-            x: point.x * zinv2,
-            y: point.y * zinv3,
+            x: point.x * zinv,
+            y: point.y * zinv,
             z: P384::ONE,
         }
     }

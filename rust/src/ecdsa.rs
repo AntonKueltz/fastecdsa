@@ -6,12 +6,15 @@ pub fn sign<C: Curve>(msg: &[u8], d_bytes: &[u8], k_bytes: &[u8]) -> (Vec<u8>, V
     let r_bytes: Vec<u8> = Field::<C>::into(p.x);
 
     let k = C::Order::from_le_bytes(k_bytes);
+    assert!(!k.is_zero());
     let z = C::Order::from_le_bytes(msg);
     let r = C::Order::from_le_bytes(&r_bytes);
+    assert!(!r.is_zero());
     let d = C::Order::from_le_bytes(d_bytes);
 
     let kinv = k.invert();
     let s = kinv.mul(&z.add(&r.mul(&d)));
+    assert!(!s.is_zero());
 
     (r.to_le_bytes(), s.to_le_bytes())
 }
@@ -45,5 +48,5 @@ pub fn verify<C: Curve>(
     let x_bytes: Vec<u8> = Field::<C>::into(p.x);
     let xq = C::Order::from_le_bytes(&x_bytes);
 
-    ScalarField::to_le_bytes(&xq) == ScalarField::to_le_bytes(&r)
+    xq.eq(&r)
 }

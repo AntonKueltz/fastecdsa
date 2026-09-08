@@ -16,6 +16,7 @@ pub trait Curve: Sized {
     const P: Field<Self>;
     const P_WIDE: AddResult<Self>;
     const A: Field<Self>;
+    const B: Field<Self>;
     const ZERO: Field<Self>;
     const ONE: Field<Self>;
     const G: Point<Self>;
@@ -338,8 +339,7 @@ impl<C: Curve> Copy for Point<C> {}
 
 impl<C: Curve> PartialEq for Point<C> {
     fn eq(&self, other: &Self) -> bool {
-        self.x * other.z * other.z == other.x * self.z * self.z
-            && self.y * other.z * other.z * other.z == other.y * self.z * self.z * self.z
+        self.x * other.z == other.x * self.z && self.y * other.z == other.y * self.z
     }
 }
 
@@ -349,36 +349,55 @@ impl<C: Curve> Add for Point<C> {
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
-        if self.is_point_at_infinity() {
-            return other.clone();
-        } else if other.is_point_at_infinity() {
-            return self.clone();
-        } else if self == other {
-            return self.double();
-        }
-
         let x1 = self.x;
         let x2 = other.x;
         let y1 = self.y;
         let y2 = other.y;
         let z1 = self.z;
         let z2 = other.z;
+        let b3 = C::B * 3;
 
-        // https://hyperelliptic.org/EFD/g1p/auto-code/shortw/jacobian-3/addition/add-2007-bl.op3
-        let z1z1 = z1.sqr();
-        let z2z2 = z2.sqr();
-        let u1 = x1 * z2z2;
-        let u2 = x2 * z1z1;
-        let s1 = y1 * z2 * z2z2;
-        let s2 = y2 * z1 * z1z1;
-        let h = u2 - u1;
-        let i = (h * 2).sqr();
-        let j = h * i;
-        let r = (s2 - s1) * 2;
-        let v = u1 * i;
-        let x3 = r.sqr() - j - v * 2;
-        let y3 = r * (v - x3) - s1 * j * 2;
-        let z3 = ((z1 + z2).sqr() - z1z1 - z2z2) * h;
+        // https://www.hyperelliptic.org/EFD/g1p/auto-shortw-projective-3.html#addition-add-2015-rcb
+        let t0 = x1 * x2;
+        let t1 = y1 * y2;
+        let t2 = z1 * z2;
+        let t3 = x1 + y1;
+        let t4 = x2 + y2;
+        let t3 = t3 * t4;
+        let t4 = t0 + t1;
+        let t3 = t3 - t4;
+        let t4 = x1 + z1;
+        let t5 = x2 + z2;
+        let t4 = t4 * t5;
+        let t5 = t0 + t2;
+        let t4 = t4 - t5;
+        let t5 = y1 + z1;
+        let x3 = y2 + z2;
+        let t5 = t5 * x3;
+        let x3 = t1 + t2;
+        let t5 = t5 - x3;
+        let z3 = C::A * t4;
+        let x3 = b3 * t2;
+        let z3 = x3 + z3;
+        let x3 = t1 - z3;
+        let z3 = t1 + z3;
+        let y3 = x3 * z3;
+        let t1 = t0 + t0;
+        let t1 = t1 + t0;
+        let t2 = C::A * t2;
+        let t4 = b3 * t4;
+        let t1 = t1 + t2;
+        let t2 = t0 - t2;
+        let t2 = C::A * t2;
+        let t4 = t4 + t2;
+        let t0 = t1 * t4;
+        let y3 = y3 + t0;
+        let t0 = t5 * t4;
+        let x3 = t3 * x3;
+        let x3 = x3 - t0;
+        let t0 = t3 * t1;
+        let z3 = t5 * z3;
+        let z3 = z3 + t0;
 
         Self {
             x: x3,
@@ -392,25 +411,20 @@ impl<C: Curve> Mul<&[u8]> for Point<C> {
     type Output = Self;
 
     fn mul(self, n: &[u8]) -> Self::Output {
-        if n.len() == 0 {
-            return C::INFINITY;
-        }
+        let mut padded = vec![0u8; C::FIELD_BYTES];
+        padded[..n.len()].copy_from_slice(n);
 
-        let mut j = n.len() * 8 - 1;
-        while !test_bit(n, j) {
-            j -= 1;
-        }
-
+        let j = C::FIELD_BYTES * 8 - 1;
         let mut r0: Self = C::INFINITY;
         let mut r1: Self = self.clone();
 
         for i in (0..j + 1).rev() {
-            if test_bit(n, i) {
+            if test_bit(&padded, i) {
                 r0 = r0 + r1;
-                r1 = r1.double();
+                r1 = r1 + r1;
             } else {
                 r1 = r1 + r0;
-                r0 = r0.double();
+                r0 = r0 + r0;
             }
         }
 
@@ -427,29 +441,6 @@ impl<C: Curve> Point<C> {
         C::normalize_point(self)
     }
 
-    pub fn double(&self) -> Point<C> {
-        if self.is_point_at_infinity() {
-            return C::INFINITY;
-        }
-
-        let x1 = self.x;
-        let y1 = self.y;
-        let z1 = self.z;
-
-        // https://hyperelliptic.org/EFD/g1p/auto-code/shortw/jacobian-3/doubling/dbl-2007-bl.op3
-        let xx = x1.sqr();
-        let yy = y1.sqr();
-        let yyyy = yy.sqr();
-        let zz = z1.sqr();
-        let s = ((x1 + yy).sqr() - xx - yyyy) * 2;
-        let m = xx * 3 + C::A * zz.sqr();
-        let t = m.sqr() - s * 2;
-        let y3 = m * (s - t) - yyyy * 8;
-        let z3 = (y1 + z1).sqr() - yy - zz;
-
-        Self { x: t, y: y3, z: z3 }
-    }
-
     pub fn shamir(p: &Point<C>, q: &Point<C>, n: &[u8], m: &[u8]) -> Point<C> {
         let mut j = n.len() * 8 - 1;
         while !test_bit(n, j) && !test_bit(m, j) {
@@ -460,7 +451,7 @@ impl<C: Curve> Point<C> {
         let mut r = C::INFINITY;
 
         for i in (0..j + 1).rev() {
-            r = r.double();
+            r = r + r;
 
             if test_bit(n, i) && test_bit(m, i) {
                 r = r + pq;

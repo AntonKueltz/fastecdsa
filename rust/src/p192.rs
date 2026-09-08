@@ -36,6 +36,9 @@ impl Curve for P192 {
     const A: Field<Self> = Field {
         x: [0xfffffffffffffffc, 0xfffffffffffffffe, 0xffffffffffffffff],
     };
+    const B: Field<Self> = Field {
+        x: [0xfeb8deecc146b9b1, 0x0fa7e9ab72243049, 0x64210519e59c80e7],
+    };
     const ZERO: Field<Self> = Field { x: [0x0, 0x0, 0x0] };
     const ONE: Field<Self> = Field { x: [0x1, 0x0, 0x0] };
     const G: Point<Self> = Point {
@@ -48,7 +51,7 @@ impl Curve for P192 {
         z: Self::ONE,
     };
     const INFINITY: Point<Self> = Point {
-        x: Self::ONE,
+        x: Self::ZERO,
         y: Self::ONE,
         z: Self::ZERO,
     };
@@ -99,12 +102,9 @@ impl Curve for P192 {
         zinv = zinv.sqr_n_times(62) * z62;
         zinv = zinv.sqr().sqr() * z;
 
-        let zinv2 = zinv.sqr();
-        let zinv3 = zinv2 * zinv;
-
         Point::<Self> {
-            x: point.x * zinv2,
-            y: point.y * zinv3,
+            x: point.x * zinv,
+            y: point.y * zinv,
             z: Self::ONE,
         }
     }

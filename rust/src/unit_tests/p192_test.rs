@@ -143,10 +143,10 @@ fn test_p192_sqr_overflow() {
 fn test_p192_pt_normalize() {
     let expected: Point<P192> = Point::<P192> {
         x: Field::<P192> {
-            x: [0x541c568df21c571e, 0x9c153c8beb11f2aa, 0x7481847368e8f3a9],
+            x: [0xfc5503a9d655055b, 0xd43fb5a3c135d7ff, 0x5d848d5a3abadafc],
         },
         y: Field::<P192> {
-            x: [0xcb680de985de90e4, 0xddbe398d88b582e1, 0x2fab99516849cf33],
+            x: [0x26a87d35b4d31805, 0xcbb005f9ce6199f1, 0xad0863dcaa9848d2],
         },
         z: P192::ONE,
     };
@@ -174,7 +174,7 @@ fn test_p192_pt_double() {
         },
         z: P192::ONE,
     };
-    let actual = P192::G.double().normalize();
+    let actual = (P192::G + P192::G).normalize();
     assert_eq!(actual, expected);
 }
 

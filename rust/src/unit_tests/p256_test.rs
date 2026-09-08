@@ -288,18 +288,18 @@ fn test_p256_pt_normalize() {
     let expected: Point<P256> = Point::<P256> {
         x: Field::<P256> {
             x: [
-                0x8cf578243482c049,
-                0xf0c77fb9935305bc,
-                0xff316efd0b12401a,
-                0x9a1f175351e87924,
+                0xa6e0686c9d8840dc,
+                0xd2567f2bb9f91135,
+                0xfd944cf72136c050,
+                0xce5d45faf5b96b6d,
             ],
         },
         y: Field::<P256> {
             x: [
-                0xfe103b463af41f7a,
-                0x3a82e575de0b4f5c,
-                0xd5e2a9e650725b30,
-                0xdd086ac52f565094,
+                0xee92157812951b51,
+                0x0e9a111dce65ca44,
+                0x84f7f918d40534b2,
+                0xc54bc0f5aa08d534,
             ],
         },
         z: P256::ONE,
@@ -336,7 +336,7 @@ fn test_p256_pt_double() {
         },
         z: P256::ONE,
     };
-    let actual = P256::G.double().normalize();
+    let actual = (P256::G + P256::G).normalize();
     assert_eq!(actual, expected);
 }
 
