@@ -168,8 +168,15 @@ impl Curve for P256 {
             k = t >> 64;
         }
 
-        c[Self::LIMB_SZ] = k as u64;
-        somewhat_reduced.reduce()
+        let q = k as u64;
+        c[Self::LIMB_SZ] = q;
+
+        let scaled_p = Self::P.scale_wide(q);
+        let (mut reduced, underflow) = somewhat_reduced - scaled_p;
+        reduced.conditional_add_p(underflow);
+        reduced.conditional_sub_p();
+
+        Field::<Self>::from(reduced)
     }
 
     fn normalize_point(point: &Point<Self>) -> Point<Self> {

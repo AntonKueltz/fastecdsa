@@ -121,7 +121,11 @@ impl Curve for P224 {
             k = t >> 64;
         }
 
-        somewhat_reduced.reduce()
+        somewhat_reduced.conditional_sub_p();
+        somewhat_reduced.conditional_sub_p();
+        somewhat_reduced.conditional_sub_p();
+
+        Field::<Self>::from(somewhat_reduced)
     }
 
     fn normalize_point(point: &Point<Self>) -> Point<Self> {

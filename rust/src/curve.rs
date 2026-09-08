@@ -52,51 +52,64 @@ pub struct Point<C: Curve> {
 }
 
 impl<C: Curve> AddResult<C> {
-    pub fn less_than(&self, other: &AddResult<C>) -> bool {
-        let a = self.x.as_ref();
-        let b = other.x.as_ref();
+    pub fn conditional_add_p(&mut self, apply: bool) {
+        let mask = 0u64.wrapping_sub(apply as u64);
+        let p = C::P_WIDE;
+        let a = self.x.as_mut();
 
-        for i in (0..C::WIDE_SZ).rev() {
-            if a[i] != b[i] {
-                return a[i] < b[i];
-            }
+        let mut k: u128 = 0;
+
+        for j in 0..C::WIDE_SZ {
+            let q = p.x.as_ref();
+            let t = a[j] as u128 + (q[j] & mask) as u128 + k;
+            a[j] = t as u64;
+            k = t >> 64;
         }
-
-        false
     }
 
-    pub fn reduce(&mut self) -> Field<C> {
-        let n = C::WIDE_SZ - 1;
+    pub fn conditional_sub_p(&mut self) {
+        let n = C::WIDE_SZ;
+        let a = self.x.as_mut();
         let p = C::P_WIDE;
 
-        let mut t: i128;
-        let mut k: i128;
+        let mut diff = C::Wide::default();
+        let d = diff.as_mut();
 
-        while !self.less_than(&C::P_WIDE) {
-            let a = self.x.as_mut();
+        let mut k: i128 = 0;
+        for j in 0..n {
             let q = p.x.as_ref();
-            k = 0;
-
-            for j in 0..n {
-                t = a[j] as i128 - q[j] as i128 + k;
-                a[j] = t as u64;
-                k = t >> 64;
-            }
-
-            if C::WIDE_SZ != C::LIMB_SZ {
-                t = a[n] as i128 + k;
-                a[n] = t as u64;
-            } else {
-                t = a[n] as i128 - q[n] as i128 + k;
-                a[n] = t as u64;
-            }
+            let t = a[j] as i128 - q[j] as i128 + k;
+            d[j] = t as u64;
+            k = t >> 64;
         }
 
-        let mut result = C::Limbs::default();
-        result
-            .as_mut()
-            .copy_from_slice(&self.x.as_ref()[..C::LIMB_SZ]);
-        Field { x: result }
+        let mask = k as u64;
+
+        for j in 0..n {
+            a[j] = (a[j] & mask) | (d[j] & !mask);
+        }
+    }
+}
+
+impl<C: Curve> Sub for AddResult<C> {
+    type Output = (Self, bool);
+
+    fn sub(self, other: AddResult<C>) -> (AddResult<C>, bool) {
+        let mut result = AddResult::<C> { x: C::Wide::default() };
+        let x = self.x.as_ref();
+        let y = other.x.as_ref();
+        let c = result.x.as_mut();
+
+        let mut t: i128;
+        let mut k: i128 = 0;
+
+        for j in 0..C::WIDE_SZ {
+            t = x[j] as i128 - y[j] as i128 + k;
+            c[j] = t as u64;
+            k = t >> 64;
+        }
+
+        (result, k != 0)
     }
 }
 
@@ -175,6 +188,16 @@ impl<C: Curve> From<Field<C>> for Vec<u8> {
     }
 }
 
+impl<C: Curve> From<AddResult<C>> for Field<C> {
+    fn from (x: AddResult<C>) -> Field<C> {
+        let mut result = C::Limbs::default();
+        result
+            .as_mut()
+            .copy_from_slice(&x.x.as_ref()[..C::LIMB_SZ]);
+        Field { x: result }
+    }
+}
+
 impl<C: Curve> Add for Field<C> {
     type Output = Self;
 
@@ -199,7 +222,9 @@ impl<C: Curve> Add for Field<C> {
         if C::WIDE_SZ != C::LIMB_SZ {
             c[C::LIMB_SZ] = k as u64;
         }
-        unreduced.reduce()
+
+        unreduced.conditional_sub_p();
+        Field::<C>::from(unreduced)
     }
 }
 
@@ -229,7 +254,10 @@ impl<C: Curve> Sub for Field<C> {
         if C::WIDE_SZ != C::LIMB_SZ {
             c[C::LIMB_SZ] = k as u64;
         }
-        unreduced.reduce()
+
+        unreduced.conditional_sub_p();
+        unreduced.conditional_sub_p();
+        Field::<C>::from(unreduced)
     }
 }
 
@@ -291,6 +319,24 @@ impl<C: Curve> Mul<u64> for Field<C> {
 }
 
 impl<C: Curve> Field<C> {
+    pub fn scale_wide(&self, y: u64) -> AddResult<C> {
+        let mut result = AddResult::<C> { x: C::Wide::default() };
+        let a = self.x.as_ref();
+        let c = result.x.as_mut();
+
+        let mut t: u128;
+        let mut k: u128 = 0;
+
+        for i in 0..C::LIMB_SZ {
+            t = a[i] as u128 * y as u128 + k;
+            c[i] = t as u64;
+            k = t >> 64;
+        }
+
+        c[C::LIMB_SZ] = k as u64;
+        result
+    }
+
     pub fn sqr(&self) -> Self {
         let mut unreduced = MulResult::<C> {
             x: C::Double::default(),
