@@ -233,5 +233,5 @@ impl Curve for P384 {
 }
 
 #[cfg(test)]
-#[path = "p384_test.rs"]
+#[path = "unit_tests/p384_test.rs"]
 mod p384_test;

@@ -111,5 +111,5 @@ impl Curve for P192 {
 }
 
 #[cfg(test)]
-#[path = "p192_test.rs"]
+#[path = "unit_tests/p192_test.rs"]
 mod p192_test;

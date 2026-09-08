@@ -198,5 +198,5 @@ impl Curve for P256 {
 }
 
 #[cfg(test)]
-#[path = "p256_test.rs"]
+#[path = "unit_tests/p256_test.rs"]
 mod p256_test;

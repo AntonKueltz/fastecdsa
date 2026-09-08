@@ -221,5 +221,5 @@ impl Curve for P224 {
 }
 
 #[cfg(test)]
-#[path = "p224_test.rs"]
+#[path = "unit_tests/p224_test.rs"]
 mod p224_test;
