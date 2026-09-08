@@ -1,15 +1,22 @@
 use crypto_bigint::{const_monty_params, modular::ConstMontyForm, U384};
-use pyo3::prelude::*;
 
 use crate::curve::{AddResult, Curve, Field, MulResult, Point};
 
 #[derive(Debug)]
 pub struct P384;
 
+const_monty_params!(
+    P384Q,
+    U384,
+    "ffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a77aecec196accc52973"
+);
+
 impl Curve for P384 {
     type Limbs = [u64; 6];
     type Wide = [u64; 7];
     type Double = [u64; 12];
+
+    type Order = ConstMontyForm<P384Q, 6>;
 
     const LIMB_SZ: usize = 6;
     const WIDE_SZ: usize = 7;
@@ -223,80 +230,6 @@ impl Curve for P384 {
             z: P384::ONE,
         }
     }
-}
-
-const P384_Q: U384 =
-    U384::from_be_hex("ffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a77aecec196accc52973");
-const_monty_params!(
-    P384Q,
-    U384,
-    "ffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a77aecec196accc52973"
-);
-
-#[pyfunction]
-pub fn p384_sign(msg: &[u8], d_bytes: &[u8], k_bytes: &[u8]) -> (Vec<u8>, Vec<u8>) {
-    let p = (P384::G * &k_bytes).normalize();
-    let r_bytes: Vec<u8> = Field::<P384>::into(p.x);
-
-    let k = ConstMontyForm::<P384Q, 6>::new(&U384::from_le_slice(k_bytes));
-    let z = ConstMontyForm::<P384Q, 6>::new(&U384::from_le_slice(msg));
-    let r = ConstMontyForm::<P384Q, 6>::new(&U384::from_le_slice(&r_bytes));
-    let d = ConstMontyForm::<P384Q, 6>::new(&U384::from_le_slice(d_bytes));
-    let kinv = k.invert().unwrap();
-    let s = kinv * (z + r * d);
-
-    (
-        r.retrieve().to_le_bytes().to_vec(),
-        s.retrieve().to_le_bytes().to_vec(),
-    )
-}
-
-fn is_valid_sig(r_bytes: &[u8], s_bytes: &[u8]) -> bool {
-    let r = U384::from_le_slice(r_bytes);
-    let s = U384::from_le_slice(s_bytes);
-
-    if r.is_zero().into() || r >= P384_Q || s.is_zero().into() || s >= P384_Q {
-        return false;
-    }
-
-    true
-}
-
-#[pyfunction]
-pub fn p384_verify(
-    r_bytes: &[u8],
-    s_bytes: &[u8],
-    msg: &[u8],
-    qx_bytes: &[u8],
-    qy_bytes: &[u8],
-) -> bool {
-    if !is_valid_sig(r_bytes, s_bytes) {
-        return false;
-    }
-
-    let q = Point::<P384> {
-        x: Field::<P384>::from(qx_bytes),
-        y: Field::<P384>::from(qy_bytes),
-        z: P384::ONE,
-    };
-    let z = ConstMontyForm::<P384Q, 6>::new(&U384::from_le_slice(msg));
-    let s = ConstMontyForm::<P384Q, 6>::new(&U384::from_le_slice(s_bytes));
-    let r = ConstMontyForm::<P384Q, 6>::new(&U384::from_le_slice(r_bytes));
-    let sinv = s.invert().unwrap();
-    let u1 = z * sinv;
-    let u2 = r * sinv;
-
-    let p = Point::<P384>::shamir(
-        &P384::G,
-        &q,
-        &u1.retrieve().to_le_bytes().to_vec(),
-        &u2.retrieve().to_le_bytes().to_vec(),
-    )
-    .normalize();
-    let x_bytes: Vec<u8> = Field::<P384>::into(p.x);
-    let xq = ConstMontyForm::<P384Q, 6>::new(&U384::from_le_slice(&x_bytes));
-
-    xq == r
 }
 
 #[cfg(test)]

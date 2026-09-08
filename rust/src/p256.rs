@@ -1,15 +1,22 @@
 use crypto_bigint::{const_monty_params, modular::ConstMontyForm, U256};
-use pyo3::prelude::*;
 
 use crate::curve::{AddResult, Curve, Field, MulResult, Point};
 
 #[derive(Debug)]
 pub struct P256;
 
+const_monty_params!(
+    P256Q,
+    U256,
+    "ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551"
+);
+
 impl Curve for P256 {
     type Limbs = [u64; 4];
     type Wide = [u64; 5];
     type Double = [u64; 8];
+
+    type Order = ConstMontyForm<P256Q, 4>;
 
     const LIMB_SZ: usize = 4;
     const WIDE_SZ: usize = 5;
@@ -188,80 +195,6 @@ impl Curve for P256 {
             z: Self::ONE,
         }
     }
-}
-
-const P256_Q: U256 =
-    U256::from_be_hex("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551");
-const_monty_params!(
-    P256Q,
-    U256,
-    "ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551"
-);
-
-#[pyfunction]
-pub fn p256_sign(msg: &[u8], d_bytes: &[u8], k_bytes: &[u8]) -> (Vec<u8>, Vec<u8>) {
-    let p = (P256::G * &k_bytes).normalize();
-    let r_bytes: Vec<u8> = Field::<P256>::into(p.x);
-
-    let k = ConstMontyForm::<P256Q, 4>::new(&U256::from_le_slice(k_bytes));
-    let z = ConstMontyForm::<P256Q, 4>::new(&U256::from_le_slice(msg));
-    let r = ConstMontyForm::<P256Q, 4>::new(&U256::from_le_slice(&r_bytes));
-    let d = ConstMontyForm::<P256Q, 4>::new(&U256::from_le_slice(d_bytes));
-    let kinv = k.invert().unwrap();
-    let s = kinv * (z + r * d);
-
-    (
-        r.retrieve().to_le_bytes().to_vec(),
-        s.retrieve().to_le_bytes().to_vec(),
-    )
-}
-
-fn is_valid_sig(r_bytes: &[u8], s_bytes: &[u8]) -> bool {
-    let r = U256::from_le_slice(r_bytes);
-    let s = U256::from_le_slice(s_bytes);
-
-    if r.is_zero().into() || r >= P256_Q || s.is_zero().into() || s >= P256_Q {
-        return false;
-    }
-
-    true
-}
-
-#[pyfunction]
-pub fn p256_verify(
-    r_bytes: &[u8],
-    s_bytes: &[u8],
-    msg: &[u8],
-    qx_bytes: &[u8],
-    qy_bytes: &[u8],
-) -> bool {
-    if !is_valid_sig(r_bytes, s_bytes) {
-        return false;
-    }
-
-    let q = Point::<P256> {
-        x: Field::<P256>::from(qx_bytes),
-        y: Field::<P256>::from(qy_bytes),
-        z: P256::ONE,
-    };
-    let z = ConstMontyForm::<P256Q, 4>::new(&U256::from_le_slice(msg));
-    let s = ConstMontyForm::<P256Q, 4>::new(&U256::from_le_slice(s_bytes));
-    let r = ConstMontyForm::<P256Q, 4>::new(&U256::from_le_slice(r_bytes));
-    let sinv = s.invert().unwrap();
-    let u1 = z * sinv;
-    let u2 = r * sinv;
-
-    let p = Point::<P256>::shamir(
-        &P256::G,
-        &q,
-        &u1.retrieve().to_le_bytes().to_vec(),
-        &u2.retrieve().to_le_bytes().to_vec(),
-    )
-    .normalize();
-    let x_bytes: Vec<u8> = Field::<P256>::into(p.x);
-    let xq = ConstMontyForm::<P256Q, 4>::new(&U256::from_le_slice(&x_bytes));
-
-    xq == r
 }
 
 #[cfg(test)]

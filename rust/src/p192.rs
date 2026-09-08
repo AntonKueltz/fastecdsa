@@ -1,15 +1,22 @@
 use crypto_bigint::{const_monty_params, modular::ConstMontyForm, U192};
-use pyo3::prelude::*;
 
 use crate::curve::{AddResult, Curve, Field, MulResult, Point};
 
 #[derive(Debug)]
 pub struct P192;
 
+const_monty_params!(
+    P192Q,
+    U192,
+    "ffffffffffffffffffffffff99def836146bc9b1b4d22831"
+);
+
 impl Curve for P192 {
     type Limbs = [u64; 3];
     type Wide = [u64; 4];
     type Double = [u64; 6];
+
+    type Order = ConstMontyForm<P192Q, 3>;
 
     const LIMB_SZ: usize = 3;
     const WIDE_SZ: usize = 4;
@@ -101,79 +108,6 @@ impl Curve for P192 {
             z: Self::ONE,
         }
     }
-}
-
-const P192_Q: U192 = U192::from_be_hex("ffffffffffffffffffffffff99def836146bc9b1b4d22831");
-const_monty_params!(
-    P192Q,
-    U192,
-    "ffffffffffffffffffffffff99def836146bc9b1b4d22831"
-);
-
-#[pyfunction]
-pub fn p192_sign(msg: &[u8], d_bytes: &[u8], k_bytes: &[u8]) -> (Vec<u8>, Vec<u8>) {
-    let p = (P192::G * &k_bytes).normalize();
-    let r_bytes: Vec<u8> = Field::<P192>::into(p.x);
-
-    let k = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(k_bytes));
-    let z = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(msg));
-    let r = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(&r_bytes));
-    let d = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(d_bytes));
-    let kinv = k.invert().unwrap();
-    let s = kinv * (z + r * d);
-
-    (
-        r.retrieve().to_le_bytes().to_vec(),
-        s.retrieve().to_le_bytes().to_vec(),
-    )
-}
-
-fn is_valid_sig(r_bytes: &[u8], s_bytes: &[u8]) -> bool {
-    let r = U192::from_le_slice(r_bytes);
-    let s = U192::from_le_slice(s_bytes);
-
-    if r.is_zero().into() || r >= P192_Q || s.is_zero().into() || s >= P192_Q {
-        return false;
-    }
-
-    true
-}
-
-#[pyfunction]
-pub fn p192_verify(
-    r_bytes: &[u8],
-    s_bytes: &[u8],
-    msg: &[u8],
-    qx_bytes: &[u8],
-    qy_bytes: &[u8],
-) -> bool {
-    if !is_valid_sig(r_bytes, s_bytes) {
-        return false;
-    }
-
-    let q = Point::<P192> {
-        x: Field::<P192>::from(qx_bytes),
-        y: Field::<P192>::from(qy_bytes),
-        z: P192::ONE,
-    };
-    let z = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(msg));
-    let s = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(s_bytes));
-    let r = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(r_bytes));
-    let sinv = s.invert().unwrap();
-    let u1 = z * sinv;
-    let u2 = r * sinv;
-
-    let p = Point::<P192>::shamir(
-        &P192::G,
-        &q,
-        &u1.retrieve().to_le_bytes().to_vec(),
-        &u2.retrieve().to_le_bytes().to_vec(),
-    )
-    .normalize();
-    let x_bytes: Vec<u8> = Field::<P192>::into(p.x);
-    let xq = ConstMontyForm::<P192Q, 3>::new(&U192::from_le_slice(&x_bytes));
-
-    xq == r
 }
 
 #[cfg(test)]

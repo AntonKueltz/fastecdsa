@@ -1,9 +1,13 @@
 use std::ops::{Add, Mul, Sub};
 
+use crate::scalar::ScalarField;
+
 pub trait Curve: Sized {
     type Limbs: AsRef<[u64]> + AsMut<[u64]> + Copy + Default + PartialEq + std::fmt::Debug;
     type Wide: AsRef<[u64]> + AsMut<[u64]> + Copy + Default;
     type Double: AsRef<[u64]> + AsMut<[u64]> + Copy + Default;
+
+    type Order: ScalarField;
 
     const LIMB_SZ: usize;
     const WIDE_SZ: usize;

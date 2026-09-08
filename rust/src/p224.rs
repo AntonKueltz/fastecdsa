@@ -1,15 +1,22 @@
 use crypto_bigint::{const_monty_params, modular::ConstMontyForm, U256};
-use pyo3::prelude::*;
 
 use crate::curve::{AddResult, Curve, Field, MulResult, Point};
 
 #[derive(Debug)]
 pub struct P224;
 
+const_monty_params!(
+    P224Q,
+    U256,
+    "00000000ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d"
+);
+
 impl Curve for P224 {
     type Limbs = [u64; 4];
     type Wide = [u64; 4];
     type Double = [u64; 8];
+
+    type Order = ConstMontyForm<P224Q, 4>;
 
     const LIMB_SZ: usize = 4;
     const WIDE_SZ: usize = 4;
@@ -211,93 +218,6 @@ impl Curve for P224 {
             z: Self::ONE,
         }
     }
-}
-
-const P224_Q: U256 =
-    U256::from_be_hex("00000000ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d");
-const_monty_params!(
-    P224Q,
-    U256,
-    "00000000ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d"
-);
-
-#[inline]
-fn monty_form(n: &[u8]) -> ConstMontyForm<P224Q, 4> {
-    let mut bytes: [u8; 32] = [0; 32];
-    bytes[..n.len()].copy_from_slice(n);
-
-    ConstMontyForm::<P224Q, 4>::new(&U256::from_le_slice(&bytes))
-}
-
-#[pyfunction]
-pub fn p224_sign(msg: &[u8], d_bytes: &[u8], k_bytes: &[u8]) -> (Vec<u8>, Vec<u8>) {
-    let p = (P224::G * &k_bytes).normalize();
-    let r_bytes: Vec<u8> = Field::<P224>::into(p.x);
-
-    let k = monty_form(k_bytes);
-    let z = monty_form(msg);
-    let r = monty_form(&r_bytes);
-    let d = monty_form(d_bytes);
-    let kinv = k.invert().unwrap();
-    let s = kinv * (z + r * d);
-
-    (
-        r.retrieve().to_le_bytes().to_vec(),
-        s.retrieve().to_le_bytes().to_vec(),
-    )
-}
-
-fn is_valid_sig(r_bytes: &[u8], s_bytes: &[u8]) -> bool {
-    let mut r_padded: [u8; 32] = [0; 32];
-    let mut s_padded: [u8; 32] = [0; 32];
-    r_padded[..28].copy_from_slice(&r_bytes[..28]);
-    s_padded[..28].copy_from_slice(&s_bytes[..28]);
-
-    let r = U256::from_le_slice(&r_padded);
-    let s = U256::from_le_slice(&s_padded);
-
-    if r.is_zero().into() || r >= P224_Q || s.is_zero().into() || s >= P224_Q {
-        return false;
-    }
-
-    true
-}
-
-#[pyfunction]
-pub fn p224_verify(
-    r_bytes: &[u8],
-    s_bytes: &[u8],
-    msg: &[u8],
-    qx_bytes: &[u8],
-    qy_bytes: &[u8],
-) -> bool {
-    if !is_valid_sig(r_bytes, s_bytes) {
-        return false;
-    }
-
-    let q = Point::<P224> {
-        x: Field::<P224>::from(qx_bytes),
-        y: Field::<P224>::from(qy_bytes),
-        z: P224::ONE,
-    };
-    let z = monty_form(msg);
-    let s = monty_form(s_bytes);
-    let r = monty_form(r_bytes);
-    let sinv = s.invert().unwrap();
-    let u1 = z * sinv;
-    let u2 = r * sinv;
-
-    let p = Point::<P224>::shamir(
-        &P224::G,
-        &q,
-        &u1.retrieve().to_le_bytes().to_vec(),
-        &u2.retrieve().to_le_bytes().to_vec(),
-    )
-    .normalize();
-    let x_bytes: Vec<u8> = Field::<P224>::into(p.x);
-    let xq = monty_form(&x_bytes);
-
-    xq == r
 }
 
 #[cfg(test)]
