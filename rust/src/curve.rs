@@ -319,6 +319,20 @@ impl<C: Curve> Mul<u64> for Field<C> {
 }
 
 impl<C: Curve> Field<C> {
+    pub fn select(&self, other: &Self, mask: u64) -> Self {
+        let mut result = C::Limbs::default();
+
+        let a = self.x.as_ref();
+        let b = other.x.as_ref();
+        let r = result.as_mut();
+
+        for i in 0..C::LIMB_SZ {
+            r[i] = (a[i] & !mask) | (b[i] & mask);
+        }
+
+        Field { x: result }
+    }
+
     pub fn scale_wide(&self, y: u64) -> AddResult<C> {
         let mut result = AddResult::<C> {
             x: C::Wide::default(),
