@@ -43,8 +43,8 @@ def run() -> None:
 
     for curve in curves:
         d = curve.q - 0xDEAD
-        Q = curve.G * d
-        time = timeit(stmt=lambda: sign_and_verify(d, Q, curve), number=iterations)
+        # Q = curve.G * d
+        time = timeit(stmt=lambda: sign(msg, d, curve=curve), number=iterations)
         print(
             f"{iterations} signatures and verifications with curve {curve} took {time:.2f} seconds"
         )

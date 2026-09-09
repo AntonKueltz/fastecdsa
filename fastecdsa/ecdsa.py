@@ -3,6 +3,7 @@ from collections.abc import Callable
 from hashlib import sha256
 
 from fastecdsa import _ecdsa  # type: ignore[attr-defined]
+from fastecdsa.rust import Curve as RustCurve
 from .curve import Curve, P256
 from .point import Point
 from .typing import EcdsaSignature, SignableMessage
@@ -17,7 +18,7 @@ class EcdsaError(Exception):
 def sign(
     msg: SignableMessage,
     d: int,
-    curve: Curve = P256,
+    curve: Curve | RustCurve = P256,
     hashfunc: Callable[[], HASH] = sha256,
     prehashed: bool = False,
 ) -> EcdsaSignature:
@@ -42,31 +43,30 @@ def sign(
     rfc6979 = RFC6979(msg, d, curve.q, hashfunc, prehashed=prehashed)
     k = rfc6979.gen_nonce()
 
-    # TODO - Fix the bit-length of the random nonce,
-    # so that it doesn't leak via timing.
-    # This does not change that ks (mod n) = kt (mod n) = k (mod n)
-    # ks = k + curve.q
-    # kt = ks + curve.q
-    # if ks.bit_length() == curve.q.bit_length():
-    #     k = kt
-    # else:
-    #     k = ks
-
-    if curve.sign is not None:
+    if isinstance(curve, RustCurve):
         return _rust_sign(hashed, d, k, hash_size, curve)
     else:
+        # Fix the bit-length of the random nonce,
+        # so that it doesn't leak via timing.
+        # This does not change that ks (mod n) = kt (mod n) = k (mod n)
+        ks = k + curve.q
+        kt = ks + curve.q
+        if ks.bit_length() == curve.q.bit_length():
+            k = kt
+        else:
+            k = ks
         return _c_sign(hashed, d, k, curve)
 
 
 def _rust_sign(
-    hashed: bytes, d: int, k: int, hash_size_bytes: int, curve: Curve
+    hashed: bytes, d: int, k: int, hash_size_bytes: int, curve: RustCurve
 ) -> EcdsaSignature:
     if curve.sign is None:
         raise ValueError(
             "Tried to sign with rust backend for curve with no implementation"
         )
 
-    field_size = curve.q_size_bytes
+    field_size = (curve.q.bit_length() + 7) >> 3
     db = d.to_bytes(field_size, "little")
     kb = k.to_bytes(field_size, "little")
     z = int.from_bytes(hashed, "big")
@@ -95,7 +95,7 @@ def verify(
     sig: EcdsaSignature,
     msg: SignableMessage,
     Q: Point,
-    curve: Curve = P256,
+    curve: Curve | RustCurve = P256,
     hashfunc: Callable[[], HASH] = sha256,
     prehashed: bool = False,
 ) -> bool:
@@ -121,27 +121,26 @@ def verify(
     """
     r, s = sig
 
-    # validate Q, r, s (Q should be validated in constructor of Point already but double check)
-    if not curve.is_point_on_curve((Q.x, Q.y)):
-        raise EcdsaError(f"Invalid public key, point is not on curve {curve}")
-    elif r > curve.q or r < 1:
-        raise EcdsaError(
-            "Invalid Signature: r is not a positive integer smaller than the curve order"
-        )
-    elif s > curve.q or s < 1:
-        raise EcdsaError(
-            "Invalid Signature: s is not a positive integer smaller than the curve order"
-        )
-
     hashed, hash_size = _hash(msg, hashfunc, prehashed)
-    if curve.verify is not None:
+    if isinstance(curve, RustCurve):
         return _rust_verify(sig, hashed, Q, hash_size, curve)
     else:
+        # validate Q, r, s (Q should be validated in constructor of Point already but double check)
+        if not curve.is_point_on_curve((Q.x, Q.y)):
+            raise EcdsaError(f"Invalid public key, point is not on curve {curve}")
+        elif r > curve.q or r < 1:
+            raise EcdsaError(
+                "Invalid Signature: r is not a positive integer smaller than the curve order"
+            )
+        elif s > curve.q or s < 1:
+            raise EcdsaError(
+                "Invalid Signature: s is not a positive integer smaller than the curve order"
+            )
         return _c_verify(sig, hashed, Q, curve)
 
 
 def _rust_verify(
-    sig: EcdsaSignature, hashed: bytes, Q: Point, hash_size_bytes: int, curve: Curve
+    sig: EcdsaSignature, hashed: bytes, Q: Point, hash_size_bytes: int, curve: RustCurve
 ) -> bool:
     if curve.verify is None:
         raise ValueError(
@@ -149,7 +148,7 @@ def _rust_verify(
         )
 
     r, s = sig
-    field_size = curve.q_size_bytes
+    field_size = (curve.q.bit_length() + 7) >> 3
     z = int.from_bytes(hashed, "big")
     z >>= max(hash_size_bytes * 8 - field_size * 8, 0)
 

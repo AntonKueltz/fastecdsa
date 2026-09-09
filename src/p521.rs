@@ -1,5 +1,8 @@
+use std::sync::OnceLock;
+
 use crypto_bigint::{const_monty_params, modular::ConstMontyForm, U576};
 
+use crate::comb::Comb;
 use crate::curve::{AddResult, Curve, Field, MulResult, Point};
 
 #[derive(Debug)]
@@ -10,6 +13,8 @@ const_monty_params!(
     U576,
     "00000000000001fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa51868783bf2f966b7fcc0148f709a5d03bb5c9b8899c47aebb6fb71e91386409"
 );
+
+static P521_COMB: OnceLock<Comb<P521>> = OnceLock::new();
 
 impl Curve for P521 {
     type Limbs = [u64; 9];
@@ -165,6 +170,10 @@ impl Curve for P521 {
             y: point.y * zinv,
             z: Self::ONE,
         }
+    }
+
+    fn comb() -> Option<&'static Comb<Self>> {
+        Some(P521_COMB.get_or_init(|| Comb::new(Self::G, 5)))
     }
 }
 

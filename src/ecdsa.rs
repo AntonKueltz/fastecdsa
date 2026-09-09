@@ -1,18 +1,11 @@
-use crate::comb::Comb;
 use crate::curve::{Curve, Field, Point};
 use crate::scalar::ScalarField;
 
-pub fn sign<C: Curve>(
-    msg: &[u8],
-    d_bytes: &[u8],
-    k_bytes: &[u8],
-    comb: Option<&Comb<C>>,
-) -> (Vec<u8>, Vec<u8>) {
-    let p: Point<C>;
-    match comb {
-        Some(x) => p = x.mul(k_bytes).normalize(),
-        None => p = (C::G * k_bytes).normalize(),
-    }
+pub fn sign<C: Curve>(msg: &[u8], d_bytes: &[u8], k_bytes: &[u8]) -> (Vec<u8>, Vec<u8>) {
+    let p: Point<C> = match C::comb() {
+        Some(x) => x.mul(k_bytes).normalize(),
+        None => (C::G * k_bytes).normalize(),
+    };
     let r_bytes: Vec<u8> = Field::<C>::into(p.x);
 
     let k = C::Order::from_le_bytes(k_bytes);

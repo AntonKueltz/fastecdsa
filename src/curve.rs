@@ -1,8 +1,9 @@
 use std::ops::{Add, Mul, Sub};
 
+use crate::comb::Comb;
 use crate::scalar::ScalarField;
 
-pub trait Curve: Sized {
+pub trait Curve: Sized + 'static {
     type Limbs: AsRef<[u64]> + AsMut<[u64]> + Copy + Default + PartialEq + std::fmt::Debug;
     type Wide: AsRef<[u64]> + AsMut<[u64]> + Copy + Default;
     type Double: AsRef<[u64]> + AsMut<[u64]> + Copy + Default;
@@ -28,6 +29,10 @@ pub trait Curve: Sized {
 
     fn normalize_point(_point: &Point<Self>) -> Point<Self> {
         todo!()
+    }
+
+    fn comb() -> Option<&'static Comb<Self>> {
+        None
     }
 }
 

@@ -1,11 +1,4 @@
-use std::sync::OnceLock;
-
 use crate::curve::{Curve, Point};
-use crate::p192::P192;
-use crate::p224::P224;
-use crate::p256::P256;
-use crate::p384::P384;
-use crate::p521::P521;
 
 pub struct Comb<C: Curve> {
     w: usize,
@@ -102,29 +95,4 @@ fn test_bit(n: &[u8], j: usize) -> bool {
     let bit = j & 0b111;
 
     ((n[byte] >> bit) & 1) == 1
-}
-
-static P192_COMB: OnceLock<Comb<P192>> = OnceLock::new();
-pub fn p192_comb() -> &'static Comb<P192> {
-    P192_COMB.get_or_init(|| Comb::new(P192::G, 4))
-}
-
-static P224_COMB: OnceLock<Comb<P224>> = OnceLock::new();
-pub fn p224_comb() -> &'static Comb<P224> {
-    P224_COMB.get_or_init(|| Comb::new(P224::G, 4))
-}
-
-static P256_COMB: OnceLock<Comb<P256>> = OnceLock::new();
-pub fn p256_comb() -> &'static Comb<P256> {
-    P256_COMB.get_or_init(|| Comb::new(P256::G, 4))
-}
-
-static P384_COMB: OnceLock<Comb<P384>> = OnceLock::new();
-pub fn p384_comb() -> &'static Comb<P384> {
-    P384_COMB.get_or_init(|| Comb::new(P384::G, 4))
-}
-
-static P521_COMB: OnceLock<Comb<P521>> = OnceLock::new();
-pub fn p521_comb() -> &'static Comb<P521> {
-    P521_COMB.get_or_init(|| Comb::new(P521::G, 5))
 }

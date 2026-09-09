@@ -10,4 +10,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 crypto-bigint = { version = "0.7.5" }
-pyo3 = "0.29.0"
+num-bigint = "0.4"
+pyo3 = { version = "0.29.0", features = ["extension-module", "num-bigint"] }

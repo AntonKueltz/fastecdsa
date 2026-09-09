@@ -66,6 +66,3 @@ addopts = "--cov=fastecdsa --cov-report=term-missing --cov-fail-under=95"
 
 [tool.setuptools.packages.find]
 include = ['fastecdsa*']
-
-[tool.uv.sources]
-fastecdsa-rs = { path = "rust", editable = true }
