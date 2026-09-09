@@ -392,7 +392,7 @@ fn test_p384_pt_double() {
         },
         z: P384::ONE,
     };
-    let actual = (P384::G + P384::G).normalize();
+    let actual = P384::G.double().normalize();
     assert_eq!(actual, expected);
 }
 

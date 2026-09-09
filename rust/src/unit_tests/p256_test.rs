@@ -336,7 +336,7 @@ fn test_p256_pt_double() {
         },
         z: P256::ONE,
     };
-    let actual = (P256::G + P256::G).normalize();
+    let actual = P256::G.double().normalize();
     assert_eq!(actual, expected);
 }
 

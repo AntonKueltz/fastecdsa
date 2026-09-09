@@ -95,7 +95,9 @@ impl<C: Curve> Sub for AddResult<C> {
     type Output = (Self, bool);
 
     fn sub(self, other: AddResult<C>) -> (AddResult<C>, bool) {
-        let mut result = AddResult::<C> { x: C::Wide::default() };
+        let mut result = AddResult::<C> {
+            x: C::Wide::default(),
+        };
         let x = self.x.as_ref();
         let y = other.x.as_ref();
         let c = result.x.as_mut();
@@ -189,11 +191,9 @@ impl<C: Curve> From<Field<C>> for Vec<u8> {
 }
 
 impl<C: Curve> From<AddResult<C>> for Field<C> {
-    fn from (x: AddResult<C>) -> Field<C> {
+    fn from(x: AddResult<C>) -> Field<C> {
         let mut result = C::Limbs::default();
-        result
-            .as_mut()
-            .copy_from_slice(&x.x.as_ref()[..C::LIMB_SZ]);
+        result.as_mut().copy_from_slice(&x.x.as_ref()[..C::LIMB_SZ]);
         Field { x: result }
     }
 }
@@ -320,7 +320,9 @@ impl<C: Curve> Mul<u64> for Field<C> {
 
 impl<C: Curve> Field<C> {
     pub fn scale_wide(&self, y: u64) -> AddResult<C> {
-        let mut result = AddResult::<C> { x: C::Wide::default() };
+        let mut result = AddResult::<C> {
+            x: C::Wide::default(),
+        };
         let a = self.x.as_ref();
         let c = result.x.as_mut();
 
@@ -398,9 +400,7 @@ impl<C: Curve> Add for Point<C> {
         let y2 = other.y;
         let z1 = self.z;
         let z2 = other.z;
-        let b3 = C::B * 3;
 
-        // https://www.hyperelliptic.org/EFD/g1p/auto-shortw-projective-3.html#addition-add-2015-rcb
         let t0 = x1 * x2;
         let t1 = y1 * y2;
         let t2 = z1 * z2;
@@ -409,38 +409,41 @@ impl<C: Curve> Add for Point<C> {
         let t3 = t3 * t4;
         let t4 = t0 + t1;
         let t3 = t3 - t4;
-        let t4 = x1 + z1;
-        let t5 = x2 + z2;
-        let t4 = t4 * t5;
-        let t5 = t0 + t2;
-        let t4 = t4 - t5;
-        let t5 = y1 + z1;
+        let t4 = y1 + z1;
         let x3 = y2 + z2;
-        let t5 = t5 * x3;
+        let t4 = t4 * x3;
         let x3 = t1 + t2;
-        let t5 = t5 - x3;
-        let z3 = C::A * t4;
-        let x3 = b3 * t2;
-        let z3 = x3 + z3;
-        let x3 = t1 - z3;
-        let z3 = t1 + z3;
-        let y3 = x3 * z3;
+        let t4 = t4 - x3;
+        let x3 = x1 + z1;
+        let y3 = x2 + z2;
+        let x3 = x3 * y3;
+        let y3 = t0 + t2;
+        let y3 = x3 - y3;
+        let z3 = C::B * t2;
+        let x3 = y3 - z3;
+        let z3 = x3 + x3;
+        let x3 = x3 + z3;
+        let z3 = t1 - x3;
+        let x3 = t1 + x3;
+        let y3 = C::B * y3;
+        let t1 = t2 + t2;
+        let t2 = t1 + t2;
+        let y3 = y3 - t2;
+        let y3 = y3 - t0;
+        let t1 = y3 + y3;
+        let y3 = t1 + y3;
         let t1 = t0 + t0;
-        let t1 = t1 + t0;
-        let t2 = C::A * t2;
-        let t4 = b3 * t4;
-        let t1 = t1 + t2;
-        let t2 = t0 - t2;
-        let t2 = C::A * t2;
-        let t4 = t4 + t2;
-        let t0 = t1 * t4;
-        let y3 = y3 + t0;
-        let t0 = t5 * t4;
+        let t0 = t1 + t0;
+        let t0 = t0 - t2;
+        let t1 = t4 * y3;
+        let t2 = t0 * y3;
+        let y3 = x3 * z3;
+        let y3 = y3 + t2;
         let x3 = t3 * x3;
-        let x3 = x3 - t0;
-        let t0 = t3 * t1;
-        let z3 = t5 * z3;
-        let z3 = z3 + t0;
+        let x3 = x3 - t1;
+        let z3 = t4 * z3;
+        let t1 = t3 * t0;
+        let z3 = z3 + t1;
 
         Self {
             x: x3,
@@ -464,10 +467,10 @@ impl<C: Curve> Mul<&[u8]> for Point<C> {
         for i in (0..j + 1).rev() {
             if test_bit(&padded, i) {
                 r0 = r0 + r1;
-                r1 = r1 + r1;
+                r1 = r1.double();
             } else {
                 r1 = r1 + r0;
-                r0 = r0 + r0;
+                r0 = r0.double();
             }
         }
 
@@ -484,6 +487,53 @@ impl<C: Curve> Point<C> {
         C::normalize_point(self)
     }
 
+    pub fn double(&self) -> Point<C> {
+        let x1 = self.x;
+        let y1 = self.y;
+        let z1 = self.z;
+
+        let t0 = x1.sqr();
+        let t1 = y1.sqr();
+        let t2 = z1.sqr();
+        let t3 = x1 * y1;
+        let t3 = t3 + t3;
+        let z3 = x1 * z1;
+        let z3 = z3 + z3;
+        let y3 = C::B * t2;
+        let y3 = y3 - z3;
+        let x3 = y3 + y3;
+        let y3 = x3 + y3;
+        let x3 = t1 - y3;
+        let y3 = t1 + y3;
+        let y3 = x3 * y3;
+        let x3 = x3 * t3;
+        let t3 = t2 + t2;
+        let t2 = t2 + t3;
+        let z3 = C::B * z3;
+        let z3 = z3 - t2;
+        let z3 = z3 - t0;
+        let t3 = z3 + z3;
+        let z3 = z3 + t3;
+        let t3 = t0 + t0;
+        let t0 = t3 + t0;
+        let t0 = t0 - t2;
+        let t0 = t0 * z3;
+        let y3 = y3 + t0;
+        let t0 = y1 * z1;
+        let t0 = t0 + t0;
+        let z3 = t0 * z3;
+        let x3 = x3 - z3;
+        let z3 = t0 * t1;
+        let z3 = z3 + z3;
+        let z3 = z3 + z3;
+
+        Self {
+            x: x3,
+            y: y3,
+            z: z3,
+        }
+    }
+
     pub fn shamir(p: &Point<C>, q: &Point<C>, n: &[u8], m: &[u8]) -> Point<C> {
         let mut j = n.len() * 8 - 1;
         while !test_bit(n, j) && !test_bit(m, j) {
@@ -494,7 +544,7 @@ impl<C: Curve> Point<C> {
         let mut r = C::INFINITY;
 
         for i in (0..j + 1).rev() {
-            r = r + r;
+            r = r.double();
 
             if test_bit(n, i) && test_bit(m, i) {
                 r = r + pq;

@@ -329,7 +329,7 @@ fn test_p224_pt_double() {
         },
         z: P224::ONE,
     };
-    let actual = (P224::G + P224::G).normalize();
+    let actual = P224::G.double().normalize();
     assert_eq!(actual, expected);
 }
 
