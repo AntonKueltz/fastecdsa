@@ -69,7 +69,7 @@ pub fn p521_verify(r: &[u8], s: &[u8], msg: &[u8], qx: &[u8], qy: &[u8]) -> bool
 }
 
 #[pymodule]
-fn fastecdsa_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(p192_sign, m)?)?;
     m.add_function(wrap_pyfunction!(p192_verify, m)?)?;
 

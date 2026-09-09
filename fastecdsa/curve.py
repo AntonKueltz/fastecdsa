@@ -4,7 +4,7 @@ from functools import cache
 from math import ceil, log2
 from typing import Dict, Optional, Tuple, TYPE_CHECKING
 
-from fastecdsa_rs import (
+from fastecdsa.rust import (
     p192_sign,
     p192_verify,
     p224_sign,

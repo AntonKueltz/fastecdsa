@@ -204,7 +204,7 @@ To build a release first install all supported versions of python into the envir
 
 .. code:: bash
 
-   $ uv python install 3.9 3.10 3.11 3.12 3.13
+   $ uv python install 3.11 3.12 3.13 3.14
 
 Then build a source distribution, followed by wheels for each supported python version
 

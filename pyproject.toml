@@ -4,9 +4,6 @@ version = "4.0.0a0"
 description = "Fast elliptic curve digital signatures"
 readme = "README.rst"
 requires-python = ">=3.11"
-dependencies = [
-    "fastecdsa-rs",
-]
 
 license = "CC0-1.0"
 license-files = ["LICENSE"]
@@ -51,14 +48,17 @@ pypi = "https://pypi.org/project/fastecdsa/"
 benchmark = "fastecdsa.benchmark:run"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["maturin>=1.15,<2.0"]
+build-backend = "maturin"
 
 [tool.coverage.run]
 omit = [
     "fastecdsa/benchmark.py",
     "fastecdsa/encoding/__init__.py"
 ]
+
+[tool.maturin]
+module-name = "fastecdsa.rust"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

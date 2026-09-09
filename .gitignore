@@ -13,6 +13,8 @@ src/ecdsa
 src/Makefile
 src/test.c
 
+target/
+
 *.o
 *.pyc
 *.so

@@ -182,9 +182,6 @@ wheels = [
 name = "fastecdsa"
 version = "4.0.0a0"
 source = { editable = "." }
-dependencies = [
-    { name = "fastecdsa-rs" },
-]
 
 [package.dev-dependencies]
 dev = [
@@ -203,7 +200,6 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "fastecdsa-rs", editable = "rust" }]
 
 [package.metadata.requires-dev]
 dev = [
@@ -220,10 +216,6 @@ dev = [
     { name = "sphinx-rtd-theme", specifier = ">=3.0.2" },
     { name = "ty", specifier = ">=0.0.2" },
 ]
-
-[[package]]
-name = "fastecdsa-rs"
-source = { editable = "rust" }
 
 [[package]]
 name = "filelock"

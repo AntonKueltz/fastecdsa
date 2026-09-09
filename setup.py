@@ -5,14 +5,14 @@ extra_compile_args = ["-std=c99"]
 extra_link_args = []
 
 if environ.get("COVERAGE_BUILD"):
-    extra_compile_args.extend(["--coverage", "-g", "-O0"])
+    extra_compile_args.extend(["--coverage", "-g", "-O2"])
     extra_link_args.extend(["--coverage"])
 
 curvemath = Extension(
     "fastecdsa.curvemath",
     include_dirs=["src/"],
     libraries=["gmp"],
-    sources=["src/curveMath.c", "src/curve.c", "src/point.c"],
+    sources=["csrc/curveMath.c", "csrc/curve.c", "csrc/point.c"],
     extra_compile_args=extra_compile_args,
     extra_link_args=extra_link_args,
 )
@@ -21,7 +21,7 @@ _ecdsa = Extension(
     "fastecdsa._ecdsa",
     include_dirs=["src/"],
     libraries=["gmp"],
-    sources=["src/_ecdsa.c", "src/curveMath.c", "src/curve.c", "src/point.c"],
+    sources=["csrc/_ecdsa.c", "csrc/curveMath.c", "csrc/curve.c", "csrc/point.c"],
     extra_compile_args=extra_compile_args,
     extra_link_args=extra_link_args,
 )
