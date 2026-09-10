@@ -19,6 +19,13 @@ repos:
     # Run the formatter.
     - id: ruff-format
 
+- repo: https://github.com/doublify/pre-commit-rust
+  rev: master
+  hooks:
+    - id: fmt
+      name: cargo fmt
+    - id: cargo-check
+
 - repo: local
   hooks:
     - id: ty-check

@@ -15,6 +15,7 @@ use crate::p521::P521;
 pub mod comb;
 pub mod curve;
 pub mod ecdsa;
+pub mod generic;
 pub mod p192;
 pub mod p224;
 pub mod p256;
@@ -156,9 +157,7 @@ impl CurveKind {
             (CurveKind::P256, PointKind::P256(p)) => check!(P256, P256, p),
             (CurveKind::P384, PointKind::P384(p)) => check!(P384, P384, p),
             (CurveKind::P521, PointKind::P521(p)) => check!(P521, P521, p),
-            _ => return Err(PyValueError::new_err(
-                "point does not belong to this curve",
-            )),
+            _ => return Err(PyValueError::new_err("point does not belong to this curve")),
         })
     }
 
@@ -445,12 +444,18 @@ impl PyPoint {
     }
 
     fn __neg__(&self) -> PyPoint {
-        PyPoint { curve: self.curve.clone(), point: self.point.neg() }
+        PyPoint {
+            curve: self.curve.clone(),
+            point: self.point.neg(),
+        }
     }
 
     fn __sub__(&self, other: &PyPoint) -> PyResult<PyPoint> {
         let diff = self.point.sub(&other.point)?;
-        Ok(PyPoint { curve: self.curve.clone(), point: diff })
+        Ok(PyPoint {
+            curve: self.curve.clone(),
+            point: diff,
+        })
     }
 
     fn __eq__(&self, other: &PyPoint) -> bool {
