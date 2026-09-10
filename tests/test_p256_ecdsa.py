@@ -2,8 +2,8 @@ from hashlib import sha1, sha224, sha256, sha384, sha512
 from unittest import TestCase
 
 from fastecdsa.curve import P256
-from fastecdsa.ecdsa import EcdsaError, sign, verify
-from fastecdsa.point import Point
+from fastecdsa.ecdsa import sign, verify
+from fastecdsa.rust import Point
 
 
 class TestP256ECDSA(TestCase):
@@ -99,10 +99,8 @@ class TestP256ECDSA(TestCase):
         self.assertFalse(verify(sig, msg, Q, curve=P256, hashfunc=sha256))
 
     def test_ecdsa_P256_invalid_Q(self):
-        Q = P256.G
-        Q.x = 0
-
-        with self.assertRaises(EcdsaError):
+        with self.assertRaises(ValueError):
+            Q = Point(0, P256.G.y, P256)
             verify((1, 1), "", Q)
 
     def test_ecdsa_P256_invalid_prehashed_msg_type(self):

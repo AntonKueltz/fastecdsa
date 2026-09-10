@@ -3,7 +3,7 @@ from collections.abc import Callable
 from hashlib import sha256
 
 from fastecdsa import _ecdsa  # type: ignore[attr-defined]
-from fastecdsa.rust import Curve as RustCurve
+from fastecdsa.rust import Curve as RustCurve, Point as RustPoint
 from .curve import Curve, P256
 from .point import Point
 from .typing import EcdsaSignature, SignableMessage
@@ -45,7 +45,7 @@ def sign(
 
     if isinstance(curve, RustCurve):
         return _rust_sign(hashed, d, k, hash_size, curve)
-    else:
+    elif isinstance(curve, Curve):
         # Fix the bit-length of the random nonce,
         # so that it doesn't leak via timing.
         # This does not change that ks (mod n) = kt (mod n) = k (mod n)
@@ -56,6 +56,8 @@ def sign(
         else:
             k = ks
         return _c_sign(hashed, d, k, curve)
+    else:
+        raise ValueError("Invalid curve type")
 
 
 def _rust_sign(
@@ -94,7 +96,7 @@ def _c_sign(hashed: bytes, d: int, k: int, curve: Curve) -> EcdsaSignature:
 def verify(
     sig: EcdsaSignature,
     msg: SignableMessage,
-    Q: Point,
+    Q: Point | RustPoint,
     curve: Curve | RustCurve = P256,
     hashfunc: Callable[[], HASH] = sha256,
     prehashed: bool = False,
@@ -122,9 +124,9 @@ def verify(
     r, s = sig
 
     hashed, hash_size = _hash(msg, hashfunc, prehashed)
-    if isinstance(curve, RustCurve):
+    if isinstance(curve, RustCurve) and isinstance(Q, RustPoint):
         return _rust_verify(sig, hashed, Q, hash_size, curve)
-    else:
+    elif isinstance(curve, Curve) and isinstance(Q, Point):
         # validate Q, r, s (Q should be validated in constructor of Point already but double check)
         if not curve.is_point_on_curve((Q.x, Q.y)):
             raise EcdsaError(f"Invalid public key, point is not on curve {curve}")
@@ -137,10 +139,16 @@ def verify(
                 "Invalid Signature: s is not a positive integer smaller than the curve order"
             )
         return _c_verify(sig, hashed, Q, curve)
+    else:
+        raise ValueError("Invalid curve / point type")
 
 
 def _rust_verify(
-    sig: EcdsaSignature, hashed: bytes, Q: Point, hash_size_bytes: int, curve: RustCurve
+    sig: EcdsaSignature,
+    hashed: bytes,
+    Q: RustPoint,
+    hash_size_bytes: int,
+    curve: RustCurve,
 ) -> bool:
     if curve.verify is None:
         raise ValueError(

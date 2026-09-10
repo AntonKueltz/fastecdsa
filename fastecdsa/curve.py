@@ -1,6 +1,4 @@
 from __future__ import annotations
-from functools import cache
-from math import ceil, log2
 from typing import Dict, Optional, Tuple, TYPE_CHECKING
 
 from fastecdsa.rust import Curve as RustCurve
@@ -138,11 +136,6 @@ class Curve:
         from .point import Point
 
         return Point(self.gx, self.gy, self)
-
-    @property
-    @cache
-    def q_size_bytes(self) -> int:
-        return ceil(log2(self.q) / 8)
 
 
 P192 = RustCurve.p192()

@@ -1,15 +1,16 @@
 from os import urandom
-from typing import Any, Callable, Optional, Tuple
+from typing import Any, Callable
 
 from .curve import Curve
 from .ecdsa import verify
 from .encoding import KeyEncoder
 from .point import Point
+from .rust import Curve as RustCurve, Point as RustPoint
 from .typing import EcdsaSignature, SignableMessage
 from .util import mod_sqrt, msg_bytes
 
 
-def gen_keypair(curve: Curve) -> Tuple[int, Point]:
+def gen_keypair(curve: Curve) -> tuple[int, Point]:
     """Generate a keypair that consists of a private key and a public key.
 
     The private key :math:`d` is an integer generated via a cryptographically secure random number
@@ -82,8 +83,11 @@ def get_public_key(d: int, curve: Curve) -> Point:
 
 
 def get_public_keys_from_sig(
-    sig: EcdsaSignature, msg: SignableMessage, curve: Curve, hashfunc: Callable
-) -> Tuple[Point, Point]:
+    sig: EcdsaSignature,
+    msg: SignableMessage,
+    curve: Curve | RustCurve,
+    hashfunc: Callable,
+) -> tuple[Point, Point] | tuple[RustPoint, RustPoint]:
     """Recover the public keys that can verify a signature / message pair.
 
     Args:
@@ -106,9 +110,14 @@ def get_public_keys_from_sig(
 
     y_squared = (r * r * r + curve.a * r + curve.b) % curve.p
     y1, y2 = mod_sqrt(y_squared, curve.p)
-    R1, R2 = Point(r, y1, curve=curve), Point(r, y2, curve=curve)
 
-    Qs = rinv * (s * R1 - z * curve.G), rinv * (s * R2 - z * curve.G)
+    if isinstance(curve, RustCurve):
+        R1, R2 = RustPoint(r, y1, curve=curve), RustPoint(r, y2, curve=curve)
+        Qs = rinv * (s * R1 - z * curve.G), rinv * (s * R2 - z * curve.G)
+    else:
+        R1, R2 = Point(r, y1, curve=curve), Point(r, y2, curve=curve)
+        Qs = rinv * (s * R1 - z * curve.G), rinv * (s * R2 - z * curve.G)
+
     for Q in Qs:
         if not verify(sig, msg, Q, curve=curve, hashfunc=hashfunc):
             raise ValueError(
@@ -120,8 +129,8 @@ def get_public_keys_from_sig(
 
 
 def export_private_key(
-    key: int, curve: Curve, encoder: KeyEncoder, filepath: Optional[str] = None
-) -> Optional[bytes]:
+    key: int, curve: Curve, encoder: KeyEncoder, filepath: str | None = None
+) -> bytes | None:
     r"""Export a private EC key using the given encoder.
 
     Args:
@@ -133,8 +142,8 @@ def export_private_key(
     Returns:
         bytes | None: If no filepath is provided the bytes of the encoded key are returned.
     """
-    if not isinstance(curve, Curve):
-        raise TypeError("curve must be an instance of the Curve type.")
+    if not isinstance(curve, (Curve, RustCurve)):
+        raise TypeError("curve must be an instance of the Curve | RustCurve type.")
     if not isinstance(encoder, KeyEncoder):
         raise TypeError(
             "encoder must be an instance of a subclass of the KeyEncoder type."
@@ -154,8 +163,8 @@ def export_private_key(
 
 
 def export_public_key(
-    key: Point, encoder: KeyEncoder, filepath: Optional[str] = None
-) -> Optional[bytes]:
+    key: Point, encoder: KeyEncoder, filepath: str | None = None
+) -> bytes | None:
     r"""Export a private EC key using the given encoder.
 
     Args:
@@ -201,7 +210,9 @@ def import_private_key(filepath: str, decoder: KeyEncoder) -> int:
     return decoder.decode_private_key(data)
 
 
-def import_public_key(filepath: str, curve: Curve, decoder: KeyEncoder) -> Point:
+def import_public_key(
+    filepath: str, curve: Curve | RustCurve, decoder: KeyEncoder
+) -> Point | RustPoint:
     """Import a public EC key.
 
     Args:
@@ -211,8 +222,8 @@ def import_public_key(filepath: str, curve: Curve, decoder: KeyEncoder) -> Point
     Returns:
         (fastecdsa.point.Point): A decoded public key.
     """
-    if not isinstance(curve, Curve):
-        raise TypeError("curve must be an instance of the Curve type.")
+    if not isinstance(curve, (Curve, RustCurve)):
+        raise TypeError("curve must be an instance of the Curve | RustCurve type.")
     if not isinstance(decoder, KeyEncoder):
         raise TypeError("decoder must be a subclass of KeyEncoder.")
 

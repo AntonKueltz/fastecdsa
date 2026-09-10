@@ -1,3 +1,4 @@
+use std::cmp::min;
 use std::ops::{Add, Mul, Sub};
 
 use crate::comb::Comb;
@@ -170,7 +171,7 @@ impl<C: Curve> From<&[u8]> for Field<C> {
         };
         let a = result.x.as_mut();
 
-        for i in 0..C::FIELD_BYTES {
+        for i in 0..min(x.len(), C::FIELD_BYTES) {
             let j = i >> 3;
             let k = i & 0b111;
             a[j] |= (x[i] as u64) << (k * 8);

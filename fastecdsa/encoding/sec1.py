@@ -2,6 +2,7 @@ from . import KeyEncoder
 from .util import bytes_to_int, int_bytelen, int_to_bytes
 from ..curve import Curve
 from ..point import Point
+from ..rust import Curve as RustCurve, Point as RustPoint
 from ..util import mod_sqrt
 
 
@@ -12,7 +13,7 @@ class InvalidSEC1PublicKey(Exception):
 class SEC1Encoder(KeyEncoder):
     binary_data = True
 
-    def encode_public_key(self, Q: Point, compressed: bool = True) -> bytes:
+    def encode_public_key(self, Q: Point | RustPoint, compressed: bool = True) -> bytes:
         """Encode a public key as described in http://www.secg.org/SEC1-Ver-1.0.pdf
             in sections 2.3.3/2.3.4
                 uncompressed:   04 + x_bytes + y_bytes
@@ -32,7 +33,9 @@ class SEC1Encoder(KeyEncoder):
                 return b"\x02" + int_to_bytes(Q.x, bytelen)
         return b"\x04" + int_to_bytes(Q.x, bytelen) + int_to_bytes(Q.y, bytelen)
 
-    def decode_public_key(self, key: bytes, curve: Curve) -> Point:
+    def decode_public_key(
+        self, key: bytes, curve: Curve | RustCurve
+    ) -> Point | RustPoint:
         """Decode a public key as described in http://www.secg.org/SEC1-Ver-1.0.pdf
             in sections 2.3.3/2.3.4
 
@@ -70,9 +73,13 @@ class SEC1Encoder(KeyEncoder):
                 y = root if root % 2 == 0 else -root % curve.p
             else:
                 raise InvalidSEC1PublicKey("Wrong key format")
-        return Point(x, y, curve=curve)
 
-    def encode_private_key(self, d: int, curve: Curve) -> bytes:
+        if isinstance(curve, RustCurve):
+            return RustPoint(x, y, curve)
+        else:
+            return Point(x, y, curve=curve)
+
+    def encode_private_key(self, d: int, curve: Curve | RustCurve) -> bytes:
         raise NotImplementedError("SEC1Encoder only encodes public keys")
 
     def decode_private_key(self, key: bytes) -> int:
