@@ -1,6 +1,6 @@
 use crypto_bigint::{
-    modular::{ConstMontyForm, ConstMontyParams},
     Uint,
+    modular::{ConstMontyForm, ConstMontyParams},
 };
 
 pub trait ScalarField: Copy + Sized {

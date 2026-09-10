@@ -1,6 +1,6 @@
 use std::sync::OnceLock;
 
-use crypto_bigint::{const_monty_params, modular::ConstMontyForm, U192};
+use crypto_bigint::{U192, const_monty_params, modular::ConstMontyForm};
 
 use crate::comb::Comb;
 use crate::curve::{AddResult, Curve, Field, MulResult, Point};
