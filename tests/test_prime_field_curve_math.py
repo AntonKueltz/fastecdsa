@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from . import CURVES
 from fastecdsa.curve import P192, P224, P256, P384, P521, secp256k1, W25519, W448
-from fastecdsa.rust import Point
+from fastecdsa.point import Point
 
 
 class TestPrimeFieldCurve(TestCase):

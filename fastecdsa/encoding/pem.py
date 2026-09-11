@@ -18,9 +18,8 @@ from .asn1 import (
     asn1_structure,
     parse_asn1_length,
 )
-from ..curve import Curve
+from ..curve import Curve, get_curve_by_oid
 from ..point import Point
-from ..rust import Curve as RustCurve, Point as RustPoint
 
 
 class PEMEncoderError(Exception):
@@ -69,7 +68,7 @@ class PEMEncoder(KeyEncoder):
         if remaining:
             self._parse_asn1_structure(remaining)
 
-    def encode_public_key(self, Q: Point | RustPoint) -> bytes:
+    def encode_public_key(self, Q: Point) -> bytes:
         """Encode an EC public key as described in `RFC 5480 <https://tools.ietf.org/html/rfc5480>`_.
 
         Args:
@@ -95,7 +94,7 @@ class PEMEncoder(KeyEncoder):
             + self.EC_PUBLIC_FOOTER
         )
 
-    def encode_private_key(self, d: int, curve: Curve | RustCurve) -> bytes:
+    def encode_private_key(self, d: int, curve: Curve) -> bytes:
         """Encode a private EC key as described in `RFC 5915 <https://tools.ietf.org/html/rfc5915.html>`_.
 
         Args:
@@ -105,7 +104,7 @@ class PEMEncoder(KeyEncoder):
         Returns:
             bytes: The ASCII armored encoded EC key.
         """
-        Q: Point | RustPoint = d * curve.G
+        Q = d * curve.G
 
         version = asn1_ecversion()
         private_key = asn1_private_key(d, Q.curve)
@@ -126,9 +125,7 @@ class PEMEncoder(KeyEncoder):
             + self.EC_PRIVATE_FOOTER
         )
 
-    def decode_public_key(
-        self, key: bytes, curve: Curve | RustCurve
-    ) -> Point | RustPoint:
+    def decode_public_key(self, key: bytes, curve: Curve) -> Point:
         """Decode a PEM encoded public key as described in
         `RFC 5480 <https://tools.ietf.org/html/rfc5480>`_.
 
@@ -146,7 +143,7 @@ class PEMEncoder(KeyEncoder):
         for value_type, value in self.asn1_parsed_data:
             if value_type == OBJECT_IDENTIFIER:
                 # override curve if explicitly defined in the encoded key
-                encoded_curve = Curve.get_curve_by_oid(value)
+                encoded_curve = get_curve_by_oid(value)
                 if encoded_curve is not None:
                     encoded_curve = curve
 
@@ -160,10 +157,7 @@ class PEMEncoder(KeyEncoder):
         if curve is None or x is None or y is None:
             raise PEMEncoderError(f"Could not parse public key. {x=}, {y=}, {curve=}")
 
-        if isinstance(curve, RustCurve):
-            return RustPoint(x, y, curve)
-        else:
-            return Point(x, y, curve)
+        return Point(x, y, curve)
 
     def decode_private_key(self, key: bytes) -> int:
         """Decode a PEM encoded EC private key as described in

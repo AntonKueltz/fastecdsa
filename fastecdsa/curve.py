@@ -1,150 +1,19 @@
-from __future__ import annotations
-from typing import Dict, Optional, Tuple, TYPE_CHECKING
+from fastecdsa.rust import Curve
 
-from fastecdsa.rust import Curve as RustCurve
+P192 = Curve.p192()
+P224 = Curve.p224()
+P256 = Curve.p256()
+P384 = Curve.p384()
+P521 = Curve.p521()
 
-if TYPE_CHECKING:
-    # allow the type checker to use Point
-    # Point depends on Curve, but Curve also depends on Point (the type of G)
-    # circular import if we try to do this during runtime
-    from fastecdsa.point import Point
-
-
-class Curve:
-    r"""Representation of an elliptic curve.
-
-    Defines a group with the arithmetic operations of point addition and scalar multiplication.
-    Currently only curves defined via the equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}` are
-    supported.
-
-    Attributes:
-        |  name (str): The name of the curve
-        |  p (int): The value of :math:`p` in the curve equation.
-        |  a (int): The value of :math:`a` in the curve equation.
-        |  b (int): The value of :math:`b` in the curve equation.
-        |  q (int): The order of the base point of the curve.
-        |  oid (bytes): The object identifier of the curve.
-    """
-
-    _oid_lookup: Dict[
-        bytes, Curve
-    ] = {}  # a lookup table for getting curve instances by their object identifier
-
-    def __init__(
-        self,
-        name: str,
-        p: int,
-        a: int,
-        b: int,
-        q: int,
-        gx: int,
-        gy: int,
-        oid: Optional[bytes] = None,
-    ) -> None:
-        r"""Initialize the parameters of an elliptic curve.
-
-        WARNING: Do not generate your own parameters unless you know what you are doing or you could
-        generate a curve severely less secure than you think. Even then, consider using a
-        standardized curve for the sake of interoperability.
-
-        Currently only curves defined via the equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}` are
-        supported.
-
-        Args:
-            |  name (string): The name of the curve
-            |  p (int): The value of :math:`p` in the curve equation.
-            |  a (int): The value of :math:`a` in the curve equation.
-            |  b (int): The value of :math:`b` in the curve equation.
-            |  q (int): The order of the base point of the curve.
-            |  gx (int): The x coordinate of the base point of the curve.
-            |  gy (int): The y coordinate of the base point of the curve.
-            |  oid (bytes): The object identifier of the curve.
-        """
-        self.name = name
-        self.p = p
-        self.a = a
-        self.b = b
-        self.q = q
-        self.gx = gx
-        self.gy = gy
-        self.oid = oid
-
-        if oid is not None:
-            self._oid_lookup[oid] = self
-
-    def __str__(self) -> str:
-        return self.name
-
-    def __repr__(self) -> str:
-        return self.__str__()
-
-    @classmethod
-    def get_curve_by_oid(cls, oid: bytes) -> Optional[Curve]:
-        r"""Get a curve via its object identifier.
-
-        Args:
-            oid (bytes): The object identifier for the curve.
-
-        Returns:
-            Curve | None: The curve corresponding to the object identifier. If the identifier does
-            not correspond to a supported curve :code:`None` is returned.
-
-        """
-        return cls._oid_lookup.get(oid, None)
-
-    def is_point_on_curve(self, point: Tuple[int, int]) -> bool:
-        r"""Check if a point lies on this curve.
-
-        The check is done by evaluating the curve equation :math:`y^2 \equiv x^3 + ax + b \pmod{p}`
-        at the given point :math:`(x,y)` with this curve's domain parameters :math:`(a, b, p)`. If
-        the congruence holds, then the point lies on this curve.
-
-        Args:
-            point (int, int): A tuple representing the point :math:`P` as an :math:`(x, y)` coordinate
-            pair.
-
-        Returns:
-            bool: :code:`True` if the point lies on this curve, otherwise :code:`False`.
-        """
-        (
-            x,
-            y,
-        ) = point
-        left = y * y
-        right = (x * x * x) + (self.a * x) + self.b
-        return (left - right) % self.p == 0
-
-    def evaluate(self, x: int) -> int:
-        r"""Evaluate the elliptic curve polynomial at 'x'
-
-        Args:
-            x (int): The position to evaluate the polynomial at
-
-        Returns:
-            int: the value of :math:`(x^3 + ax + b) \bmod{p}`
-        """
-        return (x**3 + self.a * x + self.b) % self.p
-
-    @property
-    def G(self) -> Point:
-        """The base point of the curve.
-
-        For the purposes of ECDSA this point is multiplied by a private key to obtain the
-        corresponding public key. Make a property to avoid cyclic dependency of Point on Curve
-        (a point lies on a curve) and Curve on Point (curves have a base point).
-        """
-        from .point import Point
-
-        return Point(self.gx, self.gy, self)
+oid_lookup = {c.oid: c for c in [P192, P224, P256, P384, P521]}
 
 
-P192 = RustCurve.p192()
-P224 = RustCurve.p224()
-P256 = RustCurve.p256()
-P384 = RustCurve.p384()
-P521 = RustCurve.p521()
+def get_curve_by_oid(oid: bytes) -> Curve | None:
+    return oid_lookup.get(oid)
 
-W25519 = RustCurve(
+
+W25519 = Curve(
     "W25519",
     0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED,
     0x2AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA984914A144,
@@ -153,7 +22,7 @@ W25519 = RustCurve(
     0x2AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD245A,
     0x5F51E65E475F794B1FE122D388B72EB36DC2B28192839E4DD6163A5D81312C14,
 )
-W448 = RustCurve(
+W448 = Curve(
     "W448",
     int(
         "72683872429560689054932380788800453435364136068731806028149019918061232816673077268639638"
@@ -182,7 +51,7 @@ W448 = RustCurve(
 )
 
 # see http://www.secg.org/sec2-v2.pdf for params
-secp192k1 = RustCurve(
+secp192k1 = Curve(
     "secp192k1",
     0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFEE37,
     0x0,
@@ -192,7 +61,7 @@ secp192k1 = RustCurve(
     0x9B2F2F6D9C5628A7844163D015BE86344082AA88D95E2F9D,
 )
 
-secp224k1 = RustCurve(
+secp224k1 = Curve(
     "secp224k1",
     0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFE56D,
     0x0,
@@ -202,7 +71,7 @@ secp224k1 = RustCurve(
     0x7E089FED7FBA344282CAFBD6F7E319F7C0B0BD59E2CA4BDB556D61A5,
 )
 
-secp256k1 = RustCurve(
+secp256k1 = Curve(
     "secp256k1",
     0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F,
     0x0,
@@ -213,7 +82,7 @@ secp256k1 = RustCurve(
 )
 
 # see https://tools.ietf.org/html/rfc5639#section-3.1 for params
-brainpoolP160r1 = RustCurve(
+brainpoolP160r1 = Curve(
     "brainpoolP160r1",
     0xE95E4A5F737059DC60DFC7AD95B3D8139515620F,
     0x340E7BE2A280EB74E2BE61BADA745D97E8F7C300,
@@ -223,7 +92,7 @@ brainpoolP160r1 = RustCurve(
     0x1667CB477A1A8EC338F94741669C976316DA6321,
 )
 
-brainpoolP192r1 = RustCurve(
+brainpoolP192r1 = Curve(
     "brainpoolP192r1",
     0xC302F41D932A36CDA7A3463093D18DB78FCE476DE1A86297,
     0x6A91174076B1E0E19C39C031FE8685C1CAE040E5C69A28EF,
@@ -233,7 +102,7 @@ brainpoolP192r1 = RustCurve(
     0x14B690866ABD5BB88B5F4828C1490002E6773FA2FA299B8F,
 )
 
-brainpoolP224r1 = RustCurve(
+brainpoolP224r1 = Curve(
     "brainpoolP224r1",
     0xD7C134AA264366862A18302575D1D787B09F075797DA89F57EC8C0FF,
     0x68A5E62CA9CE6C1C299803A6C1530B514E182AD8B0042A59CAD29F43,
@@ -243,7 +112,7 @@ brainpoolP224r1 = RustCurve(
     0x58AA56F772C0726F24C6B89E4ECDAC24354B9E99CAA3F6D3761402CD,
 )
 
-brainpoolP256r1 = RustCurve(
+brainpoolP256r1 = Curve(
     "brainpoolP256r1",
     0xA9FB57DBA1EEA9BC3E660A909D838D726E3BF623D52620282013481D1F6E5377,
     0x7D5A0975FC2C3057EEF67530417AFFE7FB8055C126DC5C6CE94A4B44F330B5D9,
@@ -253,7 +122,7 @@ brainpoolP256r1 = RustCurve(
     0x547EF835C3DAC4FD97F8461A14611DC9C27745132DED8E545C1D54C72F046997,
 )
 
-brainpoolP320r1 = RustCurve(
+brainpoolP320r1 = Curve(
     "brainpoolP320r1",
     0xD35E472036BC4FB7E13C785ED201E065F98FCFA6F6F40DEF4F92B9EC7893EC28FCD412B1F1B32E27,
     0x3EE30B568FBAB0F883CCEBD46D3F3BB8A2A73513F5EB79DA66190EB085FFA9F492F375A97D860EB4,
@@ -263,7 +132,7 @@ brainpoolP320r1 = RustCurve(
     0x14FDD05545EC1CC8AB4093247F77275E0743FFED117182EAA9C77877AAAC6AC7D35245D1692E8EE1,
 )
 
-brainpoolP384r1 = RustCurve(
+brainpoolP384r1 = Curve(
     "brainpoolP384r1",
     int(
         "8CB91E82A3386D280F5D6F7E50E641DF152F7109ED5456B412B1DA197FB71123ACD3A729901D1A718747001331"
@@ -297,7 +166,7 @@ brainpoolP384r1 = RustCurve(
     ),
 )
 
-brainpoolP512r1 = RustCurve(
+brainpoolP512r1 = Curve(
     "brainpoolP512r1",
     int(
         "AADD9DB8DBE9C48B3FD4E6AE33C9FC07CB308DB3B3C9D20ED6639CCA703308717D4D9B009BC66842AECDA12AE6"

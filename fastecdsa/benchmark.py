@@ -1,7 +1,7 @@
 from timeit import timeit
 
 from fastecdsa.curve import (
-    RustCurve,
+    Curve,
     P192,
     P224,
     P256,
@@ -20,13 +20,13 @@ from fastecdsa.curve import (
     brainpoolP384r1,
     brainpoolP512r1,
 )
-from fastecdsa.rust import Point
+from fastecdsa.point import Point
 from .ecdsa import sign, verify
 
 msg = bytes(32)
 
 
-def sign_and_verify(d: int, Q: Point, curve: RustCurve) -> None:
+def sign_and_verify(d: int, Q: Point, curve: Curve) -> None:
     sig = sign(msg, d, curve=curve)
     assert verify(sig, msg, Q, curve=curve)
 

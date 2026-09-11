@@ -2,8 +2,6 @@ import hmac
 from struct import pack
 from typing import Callable, Tuple
 
-from .typing import SignableMessage
-
 
 class RFC6979:
     """Generate a nonce per RFC6979.
@@ -23,7 +21,7 @@ class RFC6979:
 
     def __init__(
         self,
-        msg: SignableMessage,
+        msg: bytes,
         x: int,
         q: int,
         hashfunc: Callable,
@@ -31,8 +29,8 @@ class RFC6979:
     ) -> None:
         self.x = x
         self.q = q
-        self.msg = msg_bytes(msg)
-        self.qlen = len(bin(q)) - 2  # -2 for the leading '0b'
+        self.msg = msg
+        self.qlen = q.bit_length()
         self.rlen = ((self.qlen + 7) // 8) * 8
         self.hashfunc = hashfunc
         self.prehashed = prehashed
@@ -136,29 +134,3 @@ def mod_sqrt(a: int, p: int) -> Tuple[int, int]:
         return x, (-x % p)
     else:
         return _tonelli_shanks(a, p)
-
-
-def msg_bytes(msg: SignableMessage) -> bytes:
-    """Return bytes in a consistent way for a given message.
-
-    The message is expected to be either a string, bytes, or an array of bytes.
-
-    Args:
-        |  msg (str|bytes|bytearray): The data to transform.
-
-    Returns:
-        bytes: The byte encoded data.
-
-    Raises:
-        ValueError: If the data cannot be encoded as bytes.
-    """
-    if isinstance(msg, bytes):
-        return msg
-    elif isinstance(msg, str):
-        return msg.encode()
-    elif isinstance(msg, bytearray):
-        return bytes(msg)
-    else:
-        raise ValueError(
-            f'Msg "{msg}" of type {type(msg)} cannot be converted to bytes'
-        )

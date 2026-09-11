@@ -3,24 +3,21 @@ from typing import Tuple
 
 from ..curve import Curve
 from ..point import Point
-from ..rust import Curve as RustCurve, Point as RustPoint
 
 
 class KeyEncoder(ABC):
     """Base class that any encoding class for EC keys should derive from."""
 
     @abstractmethod
-    def encode_public_key(self, Q: Point | RustPoint) -> bytes:
+    def encode_public_key(self, Q: Point) -> bytes:
         pass
 
     @abstractmethod
-    def encode_private_key(self, d: int, curve: Curve | RustCurve) -> bytes:
+    def encode_private_key(self, d: int, curve: Curve) -> bytes:
         pass
 
     @abstractmethod
-    def decode_public_key(
-        self, key: bytes, curve: Curve | RustCurve
-    ) -> Point | RustPoint:
+    def decode_public_key(self, key: bytes, curve: Curve) -> Point:
         pass
 
     @abstractmethod

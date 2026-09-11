@@ -149,7 +149,7 @@ class TestDEREncoder(TestCase):
     def test_encode_decode_all_curves(self):
         for curve in CURVES:
             d = randint(1, curve.q)
-            r, s = sign("sign me", d, curve=curve)
+            r, s = sign(b"sign me", d, curve=curve)
 
             encoded = DEREncoder.encode_signature(r, s)
             decoded_r, decoded_s = DEREncoder.decode_signature(encoded)

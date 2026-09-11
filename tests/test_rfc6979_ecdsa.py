@@ -1,3 +1,5 @@
+from _hashlib import HASH
+from collections.abc import Callable
 from dataclasses import dataclass
 from hashlib import sha1, sha224, sha256, sha384, sha512
 from json import load
@@ -6,7 +8,6 @@ from unittest import TestCase
 
 from fastecdsa.curve import P192, P224, P256, P384, P521
 from fastecdsa.ecdsa import sign
-from fastecdsa.typing import HashFunction
 from fastecdsa.util import RFC6979
 
 hash_lookup = {"1": sha1, "224": sha224, "256": sha256, "384": sha384, "512": sha512}
@@ -14,15 +15,15 @@ hash_lookup = {"1": sha1, "224": sha224, "256": sha256, "384": sha384, "512": sh
 
 @dataclass
 class Vector:
-    h: HashFunction
-    m: str
+    h: Callable[[], HASH]
+    m: bytes
     k: int
     r: int
     s: int
 
     def __init__(self, data: dict):
         self.h = hash_lookup[data["h"]]
-        self.m = data["m"]
+        self.m = data["m"].encode()
         self.k = data["k"]
         self.r = data["r"]
         self.s = data["s"]

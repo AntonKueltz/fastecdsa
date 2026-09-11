@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from fastecdsa.curve import P256, secp192k1, secp256k1
 from fastecdsa.encoding.sec1 import InvalidSEC1PublicKey, SEC1Encoder
-from fastecdsa.rust import Point
+from fastecdsa.point import Point
 
 
 class TestSEC1Encoder(TestCase):

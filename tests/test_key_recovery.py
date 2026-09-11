@@ -11,8 +11,8 @@ class TestKeyRecovery(TestCase):
         for curve in [P192, P224, P256, P384, P521]:
             d, Q = gen_keypair(curve)
             msg = (
-                "https://crypto.stackexchange.com/questions/18105/how-does-recovering-the-"
-                "public-key-from-an-ecdsa-signature-work"
+                b"https://crypto.stackexchange.com/questions/18105/how-does-recovering-the-"
+                b"public-key-from-an-ecdsa-signature-work"
             )
             sig = sign(msg, d, curve=curve)
 

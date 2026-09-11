@@ -6,9 +6,8 @@ from fastecdsa.keys import gen_private_key
 
 class TestKeygen(TestCase):
     def test_gen_private_key(self) -> None:
-        class FakeCurve(Curve):
-            def __init__(self, q: int) -> None:
-                super().__init__("FakeCurve", 0, 0, 0, q, 0, 0)
+        def fake_curve(q: int):
+            return Curve("FakeCurve", 41, 1, 1, q, 5, 7)
 
         class FakeRandom:
             def __init__(self, values: bytes = b"\x01") -> None:
@@ -21,28 +20,30 @@ class TestKeygen(TestCase):
                 return result
 
         # 1 byte / 6 bits shaved off + the first try is lower than the order
-        self.assertEqual(gen_private_key(FakeCurve(2), randfunc=FakeRandom(b"\x40")), 1)
+        self.assertEqual(
+            gen_private_key(fake_curve(3), randfunc=FakeRandom(b"\x40")), 1
+        )
 
         # 1 byte / 6 bits shaved off + the first try is higher than the order
         self.assertEqual(
-            gen_private_key(FakeCurve(2), randfunc=FakeRandom(b"\xc0\x40")), 1
+            gen_private_key(fake_curve(3), randfunc=FakeRandom(b"\xc0\x40")), 1
         )
 
         # 2 byte / 3 are shaved off, the first try is lower than the order.
         self.assertEqual(
-            gen_private_key(FakeCurve(8191), randfunc=FakeRandom(b"\xff\xf0")), 8190
+            gen_private_key(fake_curve(8191), randfunc=FakeRandom(b"\xff\xf0")), 8190
         )
 
         # 2 byte  / 3 are shaved off
         # first try : _bytes_to_int("\xff\xf8") >> 3 == 8191 (too high for order 8191)
         # second try : _bytes_to_int("\xff\xf0") >> 3 == 8190 (ok for order 8191)
         self.assertEqual(
-            gen_private_key(FakeCurve(8191), randfunc=FakeRandom(b"\xff\xf8\xff\xf0")),
+            gen_private_key(fake_curve(8191), randfunc=FakeRandom(b"\xff\xf8\xff\xf0")),
             8190,
         )
 
         # Same but with a different second try value
         self.assertEqual(
-            gen_private_key(FakeCurve(8191), randfunc=FakeRandom(b"\xff\xf8\xff\xef")),
+            gen_private_key(fake_curve(8191), randfunc=FakeRandom(b"\xff\xf8\xff\xef")),
             8189,
         )

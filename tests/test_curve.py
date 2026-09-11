@@ -7,7 +7,7 @@ class TestCurve(TestCase):
     def test_repr(self):
         expected = "Test Curve"
 
-        curve = Curve(expected, 1, 1, 1, 1, 1, 1)
+        curve = Curve(expected, 41, 1, 1, 31, 5, 7)
         actual = str(curve)
 
         self.assertEqual(expected, actual)

@@ -3,7 +3,6 @@ from typing import Tuple
 
 from ..curve import Curve
 from ..point import Point
-from ..rust import Curve as RustCurve, Point as RustPoint
 from .util import int_bytelen, int_to_bytes
 
 INTEGER = b"\x02"
@@ -41,7 +40,7 @@ def asn1_structure(data_type: bytes, data: bytes) -> bytes:
     return data_type + _asn1_len(data) + data
 
 
-def asn1_private_key(d: int, curve: Curve | RustCurve) -> bytes:
+def asn1_private_key(d: int, curve: Curve) -> bytes:
     d_bytes = int_to_bytes(d)
     padding = b"\x00" * (int_bytelen(curve.q) - len(d_bytes))
     return asn1_structure(OCTET_STRING, padding + d_bytes)
@@ -59,7 +58,7 @@ def asn1_ecpublickey() -> bytes:
     return asn1_structure(OBJECT_IDENTIFIER, b"\x2a\x86\x48\xce\x3d\x02\x01")
 
 
-def asn1_oid(curve: Curve | RustCurve) -> bytes:
+def asn1_oid(curve: Curve) -> bytes:
     oid_bytes = curve.oid
 
     if oid_bytes is None:
@@ -68,7 +67,7 @@ def asn1_oid(curve: Curve | RustCurve) -> bytes:
     return asn1_structure(OBJECT_IDENTIFIER, oid_bytes)
 
 
-def asn1_public_key(Q: Point | RustPoint) -> bytes:
+def asn1_public_key(Q: Point) -> bytes:
     p_len = int_bytelen(Q.curve.p)
 
     x_bytes = int_to_bytes(Q.x)

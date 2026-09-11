@@ -7,7 +7,7 @@ use pyo3::prelude::*;
 
 use crate::curve::{Curve, Field, Point};
 use crate::ecdsa::{sign, verify};
-use crate::generic::{GenericCurve, GenericPoint};
+use crate::generic::{CurveError, GenericCurve, GenericPoint};
 use crate::p192::P192;
 use crate::p224::P224;
 use crate::p256::P256;
@@ -256,7 +256,7 @@ impl PyCurve {
             BoxedUint::from_le_bytes(n.to_bytes_le().into()).resize(bits as u32)
         };
 
-        let curve = GenericCurve::new(
+        let result = GenericCurve::new(
             name,
             BoxedUint::from_le_bytes(p.to_bytes_le().into()),
             widen(a),
@@ -264,10 +264,20 @@ impl PyCurve {
             BoxedUint::from_le_bytes(q.to_bytes_le().into()),
             widen(gx),
             widen(gy),
-        )
-        .unwrap();
+        );
 
-        Ok(PyCurve(Arc::new(CurveKind::Generic(Arc::new(curve)))))
+        match result {
+            Ok(curve) => Ok(PyCurve(Arc::new(CurveKind::Generic(Arc::new(curve))))),
+            Err(error) => match error {
+                CurveError::EvenModulus => Err(PyValueError::new_err("modulus is even")),
+                CurveError::PNotPrime => Err(PyValueError::new_err("field order is not prime")),
+                CurveError::SingularCurve => Err(PyValueError::new_err("curve discriminant is 0")),
+                CurveError::PointNotOnCurve => Err(PyValueError::new_err(
+                    "generator is not a point on the curve",
+                )),
+                CurveError::QNotPrime => Err(PyValueError::new_err("generator order is not prime")),
+            },
+        }
     }
 
     #[staticmethod]
