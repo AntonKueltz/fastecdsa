@@ -10,7 +10,7 @@ from .typing import EcdsaSignature, SignableMessage
 from .util import mod_sqrt, msg_bytes
 
 
-def gen_keypair(curve: Curve) -> tuple[int, Point]:
+def gen_keypair(curve: Curve | RustCurve) -> tuple[int, Point | RustPoint]:
     """Generate a keypair that consists of a private key and a public key.
 
     The private key :math:`d` is an integer generated via a cryptographically secure random number
@@ -30,7 +30,9 @@ def gen_keypair(curve: Curve) -> tuple[int, Point]:
     return private_key, public_key
 
 
-def gen_private_key(curve: Curve, randfunc: Callable[[Any], bytes] = urandom) -> int:
+def gen_private_key(
+    curve: Curve | RustCurve, randfunc: Callable[[Any], bytes] = urandom
+) -> int:
     """Generate a private key to sign data with.
 
     The private key :math:`d` is an integer generated via a cryptographically secure random number
@@ -66,7 +68,7 @@ def gen_private_key(curve: Curve, randfunc: Callable[[Any], bytes] = urandom) ->
     return rand
 
 
-def get_public_key(d: int, curve: Curve) -> Point:
+def get_public_key(d: int, curve: Curve | RustCurve) -> Point | RustPoint:
     """Generate a public key from a private key.
 
     The public key :math:`Q` is a point on the curve calculated as :math:`Q = dG`, where :math:`d`
@@ -129,7 +131,7 @@ def get_public_keys_from_sig(
 
 
 def export_private_key(
-    key: int, curve: Curve, encoder: KeyEncoder, filepath: str | None = None
+    key: int, curve: Curve | RustCurve, encoder: KeyEncoder, filepath: str | None = None
 ) -> bytes | None:
     r"""Export a private EC key using the given encoder.
 
@@ -163,7 +165,7 @@ def export_private_key(
 
 
 def export_public_key(
-    key: Point, encoder: KeyEncoder, filepath: str | None = None
+    key: Point | RustPoint, encoder: KeyEncoder, filepath: str | None = None
 ) -> bytes | None:
     r"""Export a private EC key using the given encoder.
 

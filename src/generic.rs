@@ -122,11 +122,32 @@ impl GenericCurve {
         })
     }
 
-    pub fn u32_to_field(&self, x: u32) -> BoxedMontyForm {
-        let bits = self.p.bits();
-        let n = BoxedUint::from(Limb::from(x)).resize(bits);
+    pub fn bytes_to_field(&self, x: &[u8]) -> BoxedMontyForm {
+        let xbits = x.len() * 8;
+        let pbits = self.p.bits();
 
-        BoxedMontyForm::new(n, &self.field_params)
+        if xbits < pbits as usize {
+            BoxedMontyForm::new(
+                BoxedUint::from_le_bytes(x.into()).resize(pbits),
+                &self.field_params,
+            )
+        } else {
+            BoxedMontyForm::new(BoxedUint::from_le_bytes(x.into()), &self.field_params)
+        }
+    }
+
+    pub fn bytes_to_scalar(&self, x: &[u8]) -> BoxedMontyForm {
+        let xbits = x.len() * 8;
+        let qbits = self.p.bits();
+
+        if xbits < qbits as usize {
+            BoxedMontyForm::new(
+                BoxedUint::from_le_bytes(x.into()).resize(qbits),
+                &self.scalar_params,
+            )
+        } else {
+            BoxedMontyForm::new(BoxedUint::from_le_bytes(x.into()), &self.scalar_params)
+        }
     }
 
     pub fn generator(self: &Arc<Self>) -> GenericPoint {
@@ -148,7 +169,7 @@ impl GenericCurve {
     }
 
     pub fn evaluate(self: &Arc<Self>, x_bytes: &[u8]) -> BigUint {
-        let x = &BoxedMontyForm::new(BoxedUint::from_le_bytes(x_bytes.into()), &self.field_params);
+        let x = &self.bytes_to_field(x_bytes);
         let r = x * x * x + &self.a_monty * x + &self.b_monty;
 
         BigUint::from_bytes_le(&r.retrieve().to_le_bytes())
@@ -156,8 +177,8 @@ impl GenericCurve {
 
     pub fn point_from_affine(self: &Arc<Self>, x_bytes: &[u8], y_bytes: &[u8]) -> GenericPoint {
         GenericPoint {
-            x: BoxedMontyForm::new(BoxedUint::from_le_bytes(x_bytes.into()), &self.field_params),
-            y: BoxedMontyForm::new(BoxedUint::from_le_bytes(y_bytes.into()), &self.field_params),
+            x: self.bytes_to_field(x_bytes),
+            y: self.bytes_to_field(y_bytes),
             z: self.one_monty.clone(),
             curve: self.clone(),
         }
@@ -171,19 +192,16 @@ impl GenericCurve {
     ) -> (Vec<u8>, Vec<u8>) {
         let p = (self.generator() * k_bytes).normalize();
 
-        let k = BoxedMontyForm::new(
-            BoxedUint::from_le_bytes(k_bytes.into()),
-            &self.scalar_params,
-        );
-        let z = BoxedMontyForm::new(BoxedUint::from_le_bytes(msg.into()), &self.scalar_params);
+        let k = self.bytes_to_scalar(k_bytes);
+        assert!(!k.is_zero().to_bool());
+        let z = self.bytes_to_scalar(msg);
         let r = &BoxedMontyForm::new(p.x.retrieve(), &self.scalar_params);
-        let d = BoxedMontyForm::new(
-            BoxedUint::from_le_bytes(d_bytes.into()),
-            &self.scalar_params,
-        );
+        assert!(!r.is_zero().to_bool());
+        let d = self.bytes_to_scalar(d_bytes);
 
         let kinv = k.invert().unwrap();
         let s = kinv.mul(z + r * d);
+        assert!(!s.is_zero().to_bool());
 
         (
             r.retrieve().to_le_bytes().to_vec(),
@@ -199,28 +217,19 @@ impl GenericCurve {
         qx_bytes: &[u8],
         qy_bytes: &[u8],
     ) -> bool {
-        let s = BoxedMontyForm::new(
-            BoxedUint::from_le_bytes(s_bytes.into()),
-            &self.scalar_params,
-        );
-        let r = &BoxedMontyForm::new(
-            BoxedUint::from_le_bytes(r_bytes.into()),
-            &self.scalar_params,
-        );
+        let s = self.bytes_to_scalar(s_bytes);
+        let r = &self.bytes_to_scalar(r_bytes);
+        if r.is_zero().to_bool() || s.is_zero().to_bool() {
+            return false;
+        }
+
         let q = GenericPoint {
-            x: BoxedMontyForm::new(
-                BoxedUint::from_le_bytes(qx_bytes.into()),
-                &self.field_params,
-            ),
-            y: BoxedMontyForm::new(
-                BoxedUint::from_le_bytes(qy_bytes.into()),
-                &self.field_params,
-            ),
+            x: self.bytes_to_field(qx_bytes),
+            y: self.bytes_to_field(qy_bytes),
             z: self.one_monty.clone(),
             curve: self.clone(),
         };
-        let z: BoxedMontyForm =
-            BoxedMontyForm::new(BoxedUint::from_le_bytes(msg.into()), &self.scalar_params);
+        let z = self.bytes_to_scalar(msg);
 
         let sinv = &s.invert().unwrap();
         let u1 = z * sinv;
@@ -230,7 +239,7 @@ impl GenericCurve {
             &self.generator(),
             &q,
             &u1.retrieve().to_le_bytes(),
-            &u2.retrieve().to_be_bytes(),
+            &u2.retrieve().to_le_bytes(),
         )
         .normalize();
         let xq = &BoxedMontyForm::new(p.x.retrieve(), &self.scalar_params);
@@ -329,6 +338,15 @@ impl Mul<&[u8]> for GenericPoint {
 
 impl GenericPoint {
     pub fn normalize(&self) -> Self {
+        if self.z == self.curve.zero_monty {
+            return Self {
+                x: self.curve.zero_monty.clone(),
+                y: self.curve.one_monty.clone(),
+                z: self.curve.zero_monty.clone(),
+                curve: self.curve.clone(),
+            };
+        }
+
         let zinv = &self.z.invert().unwrap();
 
         Self {
@@ -346,9 +364,9 @@ impl GenericPoint {
 
         let pq = p + q;
         let mut r = Self {
-            x: p.curve.u32_to_field(0),
-            y: p.curve.u32_to_field(1),
-            z: p.curve.u32_to_field(0),
+            x: p.curve.zero_monty.clone(),
+            y: p.curve.one_monty.clone(),
+            z: p.curve.zero_monty.clone(),
             curve: p.curve.clone(),
         };
 

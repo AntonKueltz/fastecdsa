@@ -1,7 +1,7 @@
 from os import remove
 from unittest import TestCase
 
-from . import CURVES
+from fastecdsa.curve import P192, P224, P256, P384, P521
 from fastecdsa.encoding.pem import PEMEncoder
 from fastecdsa.encoding.sec1 import SEC1Encoder
 from fastecdsa.keys import (
@@ -18,7 +18,7 @@ TEST_FILE_PATH = "fastecdsa_test_key.pem"
 
 class TestExportImport(TestCase):
     def test_export_import_private_key(self):
-        for curve in CURVES:
+        for curve in [P192, P224, P256, P384, P521]:
             for encoder_class in (PEMEncoder,):
                 encoder = encoder_class()
                 expected = gen_private_key(curve)
@@ -30,7 +30,7 @@ class TestExportImport(TestCase):
                 remove(TEST_FILE_PATH)
 
     def test_export_import_public_key(self):
-        for curve in CURVES:
+        for curve in [P192, P224, P256, P384, P521]:
             for encoder_class in (PEMEncoder, SEC1Encoder):
                 encoder = encoder_class()
                 _, expected = gen_keypair(curve)

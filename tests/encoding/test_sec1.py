@@ -3,8 +3,7 @@ from unittest import TestCase
 
 from fastecdsa.curve import P256, secp192k1, secp256k1
 from fastecdsa.encoding.sec1 import InvalidSEC1PublicKey, SEC1Encoder
-from fastecdsa.point import Point
-from fastecdsa.rust import Point as RustPoint
+from fastecdsa.rust import Point
 
 
 class TestSEC1Encoder(TestCase):
@@ -120,7 +119,7 @@ class TestSEC1Encoder(TestCase):
         self.assertEqual(e.exception.args[0], "Wrong key format")
 
         # With P256, same values as in `test_encode_public_key`, verified using openssl
-        expected_P256 = RustPoint(
+        expected_P256 = Point(
             x=0x12C9DDF64B0D1F1D91D9BD729ABFB880079FA889D66604CC0B78C9CBC271824C,
             y=0x9A7D581BCF2ABA680B53CEDBADE03BE62FE95869DA04A168A458F369AC6A823E,
             curve=P256,

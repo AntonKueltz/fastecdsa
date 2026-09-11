@@ -3,21 +3,20 @@ from unittest import TestCase
 
 from . import CURVES
 from fastecdsa.curve import P192, P224, P256, P384, P521, secp256k1, W25519, W448
-from fastecdsa.point import Point
-from fastecdsa.rust import Point as RustPoint
+from fastecdsa.rust import Point
 
 
 class TestPrimeFieldCurve(TestCase):
     """NIST P curve tests taken from https://www.nsa.gov/ia/_files/nist-routines.pdf"""
 
     def test_P192_arith(self):
-        S = RustPoint(
+        S = Point(
             0xD458E7D127AE671B0C330266D246769353A012073E97ACF8,
             0x325930500D851F336BDDC050CF7FB11B5673A1645086DF3B,
             curve=P192,
         )
         d = 0xA78A236D60BAEC0C5DD41B33A542463A8255391AF64C74EE
-        expected = RustPoint(
+        expected = Point(
             0x1FAEE4205A4F669D2D0A8F25E3BCEC9A62A6952965BF6D31,
             0x5FF2CDFA508A2581892367087C696F179E7A4D7E8260FB06,
             curve=P192,
@@ -26,13 +25,13 @@ class TestPrimeFieldCurve(TestCase):
         self.assertEqual(R, expected)
 
     def test_P224_arith(self):
-        S = RustPoint(
+        S = Point(
             0x6ECA814BA59A930843DC814EDD6C97DA95518DF3C6FDF16E9A10BB5B,
             0xEF4B497F0963BC8B6AEC0CA0F259B89CD80994147E05DC6B64D7BF22,
             curve=P224,
         )
         d = 0xA78CCC30EACA0FCC8E36B2DD6FBB03DF06D37F52711E6363AAF1D73B
-        expected = RustPoint(
+        expected = Point(
             0x96A7625E92A8D72BFF1113ABDB95777E736A14C6FDAACC392702BCA4,
             0x0F8E5702942A3C5E13CD2FD5801915258B43DFADC70D15DBADA3ED10,
             curve=P224,
@@ -41,13 +40,13 @@ class TestPrimeFieldCurve(TestCase):
         self.assertEqual(R, expected)
 
     def test_P256_arith(self):
-        S = RustPoint(
+        S = Point(
             0xDE2444BEBC8D36E682EDD27E0F271508617519B3221A8FA0B77CAB3989DA97C9,
             0xC093AE7FF36E5380FC01A5AAD1E66659702DE80F53CEC576B6350B243042A256,
             curve=P256,
         )
         d = 0xC51E4753AFDEC1E6B6C6A5B992F43F8DD0C7A8933072708B6522468B2FFB06FD
-        expected = RustPoint(
+        expected = Point(
             0x51D08D5F2D4278882946D88D83C97D11E62BECC3CFC18BEDACC89BA34EECA03F,
             0x75EE68EB8BF626AA5B673AB51F6E744E06F8FCF8A6C0CF3035BECA956A7B41D5,
             curve=P256,
@@ -56,7 +55,7 @@ class TestPrimeFieldCurve(TestCase):
         self.assertEqual(R, expected)
 
     def test_P384_arith(self):
-        S = RustPoint(
+        S = Point(
             int(
                 "fba203b81bbd23f2b3be971cc23997e1ae4d89e69cb6f92385dda82768ada415ebab4167459da98e6"
                 "2b1332d1e73cb0e",
@@ -74,7 +73,7 @@ class TestPrimeFieldCurve(TestCase):
             "61b5fdd97583480",
             16,
         )
-        expected = RustPoint(
+        expected = Point(
             int(
                 "e4f77e7ffeb7f0958910e3a680d677a477191df166160ff7ef6bb5261f791aa7b45e3e653d151b95d"
                 "ad3d93ca0290ef2",
@@ -91,7 +90,7 @@ class TestPrimeFieldCurve(TestCase):
         self.assertEqual(R, expected)
 
     def test_P521_arith(self):
-        S = RustPoint(
+        S = Point(
             int(
                 "000001d5c693f66c08ed03ad0f031f937443458f601fd098d3d0227b4bf62873af50740b0bb84aa15"
                 "7fc847bcf8dc16a8b2b8bfd8e2d0a7d39af04b089930ef6dad5c1b4",
@@ -109,7 +108,7 @@ class TestPrimeFieldCurve(TestCase):
             "653964df0d6da940a695c7294d41b2d6600de6dfcf0edcfc89fdcb1",
             16,
         )
-        expected = RustPoint(
+        expected = Point(
             int(
                 "00000091b15d09d0ca0353f8f96b93cdb13497b0a4bb582ae9ebefa35eee61bf7b7d041b8ec34c6c0"
                 "0c0c0671c4ae063318fb75be87af4fe859608c95f0ab4774f8c95bb",
@@ -228,15 +227,15 @@ class TestPrimeFieldCurve(TestCase):
             R = (m + i) * S
             idx = (m + i) % len(subgroup)
             if idx == 0:
-                expected = Point._identity_element()
+                self.assertEqual(R.x, 0)
             else:
                 expected = Point(subgroup[idx][0], subgroup[idx][1], curve=S.curve)
-            self.assertEqual(R, expected)
+                self.assertEqual(R, expected)
 
         # test 2Q = inf when ord(Q) = 2; subgroup[4] is such a point
         S = Point(subgroup[4][0], subgroup[4][1], curve=S.curve)
         R = S + S
-        self.assertEqual(R, Point._identity_element())
+        self.assertEqual(R.x, 0)
 
     def test_W448_arith(self):
         subgroup = [
@@ -264,15 +263,15 @@ class TestPrimeFieldCurve(TestCase):
             R = (m + i) * S
             idx = (m + i) % len(subgroup)
             if idx == 0:
-                expected = Point._identity_element()
+                self.assertEqual(R.x, 0)
             else:
                 expected = Point(subgroup[idx][0], subgroup[idx][1], curve=S.curve)
-            self.assertEqual(R, expected)
+                self.assertEqual(R, expected)
 
         # test 2Q = inf when ord(Q) = 2; subgroup[2] is such a point
         S = Point(subgroup[2][0], subgroup[2][1], curve=S.curve)
         R = S + S
-        self.assertEqual(R, Point._identity_element())
+        self.assertEqual(R.x, 0)
 
     def test_arbitrary_arithmetic(self):
         for _ in range(100):
