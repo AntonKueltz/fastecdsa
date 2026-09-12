@@ -144,6 +144,14 @@ impl Curve for P521 {
         s1 + s2
     }
 
+    fn add_point(p: &Point<Self>, q: &Point<Self>) -> Point<Self> {
+        p.add_a_is_neg3(q)
+    }
+
+    fn double_point(p: &Point<Self>) -> Point<Self> {
+        p.double_a_is_neg3()
+    }
+
     fn normalize_point(point: &Point<Self>) -> Point<Self> {
         if point.is_point_at_infinity() {
             return Self::INFINITY;

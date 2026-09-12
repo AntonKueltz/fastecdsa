@@ -28,6 +28,14 @@ pub trait Curve: Sized + 'static {
         todo!()
     }
 
+    fn add_point(_p: &Point<Self>, _q: &Point<Self>) -> Point<Self> {
+        todo!()
+    }
+
+    fn double_point(_p: &Point<Self>) -> Point<Self> {
+        todo!()
+    }
+
     fn normalize_point(_point: &Point<Self>) -> Point<Self> {
         todo!()
     }
@@ -414,6 +422,49 @@ impl<C: Curve> Add for Point<C> {
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
+        C::add_point(&self, &other)
+    }
+}
+
+impl<C: Curve> Mul<&[u8]> for Point<C> {
+    type Output = Self;
+
+    fn mul(self, n: &[u8]) -> Self::Output {
+        let mut padded = vec![0u8; C::FIELD_BYTES];
+        padded[..n.len()].copy_from_slice(n);
+
+        let j = C::FIELD_BYTES * 8 - 1;
+        let mut r0: Self = C::INFINITY;
+        let mut r1: Self = self.clone();
+
+        for i in (0..j + 1).rev() {
+            if test_bit(&padded, i) {
+                r0 = r0 + r1;
+                r1 = r1.double();
+            } else {
+                r1 = r1 + r0;
+                r0 = r0.double();
+            }
+        }
+
+        r0
+    }
+}
+
+impl<C: Curve> Point<C> {
+    pub fn is_point_at_infinity(&self) -> bool {
+        self.z == C::ZERO
+    }
+
+    pub fn normalize(&self) -> Point<C> {
+        C::normalize_point(self)
+    }
+
+    pub fn double(&self) -> Point<C> {
+        C::double_point(self)
+    }
+
+    pub fn add_a_is_neg3(&self, other: &Self) -> Self {
         let x1 = self.x;
         let x2 = other.x;
         let y1 = self.y;
@@ -471,43 +522,8 @@ impl<C: Curve> Add for Point<C> {
             z: z3,
         }
     }
-}
 
-impl<C: Curve> Mul<&[u8]> for Point<C> {
-    type Output = Self;
-
-    fn mul(self, n: &[u8]) -> Self::Output {
-        let mut padded = vec![0u8; C::FIELD_BYTES];
-        padded[..n.len()].copy_from_slice(n);
-
-        let j = C::FIELD_BYTES * 8 - 1;
-        let mut r0: Self = C::INFINITY;
-        let mut r1: Self = self.clone();
-
-        for i in (0..j + 1).rev() {
-            if test_bit(&padded, i) {
-                r0 = r0 + r1;
-                r1 = r1.double();
-            } else {
-                r1 = r1 + r0;
-                r0 = r0.double();
-            }
-        }
-
-        r0
-    }
-}
-
-impl<C: Curve> Point<C> {
-    pub fn is_point_at_infinity(&self) -> bool {
-        self.z == C::ZERO
-    }
-
-    pub fn normalize(&self) -> Point<C> {
-        C::normalize_point(self)
-    }
-
-    pub fn double(&self) -> Point<C> {
+    pub fn double_a_is_neg3(&self) -> Point<C> {
         let x1 = self.x;
         let y1 = self.y;
         let z1 = self.z;
