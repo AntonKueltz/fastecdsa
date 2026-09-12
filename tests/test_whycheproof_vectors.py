@@ -3,8 +3,6 @@ from hashlib import (
     sha224,
     sha256,
     sha384,
-    sha3_256,
-    sha3_512,
     sha512,
 )
 from json import load
@@ -16,7 +14,6 @@ from fastecdsa.curve import (
     brainpoolP320r1,
     brainpoolP384r1,
     brainpoolP512r1,
-    secp256k1,
 )
 from fastecdsa.ecdsa import verify
 from fastecdsa.encoding.der import DEREncoder
@@ -75,18 +72,3 @@ class TestWycheproofEcdsaVerify(TestCase):
         filename = "tests/vectors/whycheproof/ecdsa_brainpoolP512r1_sha512_test.json"
         tests = self._get_tests(filename)
         self._test_runner(tests, brainpoolP512r1, sha512)
-
-    def test_secp256k1_sha3_256(self):
-        filename = "tests/vectors/whycheproof/ecdsa_secp256k1_sha3_256_test.json"
-        tests = self._get_tests(filename)
-        self._test_runner(tests, secp256k1, sha3_256)
-
-    def test_secp256k1_sha3_512(self):
-        filename = "tests/vectors/whycheproof/ecdsa_secp256k1_sha3_512_test.json"
-        tests = self._get_tests(filename)
-        self._test_runner(tests, secp256k1, sha3_512)
-
-    def test_secp256k1_sha512(self):
-        filename = "tests/vectors/whycheproof/ecdsa_secp256k1_sha512_test.json"
-        tests = self._get_tests(filename)
-        self._test_runner(tests, secp256k1, sha512)

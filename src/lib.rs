@@ -14,6 +14,7 @@ use crate::p256::P256;
 use crate::p384::P384;
 use crate::p521::P521;
 use crate::secp192k1::Secp192k1;
+use crate::secp224k1::Secp224k1;
 use crate::secp256k1::Secp256k1;
 
 pub mod comb;
@@ -27,6 +28,7 @@ pub mod p384;
 pub mod p521;
 pub mod scalar;
 pub mod secp192k1;
+pub mod secp224k1;
 pub mod secp256k1;
 
 #[derive(Clone, PartialEq, Debug)]
@@ -37,6 +39,7 @@ enum CurveKind {
     P384,
     P521,
     Secp192k1,
+    Secp224k1,
     Secp256k1,
     Generic(Arc<GenericCurve>),
 }
@@ -48,6 +51,7 @@ enum PointKind {
     P384(Point<P384>),
     P521(Point<P521>),
     Secp192k1(Point<Secp192k1>),
+    Secp224k1(Point<Secp224k1>),
     Secp256k1(Point<Secp256k1>),
     Generic(GenericPoint),
 }
@@ -61,6 +65,7 @@ impl CurveKind {
             CurveKind::P384 => sign::<P384>(msg, d, k),
             CurveKind::P521 => sign::<P521>(msg, d, k),
             CurveKind::Secp192k1 => sign::<Secp192k1>(msg, d, k),
+            CurveKind::Secp224k1 => sign::<Secp224k1>(msg, d, k),
             CurveKind::Secp256k1 => sign::<Secp256k1>(msg, d, k),
             CurveKind::Generic(c) => c.sign(msg, d, k),
         }
@@ -74,6 +79,7 @@ impl CurveKind {
             CurveKind::P384 => verify::<P384>(r, s, msg, qx, qy),
             CurveKind::P521 => verify::<P521>(r, s, msg, qx, qy),
             CurveKind::Secp192k1 => verify::<Secp192k1>(r, s, msg, qx, qy),
+            CurveKind::Secp224k1 => verify::<Secp224k1>(r, s, msg, qx, qy),
             CurveKind::Secp256k1 => verify::<Secp256k1>(r, s, msg, qx, qy),
             CurveKind::Generic(c) => c.verify(r, s, msg, qx, qy),
         }
@@ -87,6 +93,7 @@ impl CurveKind {
             CurveKind::P384 => Vec::<u8>::from(P384::P),
             CurveKind::P521 => Vec::<u8>::from(P521::P),
             CurveKind::Secp192k1 => Vec::<u8>::from(Secp192k1::P),
+            CurveKind::Secp224k1 => Vec::<u8>::from(Secp224k1::P),
             CurveKind::Secp256k1 => Vec::<u8>::from(Secp256k1::P),
             CurveKind::Generic(c) => c.p.to_le_bytes().to_vec(),
         }
@@ -100,6 +107,7 @@ impl CurveKind {
             CurveKind::P384 => Vec::<u8>::from(P384::A),
             CurveKind::P521 => Vec::<u8>::from(P521::A),
             CurveKind::Secp192k1 => Vec::<u8>::from(Secp192k1::A),
+            CurveKind::Secp224k1 => Vec::<u8>::from(Secp224k1::A),
             CurveKind::Secp256k1 => Vec::<u8>::from(Secp256k1::A),
             CurveKind::Generic(c) => c.a.to_le_bytes().to_vec(),
         }
@@ -113,6 +121,7 @@ impl CurveKind {
             CurveKind::P384 => Vec::<u8>::from(P384::B),
             CurveKind::P521 => Vec::<u8>::from(P521::B),
             CurveKind::Secp192k1 => Vec::<u8>::from(Secp192k1::B),
+            CurveKind::Secp224k1 => Vec::<u8>::from(Secp224k1::B),
             CurveKind::Secp256k1 => Vec::<u8>::from(Secp256k1::B),
             CurveKind::Generic(c) => c.b.to_le_bytes().to_vec(),
         }
@@ -156,6 +165,12 @@ impl CurveKind {
                 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
             ]
             .to_vec(),
+            CurveKind::Secp224k1 => [
+                0xf7, 0xb1, 0x9f, 0x76, 0x71, 0xa9, 0xf0, 0xca, 0x84, 0x61, 0xec, 0xd2, 0xe8, 0xdc,
+                0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x01,
+            ]
+            .to_vec(),
             CurveKind::Secp256k1 => [
                 0x41, 0x41, 0x36, 0xd0, 0x8c, 0x5e, 0xd2, 0xbf, 0x3b, 0xa0, 0x48, 0xaf, 0xe6, 0xdc,
                 0xae, 0xba, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -174,6 +189,7 @@ impl CurveKind {
             CurveKind::P384 => PointKind::P384(P384::G),
             CurveKind::P521 => PointKind::P521(P521::G),
             CurveKind::Secp192k1 => PointKind::Secp192k1(Secp192k1::G),
+            CurveKind::Secp224k1 => PointKind::Secp224k1(Secp224k1::G),
             CurveKind::Secp256k1 => PointKind::Secp256k1(Secp256k1::G),
             CurveKind::Generic(c) => PointKind::Generic(c.generator()),
         }
@@ -187,6 +203,7 @@ impl CurveKind {
             CurveKind::P384 => Some([0x2b, 0x81, 0x04, 0x00, 0x22].to_vec()),
             CurveKind::P521 => Some([0x2b, 0x81, 0x04, 0x00, 0x23].to_vec()),
             CurveKind::Secp192k1 => Some([0x2b, 0x81, 0x04, 0x00, 0x1f].to_vec()),
+            CurveKind::Secp224k1 => Some([0x2b, 0x81, 0x04, 0x00, 0x20].to_vec()),
             CurveKind::Secp256k1 => Some([0x2b, 0x81, 0x04, 0x00, 0x0a].to_vec()),
             CurveKind::Generic(_) => None,
         }
@@ -208,6 +225,7 @@ impl CurveKind {
             (CurveKind::P384, PointKind::P384(p)) => check!(P384, P384, p),
             (CurveKind::P521, PointKind::P521(p)) => check!(P521, P521, p),
             (CurveKind::Secp192k1, PointKind::Secp192k1(p)) => check!(Secp192k1, Secp192k1, p),
+            (CurveKind::Secp224k1, PointKind::Secp224k1(p)) => check!(Secp224k1, Secp224k1, p),
             (CurveKind::Secp256k1, PointKind::Secp256k1(p)) => check!(Secp256k1, Secp256k1, p),
             (CurveKind::Generic(c), PointKind::Generic(p)) => c.is_point_on_curve(p),
             _ => return Err(PyValueError::new_err("point does not belong to this curve")),
@@ -230,6 +248,7 @@ impl CurveKind {
             CurveKind::P384 => eval!(P384),
             CurveKind::P521 => eval!(P521),
             CurveKind::Secp192k1 => eval!(Secp192k1),
+            CurveKind::Secp224k1 => eval!(Secp224k1),
             CurveKind::Secp256k1 => eval!(Secp256k1),
             CurveKind::Generic(c) => c.evaluate(x_bytes),
         }
@@ -251,6 +270,7 @@ impl CurveKind {
             CurveKind::P384 => build!(P384, P384),
             CurveKind::P521 => build!(P521, P521),
             CurveKind::Secp192k1 => build!(Secp192k1, Secp192k1),
+            CurveKind::Secp224k1 => build!(Secp224k1, Secp224k1),
             CurveKind::Secp256k1 => build!(Secp256k1, Secp256k1),
             CurveKind::Generic(c) => PointKind::Generic(c.point_from_affine(x_bytes, y_bytes)),
         };
@@ -270,6 +290,7 @@ impl CurveKind {
             CurveKind::P384 => "P384".to_string(),
             CurveKind::P521 => "P521".to_string(),
             CurveKind::Secp192k1 => "Secp192k1".to_string(),
+            CurveKind::Secp224k1 => "Secp224k1".to_string(),
             CurveKind::Secp256k1 => "Secp256k1".to_string(),
             CurveKind::Generic(c) => c.name.clone(),
         }
@@ -352,6 +373,11 @@ impl PyCurve {
     }
 
     #[staticmethod]
+    fn secp224k1() -> Self {
+        PyCurve(Arc::new(CurveKind::Secp224k1))
+    }
+
+    #[staticmethod]
     fn secp256k1() -> Self {
         PyCurve(Arc::new(CurveKind::Secp256k1))
     }
@@ -419,6 +445,7 @@ impl PointKind {
             PointKind::P384(_) => CurveKind::P384,
             PointKind::P521(_) => CurveKind::P521,
             PointKind::Secp192k1(_) => CurveKind::Secp192k1,
+            PointKind::Secp224k1(_) => CurveKind::Secp224k1,
             PointKind::Secp256k1(_) => CurveKind::Secp256k1,
             PointKind::Generic(point) => CurveKind::Generic(point.curve.clone()),
         }
@@ -433,6 +460,9 @@ impl PointKind {
             (PointKind::P521(a), PointKind::P521(b)) => Ok(PointKind::P521((*a + *b).normalize())),
             (PointKind::Secp192k1(a), PointKind::Secp192k1(b)) => {
                 Ok(PointKind::Secp192k1((*a + *b).normalize()))
+            }
+            (PointKind::Secp224k1(a), PointKind::Secp224k1(b)) => {
+                Ok(PointKind::Secp224k1((*a + *b).normalize()))
             }
             (PointKind::Secp256k1(a), PointKind::Secp256k1(b)) => {
                 Ok(PointKind::Secp256k1((*a + *b).normalize()))
@@ -454,6 +484,7 @@ impl PointKind {
             PointKind::P384(p) => PointKind::P384((*p * scalar_bytes).normalize()),
             PointKind::P521(p) => PointKind::P521((*p * scalar_bytes).normalize()),
             PointKind::Secp192k1(p) => PointKind::Secp192k1((*p * scalar_bytes).normalize()),
+            PointKind::Secp224k1(p) => PointKind::Secp224k1((*p * scalar_bytes).normalize()),
             PointKind::Secp256k1(p) => PointKind::Secp256k1((*p * scalar_bytes).normalize()),
             PointKind::Generic(p) => PointKind::Generic((p.clone() * scalar_bytes).normalize()),
         }
@@ -489,6 +520,11 @@ impl PointKind {
             PointKind::Secp192k1(p) => PointKind::Secp192k1(Point::<Secp192k1> {
                 x: p.x,
                 y: Secp192k1::P - p.y,
+                z: p.z,
+            }),
+            PointKind::Secp224k1(p) => PointKind::Secp224k1(Point::<Secp224k1> {
+                x: p.x,
+                y: Secp224k1::P - p.y,
                 z: p.z,
             }),
             PointKind::Secp256k1(p) => PointKind::Secp256k1(Point::<Secp256k1> {
@@ -532,6 +568,10 @@ impl PointKind {
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.y)),
             ),
             PointKind::Secp192k1(p) => (
+                BigUint::from_bytes_le(&Vec::<u8>::from(p.x)),
+                BigUint::from_bytes_le(&Vec::<u8>::from(p.y)),
+            ),
+            PointKind::Secp224k1(p) => (
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.x)),
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.y)),
             ),

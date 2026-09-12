@@ -456,7 +456,10 @@ impl<C: Curve> Field<C> {
             k = t >> 64;
         }
 
-        c[C::LIMB_SZ] = k as u64;
+        if C::WIDE_SZ != C::LIMB_SZ {
+            c[C::LIMB_SZ] = k as u64;
+        }
+
         result
     }
 

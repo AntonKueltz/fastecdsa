@@ -6,9 +6,12 @@ P256 = Curve.p256()
 P384 = Curve.p384()
 P521 = Curve.p521()
 secp192k1 = Curve.secp192k1()
+secp224k1 = Curve.secp224k1()
 secp256k1 = Curve.secp256k1()
 
-oid_lookup = {c.oid: c for c in [P192, P224, P256, P384, P521, secp192k1, secp256k1]}
+oid_lookup = {
+    c.oid: c for c in [P192, P224, P256, P384, P521, secp192k1, secp224k1, secp256k1]
+}
 
 
 def get_curve_by_oid(oid: bytes) -> Curve | None:
@@ -50,18 +53,6 @@ W448 = Curve(
         "35529392678556817526412750206378333480897639938771427183188089843516908878696741000293267"
         "3765864550910142774147268105838985595290606362"
     ),
-)
-
-# see http://www.secg.org/sec2-v2.pdf for params
-
-secp224k1 = Curve(
-    "secp224k1",
-    0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFE56D,
-    0x0,
-    0x5,
-    0x10000000000000000000000000001DCE8D2EC6184CAF0A971769FB1F7,
-    0xA1455B334DF099DF30FC28A169A467E9E47075A90F7E650EB6B7A45C,
-    0x7E089FED7FBA344282CAFBD6F7E319F7C0B0BD59E2CA4BDB556D61A5,
 )
 
 # see https://tools.ietf.org/html/rfc5639#section-3.1 for params

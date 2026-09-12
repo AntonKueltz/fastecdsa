@@ -44,7 +44,7 @@ def sign(
     db = d.to_bytes(field_size, "little")
     kb = k.to_bytes(field_size, "little")
     z = int.from_bytes(hashed, "big")
-    z >>= max(hash_size * 8 - field_size * 8, 0)
+    z >>= max(hash_size * 8 - curve.q.bit_length(), 0)
 
     r, s = curve.sign(z.to_bytes(field_size, "little"), db, kb)
     return int.from_bytes(r, "little"), int.from_bytes(s, "little")
@@ -83,7 +83,7 @@ def verify(
     hashed, hash_size = _hash(msg, hashfunc, prehashed)
     field_size = (curve.q.bit_length() + 7) >> 3
     z = int.from_bytes(hashed, "big")
-    z >>= max(hash_size * 8 - field_size * 8, 0)
+    z >>= max(hash_size * 8 - curve.q.bit_length(), 0)
 
     return curve.verify(
         r.to_bytes(field_size, "little"),
