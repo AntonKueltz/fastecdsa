@@ -60,6 +60,14 @@ impl Curve for P256 {
             0x5ac635d8aa3a93e7,
         ],
     };
+    const B3: Field<Self> = Field {
+        x: [
+            0xb36ab4ba777720e2,
+            0x2f57141164fb12e2,
+            0x1bc3380063c99435,
+            0x1052a18afeafbbb6,
+        ],
+    };
     const ZERO: Field<Self> = Field {
         x: [0x0, 0x0, 0x0, 0x0],
     };

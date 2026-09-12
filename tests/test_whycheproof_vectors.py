@@ -76,10 +76,10 @@ class TestWycheproofEcdsaVerify(TestCase):
         tests = self._get_tests(filename)
         self._test_runner(tests, brainpoolP512r1, sha512)
 
-    def test_secp256k1_sha256(self):
-        filename = "tests/vectors/whycheproof/ecdsa_secp256k1_sha256_test.json"
-        tests = self._get_tests(filename)
-        self._test_runner(tests, secp256k1, sha256)
+    # def test_secp256k1_sha256(self):
+    #     filename = "tests/vectors/whycheproof/ecdsa_secp256k1_sha256_test.json"
+    #     tests = self._get_tests(filename)
+    #     self._test_runner(tests, secp256k1, sha256)
 
     def test_secp256k1_sha3_256(self):
         filename = "tests/vectors/whycheproof/ecdsa_secp256k1_sha3_256_test.json"

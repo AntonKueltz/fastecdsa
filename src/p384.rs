@@ -68,6 +68,16 @@ impl Curve for P384 {
             0xb3312fa7e23ee7e4,
         ],
     };
+    const B3: Field<Self> = Field {
+        x: [
+            0x7f915ac77bc480cf,
+            0x5302acaa9e8c74d7,
+            0x093c19adf03a9612,
+            0x4858d54cfb83c336,
+            0xc9aa1043abe8874b,
+            0x19938ef7a6bcb7ad,
+        ],
+    };
     const ZERO: Field<Self> = Field {
         x: [0x0, 0x0, 0x0, 0x0, 0x0, 0x0],
     };

@@ -49,6 +49,14 @@ impl Curve for P224 {
             0xb4050a85,
         ],
     };
+    const B3: Field<Self> = Field {
+        x: [
+            0x7521abc96a01ff1a,
+            0xf0ce1229873f8a2e,
+            0x240e1b03dfc39702,
+            0x1c0f1f8f,
+        ],
+    };
     const ZERO: Field<Self> = Field {
         x: [0x0, 0x0, 0x0, 0x0],
     };

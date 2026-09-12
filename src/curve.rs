@@ -19,6 +19,7 @@ pub trait Curve: Sized + 'static {
     const P_WIDE: AddResult<Self>;
     const A: Field<Self>;
     const B: Field<Self>;
+    const B3: Field<Self>;
     const ZERO: Field<Self>;
     const ONE: Field<Self>;
     const G: Point<Self>;
@@ -28,12 +29,104 @@ pub trait Curve: Sized + 'static {
         todo!()
     }
 
-    fn add_point(_p: &Point<Self>, _q: &Point<Self>) -> Point<Self> {
-        todo!()
+    fn add_point(p: &Point<Self>, q: &Point<Self>) -> Point<Self> {
+        let x1 = p.x;
+        let x2 = q.x;
+        let y1 = p.y;
+        let y2 = q.y;
+        let z1 = p.z;
+        let z2 = q.z;
+
+        let t0 = x1 * x2;
+        let t1 = y1 * y2;
+        let t2 = z1 * z2;
+        let t3 = x1 + y1;
+        let t4 = x2 + y2;
+        let t3 = t3 * t4;
+        let t4 = t0 + t1;
+        let t3 = t3 - t4;
+        let t4 = x1 + z1;
+        let t5 = x2 + z2;
+        let t4 = t4 * t5;
+        let t5 = t0 + t2;
+        let t4 = t4 - t5;
+        let t5 = y1 + z1;
+        let x3 = y2 + z2;
+        let t5 = t5 * x3;
+        let x3 = t1 + t2;
+        let t5 = t5 - x3;
+        let z3 = Self::A * t4;
+        let x3 = Self::B3 * t2;
+        let z3 = x3 + z3;
+        let x3 = t1 - z3;
+        let z3 = t1 + z3;
+        let y3 = x3 * z3;
+        let t1 = t0 + t0;
+        let t1 = t1 + t0;
+        let t2 = Self::A * t2;
+        let t4 = Self::B3 * t4;
+        let t1 = t1 + t2;
+        let t2 = t0 - t2;
+        let t2 = Self::A * t2;
+        let t4 = t4 + t2;
+        let t0 = t1 * t4;
+        let y3 = y3 + t0;
+        let t0 = t5 * t4;
+        let x3 = t3 * x3;
+        let x3 = x3 - t0;
+        let t0 = t3 * t1;
+        let z3 = t5 * z3;
+        let z3 = z3 + t0;
+
+        Point::<Self> {
+            x: x3,
+            y: y3,
+            z: z3,
+        }
     }
 
-    fn double_point(_p: &Point<Self>) -> Point<Self> {
-        todo!()
+    fn double_point(p: &Point<Self>) -> Point<Self> {
+        let x1 = p.x;
+        let y1 = p.y;
+        let z1 = p.z;
+
+        let t0 = x1.sqr();
+        let t1 = y1.sqr();
+        let t2 = z1.sqr();
+        let t3 = x1 * y1;
+        let t3 = t3 + t3;
+        let z3 = x1 * z1;
+        let z3 = z3 + z3;
+        let x3 = Self::A * z3;
+        let y3 = Self::B3 * t2;
+        let y3 = x3 + y3;
+        let x3 = t1 - y3;
+        let y3 = t1 + y3;
+        let y3 = x3 * y3;
+        let x3 = t3 * x3;
+        let z3 = Self::B3 * z3;
+        let t2 = Self::A * t2;
+        let t3 = t0 - t2;
+        let t3 = Self::A * t3;
+        let t3 = t3 + z3;
+        let z3 = t0 + t0;
+        let t0 = z3 + t0;
+        let t0 = t0 + t2;
+        let t0 = t0 * t3;
+        let y3 = y3 + t0;
+        let t2 = y1 * z1;
+        let t2 = t2 + t2;
+        let t0 = t2 * t3;
+        let x3 = x3 - t0;
+        let z3 = t2 * t1;
+        let z3 = z3 + z3;
+        let z3 = z3 + z3;
+
+        Point::<Self> {
+            x: x3,
+            y: y3,
+            z: z3,
+        }
     }
 
     fn normalize_point(_point: &Point<Self>) -> Point<Self> {
@@ -523,6 +616,56 @@ impl<C: Curve> Point<C> {
         }
     }
 
+    pub fn add_a_is_0(&self, other: &Self) -> Self {
+        let x1 = self.x;
+        let x2 = other.x;
+        let y1 = self.y;
+        let y2 = other.y;
+        let z1 = self.z;
+        let z2 = other.z;
+
+        let t0 = x1 * x2;
+        let t1 = y1 * y2;
+        let t2 = z1 * z2;
+        let t3 = x1 + y1;
+        let t4 = x2 + y2;
+        let t3 = t3 * t4;
+        let t4 = t0 + t1;
+        let t3 = t3 - t4;
+        let t4 = x1 + z1;
+        let t5 = x2 + z2;
+        let t4 = t4 * t5;
+        let t5 = t0 + t2;
+        let t4 = t4 - t5;
+        let t5 = y1 + z1;
+        let x3 = y2 + z2;
+        let t5 = t5 * x3;
+        let x3 = t1 + t2;
+        let t5 = t5 - x3;
+        let x3 = C::B3 * t2;
+        let z3 = x3;
+        let x3 = t1 - z3;
+        let z3 = t1 + z3;
+        let y3 = x3 * z3;
+        let t1 = t0 + t0;
+        let t1 = t1 + t0;
+        let t4 = C::B3 * t4;
+        let t0 = t1 * t4;
+        let y3 = y3 + t0;
+        let t0 = t5 * t4;
+        let x3 = t3 * x3;
+        let x3 = x3 - t0;
+        let t0 = t3 * t1;
+        let z3 = t5 * z3;
+        let z3 = z3 + t0;
+
+        Self {
+            x: x3,
+            y: y3,
+            z: z3,
+        }
+    }
+
     pub fn double_a_is_neg3(&self) -> Point<C> {
         let x1 = self.x;
         let y1 = self.y;
@@ -560,6 +703,44 @@ impl<C: Curve> Point<C> {
         let z3 = t0 * z3;
         let x3 = x3 - z3;
         let z3 = t0 * t1;
+        let z3 = z3 + z3;
+        let z3 = z3 + z3;
+
+        Self {
+            x: x3,
+            y: y3,
+            z: z3,
+        }
+    }
+
+    pub fn double_a_is_0(&self) -> Point<C> {
+        let x1 = self.x;
+        let y1 = self.y;
+        let z1 = self.z;
+
+        let t0 = x1.sqr();
+        let t1 = y1.sqr();
+        let t2 = z1.sqr();
+        let t3 = x1 * y1;
+        let t3 = t3 + t3;
+        let z3 = x1 * z1;
+        let z3 = z3 + z3;
+        let y3 = C::B3 * t2;
+        let x3 = t1 - y3;
+        let y3 = t1 + y3;
+        let y3 = x3 * y3;
+        let x3 = t3 * x3;
+        let z3 = C::B3 * z3;
+        let t3 = z3;
+        let z3 = t0 + t0;
+        let t0 = z3 + t0;
+        let t0 = t0 * t3;
+        let y3 = y3 + t0;
+        let t2 = y1 * z1;
+        let t2 = t2 + t2;
+        let t0 = t2 * t3;
+        let x3 = x3 - t0;
+        let z3 = t2 * t1;
         let z3 = z3 + z3;
         let z3 = z3 + z3;
 

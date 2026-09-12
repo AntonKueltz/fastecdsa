@@ -79,6 +79,19 @@ impl Curve for P521 {
             0x0000000000000051,
         ],
     };
+    const B3: Field<Self> = Field {
+        x: [
+            0xcdcf5f7d41f0bd00,
+            0xa05b9e98b7849ed5,
+            0x42f84237b3153d15,
+            0x024babf5c57bba71,
+            0x2a1d9cb4acd31da4,
+            0xe88f5712cd1941db,
+            0xb7ce64e2238fc2cb,
+            0xbfbc2c24aa55ce5e,
+            0x00000000000000f4,
+        ],
+    };
     const ZERO: Field<Self> = Field {
         x: [0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0],
     };

@@ -44,6 +44,9 @@ impl Curve for P192 {
     const B: Field<Self> = Field {
         x: [0xfeb8deecc146b9b1, 0x0fa7e9ab72243049, 0x64210519e59c80e7],
     };
+    const B3: Field<Self> = Field {
+        x: [0xfc2a9cc643d42d14, 0x2ef7bd02566c90de, 0x2c630f4db0d582b5],
+    };
     const ZERO: Field<Self> = Field { x: [0x0, 0x0, 0x0] };
     const ONE: Field<Self> = Field { x: [0x1, 0x0, 0x0] };
     const G: Point<Self> = Point {
