@@ -107,12 +107,12 @@ impl Curve for Secp256k1 {
             k = t >> 64;
         }
 
-        let overflow = c[4] as u128 * r as u128;
+        let overflow = c[Self::LIMB_SZ] as u128 * r as u128;
         let scaled = AddResult::<Self> {
             x: [overflow as u64, (overflow >> 64) as u64, 0x0, 0x0, 0x0],
         };
         let b = scaled.x.as_ref();
-        c[4] = 0x0;
+        c[Self::LIMB_SZ] = 0x0;
 
         for j in 0..Self::LIMB_SZ {
             t = c[j] as u128 + b[j] as u128 + k;

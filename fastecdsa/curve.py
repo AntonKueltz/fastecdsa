@@ -5,9 +5,10 @@ P224 = Curve.p224()
 P256 = Curve.p256()
 P384 = Curve.p384()
 P521 = Curve.p521()
+secp192k1 = Curve.secp192k1()
 secp256k1 = Curve.secp256k1()
 
-oid_lookup = {c.oid: c for c in [P192, P224, P256, P384, P521, secp256k1]}
+oid_lookup = {c.oid: c for c in [P192, P224, P256, P384, P521, secp192k1, secp256k1]}
 
 
 def get_curve_by_oid(oid: bytes) -> Curve | None:
@@ -52,15 +53,6 @@ W448 = Curve(
 )
 
 # see http://www.secg.org/sec2-v2.pdf for params
-secp192k1 = Curve(
-    "secp192k1",
-    0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFEE37,
-    0x0,
-    0x3,
-    0xFFFFFFFFFFFFFFFFFFFFFFFE26F2FC170F69466A74DEFD8D,
-    0xDB4FF10EC057E9AE26B07D0280B7F4341DA5D1B1EAE06C7D,
-    0x9B2F2F6D9C5628A7844163D015BE86344082AA88D95E2F9D,
-)
 
 secp224k1 = Curve(
     "secp224k1",
