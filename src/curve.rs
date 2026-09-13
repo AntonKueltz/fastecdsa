@@ -3,7 +3,7 @@ use std::ops::{Add, Mul, Sub};
 
 use num_bigint::BigUint;
 
-use crate::comb::Comb;
+use crate::comb::{BrainpoolComb, Comb};
 use crate::scalar::ScalarField;
 
 pub trait Curve: Sized + 'static {
@@ -814,7 +814,10 @@ pub trait BrainpoolCurve: Sized + 'static {
         let k = Self::GroupField::from_le_bytes(k_bytes);
         assert!(!k.is_zero());
 
-        let p: BrainpoolPoint<Self> = (Self::G_T * k).normalize();
+        let p: BrainpoolPoint<Self> = match Self::comb() {
+            Some(x) => x.mul(k_bytes).normalize(),
+            None => (Self::G_T * k).normalize(),
+        };
         let z = Self::GroupField::from_le_bytes(msg);
         let r = Self::GroupField::from_le_bytes(&p.x.to_le_bytes());
         assert!(!r.is_zero());
@@ -879,6 +882,10 @@ pub trait BrainpoolCurve: Sized + 'static {
 
     fn scalar_from_le_bytes(x_bytes: &[u8]) -> Self::GroupField {
         Self::GroupField::from_le_bytes(x_bytes)
+    }
+
+    fn comb() -> Option<&'static BrainpoolComb<Self>> {
+        None
     }
 }
 
@@ -991,16 +998,31 @@ impl<C: BrainpoolCurve> BrainpoolPoint<C> {
         self.z.is_zero()
     }
 
-    pub fn normalize(&self) -> Self {
+    pub fn to_affine(&self) -> Self {
         if self.is_point_at_infinity() {
             return C::INFINITY;
         }
 
         let zinv = self.z.invert();
-        let x = self.x * zinv * C::Z2_INV;
-        let y = self.y * zinv * C::Z3_INV;
 
-        Self { x, y, z: C::ONE }
+        Self {
+            x: self.x * zinv,
+            y: self.y * zinv,
+            z: C::ONE,
+        }
+    }
+
+    pub fn normalize(&self) -> Self {
+        let affine = self.to_affine();
+        if affine.is_point_at_infinity() {
+            return affine;
+        }
+
+        Self {
+            x: affine.x * C::Z2_INV,
+            y: affine.y * C::Z3_INV,
+            z: C::ONE,
+        }
     }
 
     pub fn to_twist(&self) -> Self {

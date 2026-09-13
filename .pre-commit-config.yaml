@@ -11,7 +11,7 @@ repos:
     - id: trailing-whitespace
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.14.0
+  rev: v0.16.7
   hooks:
     # Run the linter.
     - id: ruff-check
@@ -20,7 +20,7 @@ repos:
     - id: ruff-format
 
 - repo: https://github.com/doublify/pre-commit-rust
-  rev: master
+  rev: v1.0
   hooks:
     - id: fmt
       name: cargo fmt
