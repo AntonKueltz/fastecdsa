@@ -21,7 +21,7 @@ impl Curve for P224 {
     type Wide = [u64; 4];
     type Double = [u64; 8];
 
-    type Order = ConstMontyForm<P224Q, 4>;
+    type Order = ConstMontyForm<P224Q, { U256::LIMBS }>;
 
     const LIMB_SZ: usize = 4;
     const WIDE_SZ: usize = 4;

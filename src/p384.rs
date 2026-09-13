@@ -21,7 +21,7 @@ impl Curve for P384 {
     type Wide = [u64; 7];
     type Double = [u64; 12];
 
-    type Order = ConstMontyForm<P384Q, 6>;
+    type Order = ConstMontyForm<P384Q, { U384::LIMBS }>;
 
     const LIMB_SZ: usize = 6;
     const WIDE_SZ: usize = 7;

@@ -21,7 +21,7 @@ impl Curve for P521 {
     type Wide = [u64; 9];
     type Double = [u64; 18];
 
-    type Order = ConstMontyForm<P521Q, 9>;
+    type Order = ConstMontyForm<P521Q, { U576::LIMBS }>;
 
     const LIMB_SZ: usize = 9;
     const WIDE_SZ: usize = 9;

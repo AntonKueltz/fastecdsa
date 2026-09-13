@@ -19,8 +19,8 @@ const_monty_params!(
 static COMB: std::sync::OnceLock<BrainpoolComb<Brainpoolp224r1>> = std::sync::OnceLock::new();
 
 impl BrainpoolCurve for Brainpoolp224r1 {
-    type CurveField = ConstMontyForm<Brainpool224P, 4>;
-    type GroupField = ConstMontyForm<Brainpool224Q, 4>;
+    type CurveField = ConstMontyForm<Brainpool224P, { U256::LIMBS }>;
+    type GroupField = ConstMontyForm<Brainpool224Q, { U256::LIMBS }>;
 
     const BITS: u32 = 224;
     const ONE: Self::CurveField = ConstMontyForm::new(&U256::from_u8(0x1));

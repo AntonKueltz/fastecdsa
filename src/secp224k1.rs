@@ -21,7 +21,7 @@ impl Curve for Secp224k1 {
     type Wide = [u64; 4];
     type Double = [u64; 8];
 
-    type Order = ConstMontyForm<Secp224k1Q, 4>;
+    type Order = ConstMontyForm<Secp224k1Q, { U256::LIMBS }>;
 
     const LIMB_SZ: usize = 4;
     const WIDE_SZ: usize = 4;
