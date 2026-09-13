@@ -1,9 +1,13 @@
+use std::ops::{Add, Mul, Sub};
+
 use crypto_bigint::{
     Uint,
     modular::{ConstMontyForm, ConstMontyParams},
 };
 
-pub trait ScalarField: Copy + Sized {
+pub trait ScalarField:
+    Copy + PartialEq + Sized + Add<Output = Self> + Mul<Output = Self> + Sub<Output = Self>
+{
     fn from_le_bytes(bytes: &[u8]) -> Self;
 
     fn from_le_bytes_checked(bytes: &[u8]) -> Option<Self>;
@@ -18,7 +22,9 @@ pub trait ScalarField: Copy + Sized {
 
     fn is_zero(&self) -> bool;
 
-    fn eq(&self, other: &Self) -> bool;
+    fn test_bit(&self, i: u32) -> bool;
+
+    fn sqr(&self) -> Self;
 }
 
 impl<MOD, const LIMBS: usize> ScalarField for ConstMontyForm<MOD, LIMBS>
@@ -63,7 +69,11 @@ where
         bool::from(self.retrieve().is_zero())
     }
 
-    fn eq(&self, other: &Self) -> bool {
-        *self == *other
+    fn test_bit(&self, i: u32) -> bool {
+        self.retrieve().bit(i).into()
+    }
+
+    fn sqr(&self) -> Self {
+        self.square()
     }
 }

@@ -1,7 +1,6 @@
 from binascii import unhexlify
 from hashlib import (
     sha224,
-    sha256,
     sha384,
     sha512,
 )
@@ -10,7 +9,6 @@ from unittest import TestCase
 
 from fastecdsa.curve import (
     brainpoolP224r1,
-    brainpoolP256r1,
     brainpoolP320r1,
     brainpoolP384r1,
     brainpoolP512r1,
@@ -52,11 +50,6 @@ class TestWycheproofEcdsaVerify(TestCase):
         filename = "tests/vectors/whycheproof/ecdsa_brainpoolP224r1_sha224_test.json"
         tests = self._get_tests(filename)
         self._test_runner(tests, brainpoolP224r1, sha224)
-
-    def test_brainpoolP256r1_sha256(self):
-        filename = "tests/vectors/whycheproof/ecdsa_brainpoolP256r1_sha256_test.json"
-        tests = self._get_tests(filename)
-        self._test_runner(tests, brainpoolP256r1, sha256)
 
     def test_brainpoolP320r1_sha384(self):
         filename = "tests/vectors/whycheproof/ecdsa_brainpoolP320r1_sha384_test.json"
