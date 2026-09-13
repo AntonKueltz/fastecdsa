@@ -5,144 +5,161 @@ on:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]'  # only run non-alpha tags
 
+permissions:
+  contents: read
+
 jobs:
-  make_sdist:
-    name: Make SDist
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v6
-
-    - name: Build SDist
-      run: pipx run build --sdist
-
-    - uses: actions/upload-artifact@v6
-      with:
-        name: cibw-sdist
-        path: dist/*.tar.gz
-
-  build_wheels-manylinux:
-    name: Build wheels on ubuntu-latest
-    runs-on: ubuntu-latest
-
+  linux:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: ubuntu-22.04
+            target: x86_64
+          - runner: ubuntu-22.04
+            target: aarch64
+          - runner: ubuntu-22.04
+            target: s390x
+          - runner: ubuntu-22.04
+            target: ppc64le
     steps:
       - uses: actions/checkout@v6
-
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v3.3.0
-        env:
-          CIBW_BEFORE_ALL_LINUX: >
-            yum update &&
-            yum install -y gmp-devel
-          CIBW_BUILD: cp310-manylinux* cp311-manylinux* cp312-manylinux* cp313-manylinux* cp314-manylinux*
-          CIBW_ENVIRONMENT_LINUX: CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib"
-
-      - uses: actions/upload-artifact@v6
+      - uses: actions/setup-python@v6
         with:
-          name: cibw-wheels-manylinux
-          path: ./wheelhouse/*.whl
+          python-version: 3.x
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          manylinux: auto
+      - name: Upload wheels
+        uses: actions/upload-artifact@v6
+        with:
+          name: wheels-linux-${{ matrix.platform.target }}
+          path: dist
 
-  build_wheels-macos-arm:
-    name: Build wheels on macos-15
-    runs-on: macos-15
-
+  musllinux:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: ubuntu-22.04
+            target: x86_64
+          - runner: ubuntu-22.04
+            target: aarch64
     steps:
       - uses: actions/checkout@v6
-
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v3.3.0
-        env:
-          CIBW_BUILD: cp310-* cp311-* cp312-* cp313-* cp314-*
-          CIBW_ENVIRONMENT_MACOS: CFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib"
-          MACOSX_DEPLOYMENT_TARGET: 15.0
-
-      - uses: actions/upload-artifact@v6
+      - uses: actions/setup-python@v6
         with:
-          name: cibw-wheels-macos-arm
-          path: ./wheelhouse/*.whl
+          python-version: 3.x
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          manylinux: musllinux_1_2
+      - name: Upload wheels
+        uses: actions/upload-artifact@v6
+        with:
+          name: wheels-musllinux-${{ matrix.platform.target }}
+          path: dist
 
-  build_wheels-macos-intel:
-    name: Build wheels on macos-15-intel
-    runs-on: macos-15-intel
-
+  windows:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: windows-latest
+            target: x64
+            python_arch: x64
+          - runner: windows-11-arm
+            target: aarch64
+            python_arch: arm64
     steps:
       - uses: actions/checkout@v6
-
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v3.3.0
-        env:
-          CIBW_BUILD: cp310-* cp311-* cp312-* cp313-* cp314-*
-          CIBW_ENVIRONMENT_MACOS: CFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib"
-          MACOSX_DEPLOYMENT_TARGET: 15.0
-
-      - uses: actions/upload-artifact@v6
+      - uses: actions/setup-python@v6
         with:
-          name: cibw-wheels-macos-intel
-          path: ./wheelhouse/*.whl
+          python-version: 3.x
+          architecture: ${{ matrix.platform.python_arch }}
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      - name: Upload wheels
+        uses: actions/upload-artifact@v6
+        with:
+          name: wheels-windows-${{ matrix.platform.target }}
+          path: dist
 
-  publish-to-pypi:
-    name: Publish Python 🐍 distribution 📦 to PyPI
-    needs: [make_sdist, build_wheels-manylinux, build_wheels-macos-arm, build_wheels-macos-intel]
+  macos:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: macos-15-intel
+            target: x86_64
+          - runner: macos-latest
+            target: aarch64
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      - name: Upload wheels
+        uses: actions/upload-artifact@v6
+        with:
+          name: wheels-macos-${{ matrix.platform.target }}
+          path: dist
+
+  sdist:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build sdist
+        uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist
+      - name: Upload sdist
+        uses: actions/upload-artifact@v6
+        with:
+          name: wheels-sdist
+          path: dist
 
-    environment:
-      name: pypi
-      url: https://pypi.org/p/fastecdsa  # Replace <package-name> with your PyPI project name
-
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
+    needs: [linux, musllinux, windows, macos, sdist]
     permissions:
-      id-token: write  # IMPORTANT: mandatory for trusted publishing
-
+      # Use to sign the release artifacts
+      id-token: write
+      # Used to upload release artifacts
+      contents: write
+      # Used to generate artifact attestation
+      attestations: write
     steps:
-    - name: Download all the dists
-      uses: actions/download-artifact@v7
-      with:
-        pattern: cibw-*
-        path: dist/
-        merge-multiple: true
-    - name: Publish distribution 📦 to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        verbose: true
-
-  github-release:
-    name: >-
-      Sign the Python 🐍 distribution 📦 with Sigstore
-      and upload them to GitHub Release
-    needs:
-    - publish-to-pypi
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: write  # IMPORTANT: mandatory for making GitHub Releases
-      id-token: write  # IMPORTANT: mandatory for sigstore
-
-    steps:
-    - name: Download all the dists
-      uses: actions/download-artifact@v7
-      with:
-        pattern: cibw-*
-        path: dist/
-        merge-multiple: true
-    - name: Sign the dists with Sigstore
-      uses: sigstore/gh-action-sigstore-python@v3.2.0
-      with:
-        inputs: >-
-          ./dist/*.tar.gz
-          ./dist/*.whl
-    - name: Create GitHub Release
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      run: >-
-        gh release create
-        "$GITHUB_REF_NAME"
-        --repo "$GITHUB_REPOSITORY"
-        --notes ""
-    - name: Upload artifact signatures to GitHub Release
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      # Upload to GitHub Release using the `gh` CLI.
-      # `dist/` contains the built packages, and the
-      # sigstore-produced signatures and certificates.
-      run: >-
-        gh release upload
-        "$GITHUB_REF_NAME" dist/**
-        --repo "$GITHUB_REPOSITORY"
+      - uses: actions/download-artifact@v7
+      - name: Generate artifact attestation
+        uses: actions/attest@v4
+        with:
+          subject-path: 'wheels-*/*'
+      - name: Install uv
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        uses: astral-sh/setup-uv@v7
+      - name: Publish to PyPI
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: uv publish 'wheels-*/*'
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
