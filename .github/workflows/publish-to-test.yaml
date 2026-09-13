@@ -160,6 +160,4 @@ jobs:
         uses: astral-sh/setup-uv@v7
       - name: Publish to PyPI
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        run: uv publish --publish-url https://test.pypi.org/legacy/ 'wheels-*/*'
-        env:
-          UV_PUBLISH_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        run: uv publish --index testpypi --trusted-publishing always 'wheels-*/*'
