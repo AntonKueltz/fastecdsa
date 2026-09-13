@@ -115,7 +115,6 @@ that :code:`sha3_224, sha3_256, sha3_384, sha3_512` are all in :code:`hashlib` a
 
 Performance
 -----------
-
 Curves over Prime Fields
 ~~~~~~~~~~~~~~~~~~~~~~~~
 You can see the times for 1,000 signature and verification operations over
