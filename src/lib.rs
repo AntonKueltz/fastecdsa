@@ -6,7 +6,13 @@ use num_bigint::BigUint;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
+use crate::brainpoolp160r1::{Brainpool160P, Brainpool160Q, Brainpoolp160r1};
+use crate::brainpoolp192r1::{Brainpool192P, Brainpool192Q, Brainpoolp192r1};
+use crate::brainpoolp224r1::{Brainpool224P, Brainpool224Q, Brainpoolp224r1};
 use crate::brainpoolp256r1::{Brainpool256P, Brainpool256Q, Brainpoolp256r1};
+use crate::brainpoolp320r1::{Brainpool320P, Brainpool320Q, Brainpoolp320r1};
+use crate::brainpoolp384r1::{Brainpool384P, Brainpool384Q, Brainpoolp384r1};
+use crate::brainpoolp512r1::{Brainpool512P, Brainpool512Q, Brainpoolp512r1};
 use crate::curve::{BrainpoolCurve, BrainpoolPoint, Curve, Field, Point};
 use crate::ecdsa::{sign, verify};
 use crate::generic::{CurveError, GenericCurve, GenericPoint};
@@ -20,7 +26,13 @@ use crate::secp192k1::Secp192k1;
 use crate::secp224k1::Secp224k1;
 use crate::secp256k1::Secp256k1;
 
+pub mod brainpoolp160r1;
+pub mod brainpoolp192r1;
+pub mod brainpoolp224r1;
 pub mod brainpoolp256r1;
+pub mod brainpoolp320r1;
+pub mod brainpoolp384r1;
+pub mod brainpoolp512r1;
 pub mod comb;
 pub mod curve;
 pub mod ecdsa;
@@ -37,7 +49,13 @@ pub mod secp256k1;
 
 #[derive(Clone, PartialEq, Debug)]
 enum CurveKind {
+    Brainpoolp160r1,
+    Brainpoolp192r1,
+    Brainpoolp224r1,
     Brainpoolp256r1,
+    Brainpoolp320r1,
+    Brainpoolp384r1,
+    Brainpoolp512r1,
     P192,
     P224,
     P256,
@@ -50,7 +68,13 @@ enum CurveKind {
 }
 
 enum PointKind {
+    Brainpoolp160r1(BrainpoolPoint<Brainpoolp160r1>),
+    Brainpoolp192r1(BrainpoolPoint<Brainpoolp192r1>),
+    Brainpoolp224r1(BrainpoolPoint<Brainpoolp224r1>),
     Brainpoolp256r1(BrainpoolPoint<Brainpoolp256r1>),
+    Brainpoolp320r1(BrainpoolPoint<Brainpoolp320r1>),
+    Brainpoolp384r1(BrainpoolPoint<Brainpoolp384r1>),
+    Brainpoolp512r1(BrainpoolPoint<Brainpoolp512r1>),
     P192(Point<P192>),
     P224(Point<P224>),
     P256(Point<P256>),
@@ -65,7 +89,13 @@ enum PointKind {
 impl CurveKind {
     pub fn sign(&self, msg: &[u8], d: &[u8], k: &[u8]) -> (Vec<u8>, Vec<u8>) {
         match self {
+            CurveKind::Brainpoolp160r1 => Brainpoolp160r1::sign(msg, d, k),
+            CurveKind::Brainpoolp192r1 => Brainpoolp192r1::sign(msg, d, k),
+            CurveKind::Brainpoolp224r1 => Brainpoolp224r1::sign(msg, d, k),
             CurveKind::Brainpoolp256r1 => Brainpoolp256r1::sign(msg, d, k),
+            CurveKind::Brainpoolp320r1 => Brainpoolp320r1::sign(msg, d, k),
+            CurveKind::Brainpoolp384r1 => Brainpoolp384r1::sign(msg, d, k),
+            CurveKind::Brainpoolp512r1 => Brainpoolp512r1::sign(msg, d, k),
             CurveKind::P192 => sign::<P192>(msg, d, k),
             CurveKind::P224 => sign::<P224>(msg, d, k),
             CurveKind::P256 => sign::<P256>(msg, d, k),
@@ -80,7 +110,13 @@ impl CurveKind {
 
     pub fn verify(&self, r: &[u8], s: &[u8], msg: &[u8], qx: &[u8], qy: &[u8]) -> bool {
         match self {
+            CurveKind::Brainpoolp160r1 => Brainpoolp160r1::verify(r, s, msg, qx, qy),
+            CurveKind::Brainpoolp192r1 => Brainpoolp192r1::verify(r, s, msg, qx, qy),
+            CurveKind::Brainpoolp224r1 => Brainpoolp224r1::verify(r, s, msg, qx, qy),
             CurveKind::Brainpoolp256r1 => Brainpoolp256r1::verify(r, s, msg, qx, qy),
+            CurveKind::Brainpoolp320r1 => Brainpoolp320r1::verify(r, s, msg, qx, qy),
+            CurveKind::Brainpoolp384r1 => Brainpoolp384r1::verify(r, s, msg, qx, qy),
+            CurveKind::Brainpoolp512r1 => Brainpoolp512r1::verify(r, s, msg, qx, qy),
             CurveKind::P192 => verify::<P192>(r, s, msg, qx, qy),
             CurveKind::P224 => verify::<P224>(r, s, msg, qx, qy),
             CurveKind::P256 => verify::<P256>(r, s, msg, qx, qy),
@@ -95,7 +131,13 @@ impl CurveKind {
 
     pub fn field_order(&self) -> Vec<u8> {
         match self {
+            CurveKind::Brainpoolp160r1 => Brainpool160P::PARAMS.modulus().to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp192r1 => Brainpool192P::PARAMS.modulus().to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp224r1 => Brainpool224P::PARAMS.modulus().to_le_bytes().to_vec(),
             CurveKind::Brainpoolp256r1 => Brainpool256P::PARAMS.modulus().to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp320r1 => Brainpool320P::PARAMS.modulus().to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp384r1 => Brainpool384P::PARAMS.modulus().to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp512r1 => Brainpool512P::PARAMS.modulus().to_le_bytes().to_vec(),
             CurveKind::P192 => Vec::<u8>::from(P192::P),
             CurveKind::P224 => Vec::<u8>::from(P224::P),
             CurveKind::P256 => Vec::<u8>::from(P256::P),
@@ -110,7 +152,13 @@ impl CurveKind {
 
     pub fn a_const(&self) -> Vec<u8> {
         match self {
+            CurveKind::Brainpoolp160r1 => Brainpoolp160r1::A.to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp192r1 => Brainpoolp192r1::A.to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp224r1 => Brainpoolp224r1::A.to_le_bytes().to_vec(),
             CurveKind::Brainpoolp256r1 => Brainpoolp256r1::A.to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp320r1 => Brainpoolp320r1::A.to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp384r1 => Brainpoolp384r1::A.to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp512r1 => Brainpoolp512r1::A.to_le_bytes().to_vec(),
             CurveKind::P192 => Vec::<u8>::from(P192::A),
             CurveKind::P224 => Vec::<u8>::from(P224::A),
             CurveKind::P256 => Vec::<u8>::from(P256::A),
@@ -125,7 +173,13 @@ impl CurveKind {
 
     pub fn b_const(&self) -> Vec<u8> {
         match self {
+            CurveKind::Brainpoolp160r1 => Brainpoolp160r1::B.to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp192r1 => Brainpoolp192r1::B.to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp224r1 => Brainpoolp224r1::B.to_le_bytes().to_vec(),
             CurveKind::Brainpoolp256r1 => Brainpoolp256r1::B.to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp320r1 => Brainpoolp320r1::B.to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp384r1 => Brainpoolp384r1::B.to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp512r1 => Brainpoolp512r1::B.to_le_bytes().to_vec(),
             CurveKind::P192 => Vec::<u8>::from(P192::B),
             CurveKind::P224 => Vec::<u8>::from(P224::B),
             CurveKind::P256 => Vec::<u8>::from(P256::B),
@@ -140,7 +194,13 @@ impl CurveKind {
 
     pub fn point_order(&self) -> Vec<u8> {
         match self {
+            CurveKind::Brainpoolp160r1 => Brainpool160Q::PARAMS.modulus().to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp192r1 => Brainpool192Q::PARAMS.modulus().to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp224r1 => Brainpool224Q::PARAMS.modulus().to_le_bytes().to_vec(),
             CurveKind::Brainpoolp256r1 => Brainpool256Q::PARAMS.modulus().to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp320r1 => Brainpool320Q::PARAMS.modulus().to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp384r1 => Brainpool384Q::PARAMS.modulus().to_le_bytes().to_vec(),
+            CurveKind::Brainpoolp512r1 => Brainpool512Q::PARAMS.modulus().to_le_bytes().to_vec(),
             CurveKind::P192 => [
                 0x31, 0x28, 0xd2, 0xb4, 0xb1, 0xc9, 0x6b, 0x14, 0x36, 0xf8, 0xde, 0x99, 0xff, 0xff,
                 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -195,7 +255,13 @@ impl CurveKind {
 
     pub fn generator(&self) -> PointKind {
         match self {
+            CurveKind::Brainpoolp160r1 => PointKind::Brainpoolp160r1(Brainpoolp160r1::G),
+            CurveKind::Brainpoolp192r1 => PointKind::Brainpoolp192r1(Brainpoolp192r1::G),
+            CurveKind::Brainpoolp224r1 => PointKind::Brainpoolp224r1(Brainpoolp224r1::G),
             CurveKind::Brainpoolp256r1 => PointKind::Brainpoolp256r1(Brainpoolp256r1::G),
+            CurveKind::Brainpoolp320r1 => PointKind::Brainpoolp320r1(Brainpoolp320r1::G),
+            CurveKind::Brainpoolp384r1 => PointKind::Brainpoolp384r1(Brainpoolp384r1::G),
+            CurveKind::Brainpoolp512r1 => PointKind::Brainpoolp512r1(Brainpoolp512r1::G),
             CurveKind::P192 => PointKind::P192(P192::G),
             CurveKind::P224 => PointKind::P224(P224::G),
             CurveKind::P256 => PointKind::P256(P256::G),
@@ -210,8 +276,26 @@ impl CurveKind {
 
     pub fn oid(&self) -> Option<Vec<u8>> {
         match self {
+            CurveKind::Brainpoolp160r1 => {
+                Some([0x2b, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x01].to_vec())
+            }
+            CurveKind::Brainpoolp192r1 => {
+                Some([0x2b, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x03].to_vec())
+            }
+            CurveKind::Brainpoolp224r1 => {
+                Some([0x2b, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x05].to_vec())
+            }
             CurveKind::Brainpoolp256r1 => {
                 Some([0x2b, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x07].to_vec())
+            }
+            CurveKind::Brainpoolp320r1 => {
+                Some([0x2b, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x09].to_vec())
+            }
+            CurveKind::Brainpoolp384r1 => {
+                Some([0x2b, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x0b].to_vec())
+            }
+            CurveKind::Brainpoolp512r1 => {
+                Some([0x2b, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x0d].to_vec())
             }
             CurveKind::P192 => Some([0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x01].to_vec()),
             CurveKind::P224 => Some([0x2b, 0x81, 0x04, 0x00, 0x21].to_vec()),
@@ -235,8 +319,26 @@ impl CurveKind {
         }
 
         Ok(match (self, point) {
+            (CurveKind::Brainpoolp160r1, PointKind::Brainpoolp160r1(p)) => {
+                check!(Brainpoolp160r1, Brainpool256r1, p)
+            }
+            (CurveKind::Brainpoolp192r1, PointKind::Brainpoolp192r1(p)) => {
+                check!(Brainpoolp192r1, Brainpool256r1, p)
+            }
+            (CurveKind::Brainpoolp224r1, PointKind::Brainpoolp224r1(p)) => {
+                check!(Brainpoolp224r1, Brainpool256r1, p)
+            }
             (CurveKind::Brainpoolp256r1, PointKind::Brainpoolp256r1(p)) => {
                 check!(Brainpoolp256r1, Brainpool256r1, p)
+            }
+            (CurveKind::Brainpoolp320r1, PointKind::Brainpoolp320r1(p)) => {
+                check!(Brainpoolp320r1, Brainpool256r1, p)
+            }
+            (CurveKind::Brainpoolp384r1, PointKind::Brainpoolp384r1(p)) => {
+                check!(Brainpoolp384r1, Brainpool256r1, p)
+            }
+            (CurveKind::Brainpoolp512r1, PointKind::Brainpoolp512r1(p)) => {
+                check!(Brainpoolp512r1, Brainpool256r1, p)
             }
             (CurveKind::P192, PointKind::P192(p)) => check!(P192, P192, p),
             (CurveKind::P224, PointKind::P224(p)) => check!(P224, P224, p),
@@ -261,7 +363,13 @@ impl CurveKind {
         }
 
         match self {
+            CurveKind::Brainpoolp160r1 => Brainpoolp160r1::evaluate(x_bytes),
+            CurveKind::Brainpoolp192r1 => Brainpoolp192r1::evaluate(x_bytes),
+            CurveKind::Brainpoolp224r1 => Brainpoolp224r1::evaluate(x_bytes),
             CurveKind::Brainpoolp256r1 => Brainpoolp256r1::evaluate(x_bytes),
+            CurveKind::Brainpoolp320r1 => Brainpoolp320r1::evaluate(x_bytes),
+            CurveKind::Brainpoolp384r1 => Brainpoolp384r1::evaluate(x_bytes),
+            CurveKind::Brainpoolp512r1 => Brainpoolp512r1::evaluate(x_bytes),
             CurveKind::P192 => eval!(P192),
             CurveKind::P224 => eval!(P224),
             CurveKind::P256 => eval!(P256),
@@ -284,8 +392,26 @@ impl CurveKind {
         }
 
         let point = match self {
+            CurveKind::Brainpoolp160r1 => {
+                PointKind::Brainpoolp160r1(Brainpoolp160r1::point_from_affine(x_bytes, y_bytes))
+            }
+            CurveKind::Brainpoolp192r1 => {
+                PointKind::Brainpoolp192r1(Brainpoolp192r1::point_from_affine(x_bytes, y_bytes))
+            }
+            CurveKind::Brainpoolp224r1 => {
+                PointKind::Brainpoolp224r1(Brainpoolp224r1::point_from_affine(x_bytes, y_bytes))
+            }
             CurveKind::Brainpoolp256r1 => {
                 PointKind::Brainpoolp256r1(Brainpoolp256r1::point_from_affine(x_bytes, y_bytes))
+            }
+            CurveKind::Brainpoolp320r1 => {
+                PointKind::Brainpoolp320r1(Brainpoolp320r1::point_from_affine(x_bytes, y_bytes))
+            }
+            CurveKind::Brainpoolp384r1 => {
+                PointKind::Brainpoolp384r1(Brainpoolp384r1::point_from_affine(x_bytes, y_bytes))
+            }
+            CurveKind::Brainpoolp512r1 => {
+                PointKind::Brainpoolp512r1(Brainpoolp512r1::point_from_affine(x_bytes, y_bytes))
             }
             CurveKind::P192 => build!(P192, P192),
             CurveKind::P224 => build!(P224, P224),
@@ -307,7 +433,13 @@ impl CurveKind {
 
     fn repr_name(&self) -> String {
         match self {
+            CurveKind::Brainpoolp160r1 => "Brainpoolp160r1".to_string(),
+            CurveKind::Brainpoolp192r1 => "Brainpoolp192r1".to_string(),
+            CurveKind::Brainpoolp224r1 => "Brainpoolp224r1".to_string(),
             CurveKind::Brainpoolp256r1 => "Brainpoolp256r1".to_string(),
+            CurveKind::Brainpoolp320r1 => "Brainpoolp320r1".to_string(),
+            CurveKind::Brainpoolp384r1 => "Brainpoolp384r1".to_string(),
+            CurveKind::Brainpoolp512r1 => "Brainpoolp512r1".to_string(),
             CurveKind::P192 => "P192".to_string(),
             CurveKind::P224 => "P224".to_string(),
             CurveKind::P256 => "P256".to_string(),
@@ -367,8 +499,38 @@ impl PyCurve {
     }
 
     #[staticmethod]
+    fn brainpoolp160r1() -> Self {
+        PyCurve(Arc::new(CurveKind::Brainpoolp160r1))
+    }
+
+    #[staticmethod]
+    fn brainpoolp192r1() -> Self {
+        PyCurve(Arc::new(CurveKind::Brainpoolp192r1))
+    }
+
+    #[staticmethod]
+    fn brainpoolp224r1() -> Self {
+        PyCurve(Arc::new(CurveKind::Brainpoolp224r1))
+    }
+
+    #[staticmethod]
     fn brainpoolp256r1() -> Self {
         PyCurve(Arc::new(CurveKind::Brainpoolp256r1))
+    }
+
+    #[staticmethod]
+    fn brainpoolp320r1() -> Self {
+        PyCurve(Arc::new(CurveKind::Brainpoolp320r1))
+    }
+
+    #[staticmethod]
+    fn brainpoolp384r1() -> Self {
+        PyCurve(Arc::new(CurveKind::Brainpoolp384r1))
+    }
+
+    #[staticmethod]
+    fn brainpoolp512r1() -> Self {
+        PyCurve(Arc::new(CurveKind::Brainpoolp512r1))
     }
 
     #[staticmethod]
@@ -468,7 +630,13 @@ impl PyCurve {
 impl PointKind {
     fn curve_kind(&self) -> CurveKind {
         match self {
+            PointKind::Brainpoolp160r1(_) => CurveKind::Brainpoolp160r1,
+            PointKind::Brainpoolp192r1(_) => CurveKind::Brainpoolp192r1,
+            PointKind::Brainpoolp224r1(_) => CurveKind::Brainpoolp224r1,
             PointKind::Brainpoolp256r1(_) => CurveKind::Brainpoolp256r1,
+            PointKind::Brainpoolp320r1(_) => CurveKind::Brainpoolp320r1,
+            PointKind::Brainpoolp384r1(_) => CurveKind::Brainpoolp384r1,
+            PointKind::Brainpoolp512r1(_) => CurveKind::Brainpoolp512r1,
             PointKind::P192(_) => CurveKind::P192,
             PointKind::P224(_) => CurveKind::P224,
             PointKind::P256(_) => CurveKind::P256,
@@ -483,8 +651,26 @@ impl PointKind {
 
     fn add(&self, other: &PointKind) -> PyResult<PointKind> {
         match (self, other) {
+            (PointKind::Brainpoolp160r1(a), PointKind::Brainpoolp160r1(b)) => Ok(
+                PointKind::Brainpoolp160r1((a.to_twist() + b.to_twist()).normalize()),
+            ),
+            (PointKind::Brainpoolp192r1(a), PointKind::Brainpoolp192r1(b)) => Ok(
+                PointKind::Brainpoolp192r1((a.to_twist() + b.to_twist()).normalize()),
+            ),
+            (PointKind::Brainpoolp224r1(a), PointKind::Brainpoolp224r1(b)) => Ok(
+                PointKind::Brainpoolp224r1((a.to_twist() + b.to_twist()).normalize()),
+            ),
             (PointKind::Brainpoolp256r1(a), PointKind::Brainpoolp256r1(b)) => Ok(
                 PointKind::Brainpoolp256r1((a.to_twist() + b.to_twist()).normalize()),
+            ),
+            (PointKind::Brainpoolp320r1(a), PointKind::Brainpoolp320r1(b)) => Ok(
+                PointKind::Brainpoolp320r1((a.to_twist() + b.to_twist()).normalize()),
+            ),
+            (PointKind::Brainpoolp384r1(a), PointKind::Brainpoolp384r1(b)) => Ok(
+                PointKind::Brainpoolp384r1((a.to_twist() + b.to_twist()).normalize()),
+            ),
+            (PointKind::Brainpoolp512r1(a), PointKind::Brainpoolp512r1(b)) => Ok(
+                PointKind::Brainpoolp512r1((a.to_twist() + b.to_twist()).normalize()),
             ),
             (PointKind::P192(a), PointKind::P192(b)) => Ok(PointKind::P192((*a + *b).normalize())),
             (PointKind::P224(a), PointKind::P224(b)) => Ok(PointKind::P224((*a + *b).normalize())),
@@ -511,8 +697,26 @@ impl PointKind {
 
     fn mul(&self, scalar_bytes: &[u8]) -> PointKind {
         match self {
+            PointKind::Brainpoolp160r1(p) => PointKind::Brainpoolp160r1(
+                (p.to_twist() * Brainpoolp160r1::scalar_from_le_bytes(scalar_bytes)).normalize(),
+            ),
+            PointKind::Brainpoolp192r1(p) => PointKind::Brainpoolp192r1(
+                (p.to_twist() * Brainpoolp192r1::scalar_from_le_bytes(scalar_bytes)).normalize(),
+            ),
+            PointKind::Brainpoolp224r1(p) => PointKind::Brainpoolp224r1(
+                (p.to_twist() * Brainpoolp224r1::scalar_from_le_bytes(scalar_bytes)).normalize(),
+            ),
             PointKind::Brainpoolp256r1(p) => PointKind::Brainpoolp256r1(
                 (p.to_twist() * Brainpoolp256r1::scalar_from_le_bytes(scalar_bytes)).normalize(),
+            ),
+            PointKind::Brainpoolp320r1(p) => PointKind::Brainpoolp320r1(
+                (p.to_twist() * Brainpoolp320r1::scalar_from_le_bytes(scalar_bytes)).normalize(),
+            ),
+            PointKind::Brainpoolp384r1(p) => PointKind::Brainpoolp384r1(
+                (p.to_twist() * Brainpoolp384r1::scalar_from_le_bytes(scalar_bytes)).normalize(),
+            ),
+            PointKind::Brainpoolp512r1(p) => PointKind::Brainpoolp512r1(
+                (p.to_twist() * Brainpoolp512r1::scalar_from_le_bytes(scalar_bytes)).normalize(),
             ),
             PointKind::P192(p) => PointKind::P192((*p * scalar_bytes).normalize()),
             PointKind::P224(p) => PointKind::P224((*p * scalar_bytes).normalize()),
@@ -528,8 +732,50 @@ impl PointKind {
 
     fn neg(&self) -> PointKind {
         match self {
+            PointKind::Brainpoolp160r1(p) => {
+                PointKind::Brainpoolp160r1(BrainpoolPoint::<Brainpoolp160r1> {
+                    x: p.x,
+                    y: p.y.neg(),
+                    z: p.z,
+                })
+            }
+            PointKind::Brainpoolp192r1(p) => {
+                PointKind::Brainpoolp192r1(BrainpoolPoint::<Brainpoolp192r1> {
+                    x: p.x,
+                    y: p.y.neg(),
+                    z: p.z,
+                })
+            }
+            PointKind::Brainpoolp224r1(p) => {
+                PointKind::Brainpoolp224r1(BrainpoolPoint::<Brainpoolp224r1> {
+                    x: p.x,
+                    y: p.y.neg(),
+                    z: p.z,
+                })
+            }
             PointKind::Brainpoolp256r1(p) => {
                 PointKind::Brainpoolp256r1(BrainpoolPoint::<Brainpoolp256r1> {
+                    x: p.x,
+                    y: p.y.neg(),
+                    z: p.z,
+                })
+            }
+            PointKind::Brainpoolp320r1(p) => {
+                PointKind::Brainpoolp320r1(BrainpoolPoint::<Brainpoolp320r1> {
+                    x: p.x,
+                    y: p.y.neg(),
+                    z: p.z,
+                })
+            }
+            PointKind::Brainpoolp384r1(p) => {
+                PointKind::Brainpoolp384r1(BrainpoolPoint::<Brainpoolp384r1> {
+                    x: p.x,
+                    y: p.y.neg(),
+                    z: p.z,
+                })
+            }
+            PointKind::Brainpoolp512r1(p) => {
+                PointKind::Brainpoolp512r1(BrainpoolPoint::<Brainpoolp512r1> {
                     x: p.x,
                     y: p.y.neg(),
                     z: p.z,
@@ -590,7 +836,31 @@ impl PointKind {
 
     fn xy(&self) -> (BigUint, BigUint) {
         match self {
+            PointKind::Brainpoolp160r1(p) => (
+                BigUint::from_bytes_le(&p.x.to_le_bytes()),
+                BigUint::from_bytes_le(&p.y.to_le_bytes()),
+            ),
+            PointKind::Brainpoolp192r1(p) => (
+                BigUint::from_bytes_le(&p.x.to_le_bytes()),
+                BigUint::from_bytes_le(&p.y.to_le_bytes()),
+            ),
+            PointKind::Brainpoolp224r1(p) => (
+                BigUint::from_bytes_le(&p.x.to_le_bytes()),
+                BigUint::from_bytes_le(&p.y.to_le_bytes()),
+            ),
             PointKind::Brainpoolp256r1(p) => (
+                BigUint::from_bytes_le(&p.x.to_le_bytes()),
+                BigUint::from_bytes_le(&p.y.to_le_bytes()),
+            ),
+            PointKind::Brainpoolp320r1(p) => (
+                BigUint::from_bytes_le(&p.x.to_le_bytes()),
+                BigUint::from_bytes_le(&p.y.to_le_bytes()),
+            ),
+            PointKind::Brainpoolp384r1(p) => (
+                BigUint::from_bytes_le(&p.x.to_le_bytes()),
+                BigUint::from_bytes_le(&p.y.to_le_bytes()),
+            ),
+            PointKind::Brainpoolp512r1(p) => (
                 BigUint::from_bytes_le(&p.x.to_le_bytes()),
                 BigUint::from_bytes_le(&p.y.to_le_bytes()),
             ),

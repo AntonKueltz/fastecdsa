@@ -1,18 +1,25 @@
 from timeit import timeit
 
 from fastecdsa.curve import (
-    Curve,
     P192,
     P224,
     P256,
     P384,
     P521,
+    Curve,
+    brainpoolP160r1,
+    brainpoolP192r1,
+    brainpoolP224r1,
+    brainpoolP256r1,
+    brainpoolP320r1,
+    brainpoolP384r1,
+    brainpoolP512r1,
     secp192k1,
     secp224k1,
     secp256k1,
-    brainpoolP256r1,
 )
 from fastecdsa.point import Point
+
 from .ecdsa import sign, verify
 
 msg = bytes(32)
@@ -36,13 +43,13 @@ def run() -> None:
         secp192k1,
         secp224k1,
         secp256k1,
-        # brainpoolP160r1,
-        # brainpoolP192r1,
-        # brainpoolP224r1,
+        brainpoolP160r1,
+        brainpoolP192r1,
+        brainpoolP224r1,
         brainpoolP256r1,
-        # brainpoolP320r1,
-        # brainpoolP384r1,
-        # brainpoolP512r1,
+        brainpoolP320r1,
+        brainpoolP384r1,
+        brainpoolP512r1,
     )
 
     for curve in curves:

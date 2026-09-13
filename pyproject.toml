@@ -65,5 +65,11 @@ module-name = "fastecdsa.rust"
 pythonpath = ["."]
 addopts = "--cov=fastecdsa --cov-report=term-missing --cov-fail-under=95"
 
+[tool.ruff]
+extend-exclude = [
+    "tests/**",
+    "benchmark.py",
+]
+
 [tool.setuptools.packages.find]
 include = ['fastecdsa*']
