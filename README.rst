@@ -30,14 +30,14 @@ Python Versions Supported
 -------------------------
 The initial release of this package was targeted at python2.7. Earlier versions may work but have
 no guarantee of correctness or stability. As of release 1.2.1+ python3 is supported as well. Due to
-python2's EOL on January 1st 2020 release 2.x of this package only supports python3.5+.
+python2's EOL on January 1st 2020 release 2.x of this package only supports python3.
 
 Operating Systems Supported
 ---------------------------
-This package is targeted at the Linux and MacOS operating systems. Due to the the dependency on
-the GMP C library building this package on Windows is difficult and no official support or
-distributions are provided for Windows OSes. See issue11_ for what users have done to get things
-building.
+As of v4 most flavors of Linux/MacOS/Windows are supported. v3 and below requires the GMP library
+which has historically made building and installing on the Windows platform difficult. Note that
+this package is optimized for 64bit operating systems that support 64bit mathematical operations
+like multiplication in their instruction set.
 
 Supported Primitives
 --------------------
@@ -82,9 +82,14 @@ Arbitrary Curves
 ~~~~~~~~~~~~~~~~
 As of version 1.5.1 construction of arbitrary curves in Weierstrass form
 (:code:`y^2 = x^3 + ax + b (mod p)`) is supported. I advise against using custom curves for any
-security critical applications. It's up to you to make sure that the parameters you pass here are
-correct, no validation of the base point is done, and in general no sanity checks are done. Use
-at your own risk.
+security sensitive applications. Some sanity checks are done -
+* `p` must be a non-even (not 2) prime
+* The curve cannot be singular (discriminant equal to 0)
+* `(gx, gy)` must be a point on the curve
+* `q` must be prime
+
+Exhaustive validation checks are not performed e.g., no check that `q` is actually the order of
+point `(gx, gy)` is performed.
 
 .. code:: python
 
@@ -97,7 +102,6 @@ at your own risk.
         q,  # (long): The order of the base point of the curve.
         gx,  # (long): The x coordinate of the base point of the curve.
         gy,  # (long): The y coordinate of the base point of the curve.
-        oid  # (str): The object identifier of the curve (optional).
     )
 
 Hash Functions
@@ -114,64 +118,78 @@ Performance
 
 Curves over Prime Fields
 ~~~~~~~~~~~~~~~~~~~~~~~~
-Currently it does elliptic curve arithmetic significantly faster than the :code:`ecdsa`
-package. You can see the times for 1,000 signature and verification operations over
-various curves below. These were run on an early 2014 MacBook Air with a 1.4 GHz Intel
-Core i5.
+You can see the times for 1,000 signature and verification operations over
+various curves below. These were run on a machine with a 3.6 GHz Intel Core i9-9900K.
 
-+-----------+------------------------+--------------------+---------+
-| Curve     | :code:`fastecdsa` time | :code:`ecdsa` time | Speedup |
-+-----------+------------------------+--------------------+---------+
-| P192      | 3.62s                  | 1m35.49s           | ~26x    |
-+-----------+------------------------+--------------------+---------+
-| P224      | 4.50s                  | 2m13.42s           | ~29x    |
-+-----------+------------------------+--------------------+---------+
-| P256      | 6.15s                  | 2m52.43s           | ~28x    |
-+-----------+------------------------+--------------------+---------+
-| P384      | 12.11s                 | 6m21.01s           | ~31x    |
-+-----------+------------------------+--------------------+---------+
-| P521      | 22.21s                 | 11m39.53s          | ~31x    |
-+-----------+------------------------+--------------------+---------+
-| secp256k1 | 5.92s                  | 2m57.19s           | ~30x    |
-+-----------+------------------------+--------------------+---------+
++-----------------+------------------------+-------------------------------+-------------------------+
+| Curve           | :code:`fastecdsa` v4   | :code:`ecdsa` (gmpy2 backend) |    :code:`fastecdsa` v3 |
++-----------------+------------------------+-------------------------------+-------------------------+
+| P192            | 0.16s                  | 0.98s                         | 1.16s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+| P224            | 0.30s                  | 1.21s                         | 1.51s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+| P256            | 0.36s                  | 1.38s                         | 1.91s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+| P384            | 0.91s                  | 2.25s                         | 4.08s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+| P521            | 1.92s                  | 3.63s                         | 7.08s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+| Secp192k1       | 0.12s                  | N/A                           | 1.19s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+| Secp224k1       | 0.23s                  | N/A                           | 1.56s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+| Secp256k1       | 0.26s                  | 1.34s                         | 1.92s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+| Brainpoolp160r1 | 0.14s                  | 0.83s                         | 0.88s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+| Brainpoolp192r1 | 0.16s                  | 1.01s                         | 1.18s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+| Brainpoolp224r1 | 0.31s                  | 1.21s                         | 1.55s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+| Brainpoolp256r1 | 0.36s                  | 1.35                          | 1.88s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+| Brainpoolp320r1 | 0.67s                  | 1.80s                         | 2.91s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+| Brainpoolp384r1 | 1.03s                  | 2.27s                         | 4.08s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+| Brainpoolp512r1 | 2.07s                  | 3.33s                         | 7.06s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+
+If you'd like to benchmark performance on your machine you can do so using the command:
+
+.. code:: bash
+
+    $ uv run benchmark
+
+This will use the :code:`timeit` module to benchmark 1000 signature and verification operations
+for each curve supported by this package. Alternatively, if you have not cloned the repo but
+have installed the package to your site packages you can use the following command:
+
+.. code:: bash
+
+    $ python -m fastecdsa.benchmark
 
 Installing
 ----------
-You can use pip: :code:`$ pip install fastecdsa` or clone the repo and use
-:code:`$ python setup.py install`. Note that you need to have a C compiler.
-You  also need to have GMP_ on your system as the underlying
-C code in this package includes the :code:`gmp.h` header (and links against gmp
-via the :code:`-lgmp` flag). You can install all dependencies as follows:
-
-apt
-~~~
+You can use the usual tools to install / add this package to your project -
 
 .. code:: bash
 
-    $ sudo apt-get install python3-dev libgmp3-dev
+    $ uv add fastecdsa
+    $ poetry add fastecdsa
+    $ pip install fastecdsa
 
-brew
-~~~~
-
-.. code:: bash
-
-    $ brew install gmp
-
-yum
-~~~
-
-.. code:: bash
-
-    $ sudo yum install python-devel gmp-devel
+You can also clone the repo and use :code:`$ uv run maturin develop`. Note that you need to have
+the rust toolchain on your machine if you clone and build.
 
 Development
 -----------
 This package uses :code:`uv` for package management. You can install it via `pip install uv`. First build
-the C extension modules
+the rust bindings
 
 .. code:: bash
 
-    $ uv run python setup.py build_ext --inplace
+    $ uv run maturin develop -r
 
 To run the test suite use the following command
 
@@ -210,8 +228,8 @@ Then build a source distribution, followed by wheels for each supported python v
 
 .. code:: bash
 
-    $ uv build --sdist
-    $ uv build --wheel -p 3.x  # do this for each supported python version
+    $ uv run maturin sdist
+    $ uv run maturin build -r -i python3.x
 
 Then publish the source and wheels distributions to the test PyPI account.
 
@@ -219,21 +237,6 @@ Then publish the source and wheels distributions to the test PyPI account.
 
     $ uv publish --token {token} --url https://test.pypi.org/simple/
 
-Benchmarking
-------------
-If you'd like to benchmark performance on your machine you can do so using the command:
-
-.. code:: bash
-
-    $ uv run benchmark
-
-This will use the :code:`timeit` module to benchmark 1000 signature and verification operations
-for each curve supported by this package. Alternatively, if you have not cloned the repo but
-have installed the package via e.g. :code:`pip` you can use the following command:
-
-.. code:: bash
-
-    $ python -m fastecdsa.benchmark
 
 Usage
 -----
@@ -421,8 +424,6 @@ Thanks to those below for contributing improvements:
 - Peter-Bergman
 - DimitriPapadopoulos
 
-.. _issue11: https://github.com/AntonKueltz/fastecdsa/issues/11
-.. _GMP: https://gmplib.org/
 .. _RFC2459: https://tools.ietf.org/html/rfc2459
 .. _RFC5480: https://tools.ietf.org/html/rfc5480
 .. _RFC5915: https://tools.ietf.org/html/rfc5915

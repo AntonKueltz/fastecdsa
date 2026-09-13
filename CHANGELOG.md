@@ -1,5 +1,27 @@
 # Changelog
 
+## [4.0.0]
+
+### Added
+- Rust backend for all named curves
+- Maturin as build system
+- Support for python3.14
+
+### Changed
+- Named curves now use bespoke field arithmetic for their implementation rather than generic multiprecision arithmetic
+- Point addition and doubling formulas for named curves are based on the curve's `a` parameter
+- Point multiplication in sign algorithm for named curves uses Lim-Lee comb to improve performance
+- `msg` parameter to `sign` and `verify` _must_ now be of type `bytes`
+
+### Removed
+- C + GMP requirement
+- `oid` field from custom `Curve` constructor
+- Custom types: `EcdsaSignature` -> `tuple[int, int]` | `SignableMessage` -> `bytes` | `HashFunction` -> `Callable[[], HASH]`
+- Pre-baked weierstrass forms of Curve25519 and Curve448. They can still be constructed manually via the `Curve` constructor if needed
+- Setuptools as build system
+- Support for python3.9
+- Support for python3.10
+
 ## [3.1.0]
 ### Fixed
 - Typos

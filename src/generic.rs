@@ -61,9 +61,6 @@ impl GenericCurve {
             return Err(CurveError::EvenModulus);
         }
 
-        if p.is_even().into() {
-            return Err(CurveError::EvenModulus);
-        }
         if !is_prime(Flavor::Any, &p) {
             return Err(CurveError::PNotPrime);
         }

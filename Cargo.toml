@@ -3,6 +3,12 @@ name = "fastecdsa"
 version = "0.1.0"
 edition = "2024"
 
+description = "Fast elliptic curve digital signatures"
+documentation = "https://fastecdsa.readthedocs.io"
+homepage = "https://pypi.org/project/fastecdsa/"
+license = "CC0-1.0"
+repository = "https://github.com/AntonKueltz/fastecdsa"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 name = "fastecdsa"
