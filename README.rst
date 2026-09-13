@@ -36,7 +36,7 @@ Operating Systems Supported
 ---------------------------
 As of v4 most flavors of Linux/MacOS/Windows are supported. v3 and below requires the GMP library
 which has historically made building and installing on the Windows platform difficult. Note that
-this package is optimized for 64bit operating systems that support 64bit mathematical operations
+this package is optimized for 64bit operating systems that support 64bit arithmetic operations
 like multiplication in their instruction set.
 
 Supported Primitives
@@ -82,26 +82,28 @@ Arbitrary Curves
 ~~~~~~~~~~~~~~~~
 As of version 1.5.1 construction of arbitrary curves in Weierstrass form
 (:code:`y^2 = x^3 + ax + b (mod p)`) is supported. I advise against using custom curves for any
-security sensitive applications. Some sanity checks are done -
-* `p` must be a non-even (not 2) prime
-* The curve cannot be singular (discriminant equal to 0)
-* `(gx, gy)` must be a point on the curve
-* `q` must be prime
+security sensitive applications. In versions before v4 no checks on the curve parameters are
+done. In v4+ some sanity checks are applied -
 
-Exhaustive validation checks are not performed e.g., no check that `q` is actually the order of
-point `(gx, gy)` is performed.
+- :code:`p` must be a non-even (not 2) prime
+- The curve cannot be singular (discriminant equal to 0)
+- :code:`(gx, gy)` must be a point on the curve
+- :code:`q` must be prime
+
+Exhaustive validation checks are not performed e.g., no check that :code:`q` is actually the order of
+point :code:`(gx, gy)` is performed.
 
 .. code:: python
 
     from fastecdsa.curve import Curve
     curve = Curve(
         name,  # (str): The name of the curve
-        p,  # (long): The value of p in the curve equation.
-        a,  # (long): The value of a in the curve equation.
-        b,  # (long): The value of b in the curve equation.
-        q,  # (long): The order of the base point of the curve.
-        gx,  # (long): The x coordinate of the base point of the curve.
-        gy,  # (long): The y coordinate of the base point of the curve.
+        p,     # (int): The value of p in the curve equation.
+        a,     # (int): The value of a in the curve equation.
+        b,     # (int): The value of b in the curve equation.
+        q,     # (int): The order of the base point of the curve.
+        gx,    # (int): The x coordinate of the base point of the curve.
+        gy,    # (int): The y coordinate of the base point of the curve.
     )
 
 Hash Functions
@@ -121,7 +123,7 @@ You can see the times for 1,000 signature and verification operations over
 various curves below. These were run on a machine with a 3.6 GHz Intel Core i9-9900K.
 
 +-----------------+------------------------+-------------------------------+-------------------------+
-| Curve           | :code:`fastecdsa` v4   | :code:`ecdsa` (gmpy2 backend) |    :code:`fastecdsa` v3 |
+| Curve           | :code:`fastecdsa` v4   | :code:`ecdsa` (gmpy2 backend) | :code:`fastecdsa` v3    |
 +-----------------+------------------------+-------------------------------+-------------------------+
 | P192            | 0.16s                  | 0.98s                         | 1.16s                   |
 +-----------------+------------------------+-------------------------------+-------------------------+
