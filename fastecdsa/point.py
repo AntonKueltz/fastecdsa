@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastecdsa import curvemath  # type: ignore[attr-defined]
+from fastecdsa import curvemath  # ty: ignore[unresolved-import]
 from .curve import Curve
 
 
@@ -186,4 +186,4 @@ class Point:
 
     @staticmethod
     def _identity_element() -> Point:
-        return Point(0, 0, curve=None)  # type: ignore[arg-type]
+        return Point(0, 0, curve=None)  # ty: ignore[invalid-argument-type]

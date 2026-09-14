@@ -1,7 +1,7 @@
 from binascii import hexlify
 from hashlib import sha256
 
-from fastecdsa import _ecdsa  # type: ignore[attr-defined]
+from fastecdsa import _ecdsa  # ty: ignore[unresolved-import]
 from .curve import Curve, P256
 from .point import Point
 from .typing import EcdsaSignature, HashFunction, SignableMessage
