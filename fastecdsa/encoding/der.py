@@ -1,4 +1,3 @@
-
 from . import SigEncoder
 from .asn1 import (
     ASN1EncodingError,
