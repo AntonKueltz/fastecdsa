@@ -3,15 +3,25 @@
 ## [4.0.0]
 
 ### Added
+- Projective representation of `Point`
+  - Coordinates are still affine by default, same representation as `Point`s before this release
+  - `z` field can now be accessed (`z=1` for affine coordinates)
+  - `Point` can have a `projective` kwarg passed to it (default value is `False`)
+  - `Point` has method `normalize` to transform from projective to affine representation
+  - For any arithmetic where at least one `Point` has `projective=True` the output `Point` will also have `projective=True`
+  - Comparison of `Point`s in any combination of representations is possible. Note that if any `Point` is a projective point comparison is more expensive as four multiplications must be done.
+  - In general, use projective coordinates if you are doing a lot of intermediate computations over points before you need an affine representation.
 - Rust backend for all named curves
 - Maturin as build system
 - Support for python3.14
+- Support for python3.15
 
 ### Changed
 - Named curves now use bespoke field arithmetic for their implementation rather than generic multiprecision arithmetic
 - Point addition and doubling formulas for named curves are based on the curve's `a` parameter
 - Point multiplication in sign algorithm for named curves uses Lim-Lee comb to improve performance
 - `msg` parameter to `sign` and `verify` _must_ now be of type `bytes`
+- The `Curve` constructor for user-defined curves no longer accepts negative values (normalize them via e.g. `% p` before passing them to the constructor)
 
 ### Removed
 - C + GMP requirement

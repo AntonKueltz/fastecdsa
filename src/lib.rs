@@ -67,6 +67,7 @@ enum CurveKind {
     Generic(Arc<GenericCurve>),
 }
 
+#[derive(Clone)]
 enum PointKind {
     Brainpoolp160r1(BrainpoolPoint<Brainpoolp160r1>),
     Brainpoolp192r1(BrainpoolPoint<Brainpoolp192r1>),
@@ -598,6 +599,7 @@ impl PyCurve {
         PyPoint {
             curve: self.0.clone(),
             point: self.0.generator(),
+            projective: false,
         }
     }
 
@@ -649,85 +651,85 @@ impl PointKind {
         }
     }
 
-    fn add(&self, other: &PointKind) -> PyResult<PointKind> {
-        match (self, other) {
+    fn add(&self, other: &PointKind, normalize: bool) -> PyResult<PointKind> {
+        let c = match (self, other) {
             (PointKind::Brainpoolp160r1(a), PointKind::Brainpoolp160r1(b)) => Ok(
-                PointKind::Brainpoolp160r1((a.to_twist() + b.to_twist()).normalize()),
+                PointKind::Brainpoolp160r1((a.to_twist() + b.to_twist()).from_twist()),
             ),
             (PointKind::Brainpoolp192r1(a), PointKind::Brainpoolp192r1(b)) => Ok(
-                PointKind::Brainpoolp192r1((a.to_twist() + b.to_twist()).normalize()),
+                PointKind::Brainpoolp192r1((a.to_twist() + b.to_twist()).from_twist()),
             ),
             (PointKind::Brainpoolp224r1(a), PointKind::Brainpoolp224r1(b)) => Ok(
-                PointKind::Brainpoolp224r1((a.to_twist() + b.to_twist()).normalize()),
+                PointKind::Brainpoolp224r1((a.to_twist() + b.to_twist()).from_twist()),
             ),
             (PointKind::Brainpoolp256r1(a), PointKind::Brainpoolp256r1(b)) => Ok(
-                PointKind::Brainpoolp256r1((a.to_twist() + b.to_twist()).normalize()),
+                PointKind::Brainpoolp256r1((a.to_twist() + b.to_twist()).from_twist()),
             ),
             (PointKind::Brainpoolp320r1(a), PointKind::Brainpoolp320r1(b)) => Ok(
-                PointKind::Brainpoolp320r1((a.to_twist() + b.to_twist()).normalize()),
+                PointKind::Brainpoolp320r1((a.to_twist() + b.to_twist()).from_twist()),
             ),
             (PointKind::Brainpoolp384r1(a), PointKind::Brainpoolp384r1(b)) => Ok(
-                PointKind::Brainpoolp384r1((a.to_twist() + b.to_twist()).normalize()),
+                PointKind::Brainpoolp384r1((a.to_twist() + b.to_twist()).from_twist()),
             ),
             (PointKind::Brainpoolp512r1(a), PointKind::Brainpoolp512r1(b)) => Ok(
-                PointKind::Brainpoolp512r1((a.to_twist() + b.to_twist()).normalize()),
+                PointKind::Brainpoolp512r1((a.to_twist() + b.to_twist()).from_twist()),
             ),
-            (PointKind::P192(a), PointKind::P192(b)) => Ok(PointKind::P192((*a + *b).normalize())),
-            (PointKind::P224(a), PointKind::P224(b)) => Ok(PointKind::P224((*a + *b).normalize())),
-            (PointKind::P256(a), PointKind::P256(b)) => Ok(PointKind::P256((*a + *b).normalize())),
-            (PointKind::P384(a), PointKind::P384(b)) => Ok(PointKind::P384((*a + *b).normalize())),
-            (PointKind::P521(a), PointKind::P521(b)) => Ok(PointKind::P521((*a + *b).normalize())),
-            (PointKind::Secp192k1(a), PointKind::Secp192k1(b)) => {
-                Ok(PointKind::Secp192k1((*a + *b).normalize()))
-            }
-            (PointKind::Secp224k1(a), PointKind::Secp224k1(b)) => {
-                Ok(PointKind::Secp224k1((*a + *b).normalize()))
-            }
-            (PointKind::Secp256k1(a), PointKind::Secp256k1(b)) => {
-                Ok(PointKind::Secp256k1((*a + *b).normalize()))
-            }
-            (PointKind::Generic(a), PointKind::Generic(b)) => {
-                Ok(PointKind::Generic((a + b).normalize()))
-            }
+            (PointKind::P192(a), PointKind::P192(b)) => Ok(PointKind::P192(*a + *b)),
+            (PointKind::P224(a), PointKind::P224(b)) => Ok(PointKind::P224(*a + *b)),
+            (PointKind::P256(a), PointKind::P256(b)) => Ok(PointKind::P256(*a + *b)),
+            (PointKind::P384(a), PointKind::P384(b)) => Ok(PointKind::P384(*a + *b)),
+            (PointKind::P521(a), PointKind::P521(b)) => Ok(PointKind::P521(*a + *b)),
+            (PointKind::Secp192k1(a), PointKind::Secp192k1(b)) => Ok(PointKind::Secp192k1(*a + *b)),
+            (PointKind::Secp224k1(a), PointKind::Secp224k1(b)) => Ok(PointKind::Secp224k1(*a + *b)),
+            (PointKind::Secp256k1(a), PointKind::Secp256k1(b)) => Ok(PointKind::Secp256k1(*a + *b)),
+            (PointKind::Generic(a), PointKind::Generic(b)) => Ok(PointKind::Generic(a + b)),
             _ => Err(PyValueError::new_err(
                 "cannot add points from different curves",
             )),
+        };
+
+        if c.is_err() || !normalize {
+            c
+        } else {
+            Ok(c.unwrap().normalize())
         }
     }
 
-    fn mul(&self, scalar_bytes: &[u8]) -> PointKind {
-        match self {
+    fn mul(&self, scalar_bytes: &[u8], normalize: bool) -> PointKind {
+        let c = match self {
             PointKind::Brainpoolp160r1(p) => PointKind::Brainpoolp160r1(
-                (p.to_twist() * Brainpoolp160r1::scalar_from_le_bytes(scalar_bytes)).normalize(),
+                (p.to_twist() * Brainpoolp160r1::scalar_from_le_bytes(scalar_bytes)).from_twist(),
             ),
             PointKind::Brainpoolp192r1(p) => PointKind::Brainpoolp192r1(
-                (p.to_twist() * Brainpoolp192r1::scalar_from_le_bytes(scalar_bytes)).normalize(),
+                (p.to_twist() * Brainpoolp192r1::scalar_from_le_bytes(scalar_bytes)).from_twist(),
             ),
             PointKind::Brainpoolp224r1(p) => PointKind::Brainpoolp224r1(
-                (p.to_twist() * Brainpoolp224r1::scalar_from_le_bytes(scalar_bytes)).normalize(),
+                (p.to_twist() * Brainpoolp224r1::scalar_from_le_bytes(scalar_bytes)).from_twist(),
             ),
             PointKind::Brainpoolp256r1(p) => PointKind::Brainpoolp256r1(
-                (p.to_twist() * Brainpoolp256r1::scalar_from_le_bytes(scalar_bytes)).normalize(),
+                (p.to_twist() * Brainpoolp256r1::scalar_from_le_bytes(scalar_bytes)).from_twist(),
             ),
             PointKind::Brainpoolp320r1(p) => PointKind::Brainpoolp320r1(
-                (p.to_twist() * Brainpoolp320r1::scalar_from_le_bytes(scalar_bytes)).normalize(),
+                (p.to_twist() * Brainpoolp320r1::scalar_from_le_bytes(scalar_bytes)).from_twist(),
             ),
             PointKind::Brainpoolp384r1(p) => PointKind::Brainpoolp384r1(
-                (p.to_twist() * Brainpoolp384r1::scalar_from_le_bytes(scalar_bytes)).normalize(),
+                (p.to_twist() * Brainpoolp384r1::scalar_from_le_bytes(scalar_bytes)).from_twist(),
             ),
             PointKind::Brainpoolp512r1(p) => PointKind::Brainpoolp512r1(
-                (p.to_twist() * Brainpoolp512r1::scalar_from_le_bytes(scalar_bytes)).normalize(),
+                (p.to_twist() * Brainpoolp512r1::scalar_from_le_bytes(scalar_bytes)).from_twist(),
             ),
-            PointKind::P192(p) => PointKind::P192((*p * scalar_bytes).normalize()),
-            PointKind::P224(p) => PointKind::P224((*p * scalar_bytes).normalize()),
-            PointKind::P256(p) => PointKind::P256((*p * scalar_bytes).normalize()),
-            PointKind::P384(p) => PointKind::P384((*p * scalar_bytes).normalize()),
-            PointKind::P521(p) => PointKind::P521((*p * scalar_bytes).normalize()),
-            PointKind::Secp192k1(p) => PointKind::Secp192k1((*p * scalar_bytes).normalize()),
-            PointKind::Secp224k1(p) => PointKind::Secp224k1((*p * scalar_bytes).normalize()),
-            PointKind::Secp256k1(p) => PointKind::Secp256k1((*p * scalar_bytes).normalize()),
-            PointKind::Generic(p) => PointKind::Generic((p.clone() * scalar_bytes).normalize()),
-        }
+            PointKind::P192(p) => PointKind::P192(*p * scalar_bytes),
+            PointKind::P224(p) => PointKind::P224(*p * scalar_bytes),
+            PointKind::P256(p) => PointKind::P256(*p * scalar_bytes),
+            PointKind::P384(p) => PointKind::P384(*p * scalar_bytes),
+            PointKind::P521(p) => PointKind::P521(*p * scalar_bytes),
+            PointKind::Secp192k1(p) => PointKind::Secp192k1(*p * scalar_bytes),
+            PointKind::Secp224k1(p) => PointKind::Secp224k1(*p * scalar_bytes),
+            PointKind::Secp256k1(p) => PointKind::Secp256k1(*p * scalar_bytes),
+            PointKind::Generic(p) => PointKind::Generic(p.clone() * scalar_bytes),
+        };
+
+        if normalize { c.normalize() } else { c }
     }
 
     fn neg(&self) -> PointKind {
@@ -830,76 +832,113 @@ impl PointKind {
         }
     }
 
-    fn sub(&self, other: &PointKind) -> PyResult<PointKind> {
-        self.add(&other.neg())
+    fn sub(&self, other: &PointKind, normalize: bool) -> PyResult<PointKind> {
+        self.add(&other.neg(), normalize)
     }
 
-    fn xy(&self) -> (BigUint, BigUint) {
+    fn xyz(&self) -> (BigUint, BigUint, BigUint) {
         match self {
             PointKind::Brainpoolp160r1(p) => (
                 BigUint::from_bytes_le(&p.x.to_le_bytes()),
                 BigUint::from_bytes_le(&p.y.to_le_bytes()),
+                BigUint::from_bytes_le(&p.z.to_le_bytes()),
             ),
             PointKind::Brainpoolp192r1(p) => (
                 BigUint::from_bytes_le(&p.x.to_le_bytes()),
                 BigUint::from_bytes_le(&p.y.to_le_bytes()),
+                BigUint::from_bytes_le(&p.z.to_le_bytes()),
             ),
             PointKind::Brainpoolp224r1(p) => (
                 BigUint::from_bytes_le(&p.x.to_le_bytes()),
                 BigUint::from_bytes_le(&p.y.to_le_bytes()),
+                BigUint::from_bytes_le(&p.z.to_le_bytes()),
             ),
             PointKind::Brainpoolp256r1(p) => (
                 BigUint::from_bytes_le(&p.x.to_le_bytes()),
                 BigUint::from_bytes_le(&p.y.to_le_bytes()),
+                BigUint::from_bytes_le(&p.z.to_le_bytes()),
             ),
             PointKind::Brainpoolp320r1(p) => (
                 BigUint::from_bytes_le(&p.x.to_le_bytes()),
                 BigUint::from_bytes_le(&p.y.to_le_bytes()),
+                BigUint::from_bytes_le(&p.z.to_le_bytes()),
             ),
             PointKind::Brainpoolp384r1(p) => (
                 BigUint::from_bytes_le(&p.x.to_le_bytes()),
                 BigUint::from_bytes_le(&p.y.to_le_bytes()),
+                BigUint::from_bytes_le(&p.z.to_le_bytes()),
             ),
             PointKind::Brainpoolp512r1(p) => (
                 BigUint::from_bytes_le(&p.x.to_le_bytes()),
                 BigUint::from_bytes_le(&p.y.to_le_bytes()),
+                BigUint::from_bytes_le(&p.z.to_le_bytes()),
             ),
             PointKind::P192(p) => (
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.x)),
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.y)),
+                BigUint::from_bytes_le(&Vec::<u8>::from(p.z)),
             ),
             PointKind::P224(p) => (
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.x)),
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.y)),
+                BigUint::from_bytes_le(&Vec::<u8>::from(p.z)),
             ),
             PointKind::P256(p) => (
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.x)),
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.y)),
+                BigUint::from_bytes_le(&Vec::<u8>::from(p.z)),
             ),
             PointKind::P384(p) => (
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.x)),
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.y)),
+                BigUint::from_bytes_le(&Vec::<u8>::from(p.z)),
             ),
             PointKind::P521(p) => (
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.x)),
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.y)),
+                BigUint::from_bytes_le(&Vec::<u8>::from(p.z)),
             ),
             PointKind::Secp192k1(p) => (
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.x)),
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.y)),
+                BigUint::from_bytes_le(&Vec::<u8>::from(p.z)),
             ),
             PointKind::Secp224k1(p) => (
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.x)),
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.y)),
+                BigUint::from_bytes_le(&Vec::<u8>::from(p.z)),
             ),
             PointKind::Secp256k1(p) => (
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.x)),
                 BigUint::from_bytes_le(&Vec::<u8>::from(p.y)),
+                BigUint::from_bytes_le(&Vec::<u8>::from(p.z)),
             ),
             PointKind::Generic(p) => (
                 BigUint::from_bytes_le(&p.x.retrieve().to_le_bytes()),
                 BigUint::from_bytes_le(&p.y.retrieve().to_le_bytes()),
+                BigUint::from_bytes_le(&p.z.retrieve().to_le_bytes()),
             ),
+        }
+    }
+
+    fn normalize(&self) -> PointKind {
+        match self {
+            PointKind::Brainpoolp160r1(p) => PointKind::Brainpoolp160r1(p.normalize()),
+            PointKind::Brainpoolp192r1(p) => PointKind::Brainpoolp192r1(p.normalize()),
+            PointKind::Brainpoolp224r1(p) => PointKind::Brainpoolp224r1(p.normalize()),
+            PointKind::Brainpoolp256r1(p) => PointKind::Brainpoolp256r1(p.normalize()),
+            PointKind::Brainpoolp320r1(p) => PointKind::Brainpoolp320r1(p.normalize()),
+            PointKind::Brainpoolp384r1(p) => PointKind::Brainpoolp384r1(p.normalize()),
+            PointKind::Brainpoolp512r1(p) => PointKind::Brainpoolp512r1(p.normalize()),
+            PointKind::P192(p) => PointKind::P192(p.normalize()),
+            PointKind::P224(p) => PointKind::P224(p.normalize()),
+            PointKind::P256(p) => PointKind::P256(p.normalize()),
+            PointKind::P384(p) => PointKind::P384(p.normalize()),
+            PointKind::P521(p) => PointKind::P521(p.normalize()),
+            PointKind::Secp192k1(p) => PointKind::Secp192k1(p.normalize()),
+            PointKind::Secp224k1(p) => PointKind::Secp224k1(p.normalize()),
+            PointKind::Secp256k1(p) => PointKind::Secp256k1(p.normalize()),
+            PointKind::Generic(p) => PointKind::Generic(p.normalize()),
         }
     }
 }
@@ -908,29 +947,37 @@ impl PointKind {
 struct PyPoint {
     curve: Arc<CurveKind>,
     point: PointKind,
+    projective: bool,
 }
 
 #[pymethods]
 impl PyPoint {
     #[new]
-    fn new(x: BigUint, y: BigUint, curve: &PyCurve) -> PyResult<Self> {
+    #[pyo3(signature = (x, y, curve, projective = false))]
+    fn new(x: BigUint, y: BigUint, curve: &PyCurve, projective: bool) -> PyResult<Self> {
         let point = curve
             .0
             .point_from_affine(&x.to_bytes_le(), &y.to_bytes_le())?;
         Ok(PyPoint {
             curve: curve.0.clone(),
             point,
+            projective,
         })
     }
 
     #[getter]
     fn x(&self) -> BigUint {
-        self.point.xy().0
+        self.point.xyz().0
     }
 
     #[getter]
     fn y(&self) -> BigUint {
-        self.point.xy().1
+        self.point.xyz().1
+    }
+
+    #[getter]
+    fn z(&self) -> BigUint {
+        self.point.xyz().2
     }
 
     #[getter]
@@ -939,10 +986,13 @@ impl PyPoint {
     }
 
     fn __add__(&self, other: &PyPoint) -> PyResult<PyPoint> {
-        let sum = self.point.add(&other.point)?;
+        let sum = self
+            .point
+            .add(&other.point, !(self.projective || other.projective))?;
         Ok(PyPoint {
             curve: self.curve.clone(),
             point: sum,
+            projective: self.projective || other.projective,
         })
     }
 
@@ -950,7 +1000,8 @@ impl PyPoint {
         let k_bytes = scalar.to_bytes_le();
         PyPoint {
             curve: self.curve.clone(),
-            point: self.point.mul(&k_bytes),
+            point: self.point.mul(&k_bytes, !self.projective),
+            projective: self.projective,
         }
     }
 
@@ -962,29 +1013,67 @@ impl PyPoint {
         PyPoint {
             curve: self.curve.clone(),
             point: self.point.neg(),
+            projective: self.projective,
         }
     }
 
     fn __sub__(&self, other: &PyPoint) -> PyResult<PyPoint> {
-        let diff = self.point.sub(&other.point)?;
+        let diff = self
+            .point
+            .sub(&other.point, !(self.projective || other.projective))?;
         Ok(PyPoint {
             curve: self.curve.clone(),
             point: diff,
+            projective: self.projective || other.projective,
         })
     }
 
     fn __eq__(&self, other: &PyPoint) -> bool {
-        let (sx, sy) = self.point.xy();
-        let (ox, oy) = other.point.xy();
-        self.point.curve_kind() == other.point.curve_kind() && sx == ox && sy == oy
+        let (sx, sy, sz) = self.point.xyz();
+        let (ox, oy, oz) = other.point.xyz();
+
+        if sz == BigUint::ONE && oz == BigUint::ONE {
+            self.point.curve_kind() == other.point.curve_kind() && sx == ox && sy == oy
+        } else {
+            self.point.curve_kind() == other.point.curve_kind()
+                && &sx * &oz == &ox * &sz
+                && &sy * &oz == &oy * &sz
+        }
     }
 
     fn __repr__(&self) -> String {
-        let (x, y) = self.point.xy();
-        format!(
-            "X: 0x{x:x}\nY: 0x{y:x}\n(On curve {:?})",
-            self.curve.repr_name()
-        )
+        let (x, y, z) = self.point.xyz();
+
+        if z == BigUint::ZERO {
+            String::from("<Point at Infinity>")
+        } else if self.projective {
+            format!(
+                "X: 0x{x:x}\nY: 0x{y:x}\nZ: 0x{z:x}\n(Projective point on curve {:?})",
+                self.curve.repr_name()
+            )
+        } else {
+            format!(
+                "X: 0x{x:x}\nY: 0x{y:x}\n(Affine point on curve {:?})",
+                self.curve.repr_name()
+            )
+        }
+    }
+
+    fn normalize(&self) -> PyResult<PyPoint> {
+        if !self.projective {
+            Ok(PyPoint {
+                curve: self.curve.clone(),
+                point: self.point.clone(),
+                projective: false,
+            })
+        } else {
+            let p = self.point.normalize();
+            Ok(PyPoint {
+                curve: self.curve.clone(),
+                point: p,
+                projective: false,
+            })
+        }
     }
 }
 

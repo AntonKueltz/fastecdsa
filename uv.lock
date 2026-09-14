@@ -180,7 +180,7 @@ wheels = [
 
 [[package]]
 name = "fastecdsa"
-version = "4.0.0a7"
+version = "4.0.0a8"
 source = { editable = "." }
 
 [package.dev-dependencies]

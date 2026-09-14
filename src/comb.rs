@@ -115,7 +115,7 @@ impl<C: BrainpoolCurve> BrainpoolComb<C> {
             table.push(table[prev] + basis[low_bit]);
         }
 
-        let table: Vec<BrainpoolPoint<C>> = table.iter().map(|p| p.to_affine()).collect();
+        let table: Vec<BrainpoolPoint<C>> = table.iter().map(|p| p.normalize()).collect();
 
         Self { w, d, table }
     }

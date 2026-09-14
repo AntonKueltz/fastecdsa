@@ -815,8 +815,8 @@ pub trait BrainpoolCurve: Sized + 'static {
         assert!(!k.is_zero());
 
         let p: BrainpoolPoint<Self> = match Self::comb() {
-            Some(x) => x.mul(k_bytes).normalize(),
-            None => (Self::G_T * k).normalize(),
+            Some(x) => x.mul(k_bytes).from_twist().normalize(),
+            None => (Self::G_T * k).from_twist().normalize(),
         };
         let z = Self::GroupField::from_le_bytes(msg);
         let r = Self::GroupField::from_le_bytes(&p.x.to_le_bytes());
@@ -856,7 +856,9 @@ pub trait BrainpoolCurve: Sized + 'static {
         let u1 = sinv * z;
         let u2 = sinv * r;
 
-        let p = BrainpoolPoint::<Self>::shamir(&Self::G_T, &q, u1, u2).normalize();
+        let p = BrainpoolPoint::<Self>::shamir(&Self::G_T, &q, u1, u2)
+            .from_twist()
+            .normalize();
         let xq = Self::GroupField::from_le_bytes(&p.x.to_le_bytes());
 
         xq.eq(&r)
@@ -998,7 +1000,7 @@ impl<C: BrainpoolCurve> BrainpoolPoint<C> {
         self.z.is_zero()
     }
 
-    pub fn to_affine(&self) -> Self {
+    pub fn normalize(&self) -> Self {
         if self.is_point_at_infinity() {
             return C::INFINITY;
         }
@@ -1012,19 +1014,6 @@ impl<C: BrainpoolCurve> BrainpoolPoint<C> {
         }
     }
 
-    pub fn normalize(&self) -> Self {
-        let affine = self.to_affine();
-        if affine.is_point_at_infinity() {
-            return affine;
-        }
-
-        Self {
-            x: affine.x * C::Z2_INV,
-            y: affine.y * C::Z3_INV,
-            z: C::ONE,
-        }
-    }
-
     pub fn to_twist(&self) -> Self {
         if self.is_point_at_infinity() {
             return C::INFINITY;
@@ -1033,7 +1022,19 @@ impl<C: BrainpoolCurve> BrainpoolPoint<C> {
         Self {
             x: self.x * C::Z2,
             y: self.y * C::Z3,
-            z: C::ONE,
+            z: self.z,
+        }
+    }
+
+    pub fn from_twist(&self) -> Self {
+        if self.is_point_at_infinity() {
+            return C::INFINITY;
+        }
+
+        Self {
+            x: self.x * C::Z2_INV,
+            y: self.y * C::Z3_INV,
+            z: self.z,
         }
     }
 

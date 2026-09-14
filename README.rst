@@ -82,8 +82,8 @@ Arbitrary Curves
 ~~~~~~~~~~~~~~~~
 As of version 1.5.1 construction of arbitrary curves in Weierstrass form
 (:code:`y^2 = x^3 + ax + b (mod p)`) is supported. I advise against using custom curves for any
-security sensitive applications. In versions before v4 no checks on the curve parameters are
-done. In v4+ some sanity checks are applied -
+security sensitive applications. In versions before release 4.0.0 no checks on the curve parameters
+are done. In 4.0.0+ some sanity checks are applied -
 
 - :code:`p` must be a non-even (not 2) prime
 - The curve cannot be singular (discriminant equal to 0)
@@ -341,6 +341,47 @@ standard python operators (:code:`+` and :code:`*` respectively):
 
     # Joint Scalar Multiplication
     R = d * S + e * T
+
+Projective Points
+~~~~~~~~~~~~~~~~~
+As of release 4.0.0 you can also use the projective representation of points. This
+may be desirable if you are doing a lot of intermediate calculations with points
+before you need an affine representation as arithmetic on projective points is cheaper.
+Note that comparisons between projective points and affine points are also possible,
+but they are less performant than comparisons between two affine points. By default
+all representations and operations on points are affine. To convert a projective point
+back to an affine point use the :code:`normalize` method.
+
+.. code:: python
+
+    In [1]: from fastecdsa.curve import P256
+
+    In [2]: from fastecdsa.point import Point
+
+    In [3]: x = 0xdeadc0de
+
+    In [4]: x * P256.G
+    Out[4]:
+    X: 0x32079326d26449f8b36bde4410f805eb520c0120da1585c79c369f356c8a298f
+    Y: 0x249daa2c57c8d6a90575630635aa5448fa56d21f5e363c155fe98c597b1c70ae
+    (Affine point on curve "P256")
+
+    In [5]: g_ = Point(P256.G.x, P256.G.y, P256, projective=True)
+
+    In [6]: h = x * g_
+
+    In [7]: h
+    Out[7]:
+    X: 0x15819ed127c46b11b751a1d575a6e7712fe72c03e693ea0783268e2f0d4bdfac
+    Y: 0x879367bd0ebcf1b97fdb0841c33333f7c321a41c2ced6ab14a1cd2cc7684f6bf
+    Z: 0x99682c948ddc2ddd15966aecfe83fe52b1df7d76255d460f90d7bd615bb80cfc
+    (Projective point on curve "P256")
+
+    In [8]: h.normalize()  # gives the same result as x * P256.G
+    Out[8]:
+    X: 0x32079326d26449f8b36bde4410f805eb520c0120da1585c79c369f356c8a298f
+    Y: 0x249daa2c57c8d6a90575630635aa5448fa56d21f5e363c155fe98c597b1c70ae
+    (Affine point on curve "P256")
 
 Importing and Exporting Keys
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
