@@ -18,13 +18,13 @@ static SECP224K1_COMB: OnceLock<Comb<Secp224k1>> = OnceLock::new();
 
 impl Curve for Secp224k1 {
     type Limbs = [u64; 4];
-    type Wide = [u64; 4];
+    type Wide = [u64; 5];
     type Double = [u64; 8];
 
     type Order = ConstMontyForm<Secp224k1Q, { U256::LIMBS }>;
 
     const LIMB_SZ: usize = 4;
-    const WIDE_SZ: usize = 4;
+    const WIDE_SZ: usize = 5;
     const FIELD_BYTES: usize = 29;
 
     const P: Field<Self> = Field {
@@ -41,6 +41,7 @@ impl Curve for Secp224k1 {
             0xffffffffffffffff,
             0xffffffffffffffff,
             0x00000000ffffffff,
+            0x0,
         ],
     };
     const A: Field<Self> = Field {
@@ -88,7 +89,7 @@ impl Curve for Secp224k1 {
 
         let a = unreduced.x.as_ref();
         let mut reduced = AddResult::<Self> {
-            x: [a[0], a[1], a[2], a[3] & 0xffffffff],
+            x: [a[0], a[1], a[2], a[3] & 0xffffffff, 0x0],
         };
         let c = reduced.x.as_mut();
         let hi = Field::<Self> {
@@ -105,20 +106,22 @@ impl Curve for Secp224k1 {
         let mut t: u128;
         let mut k: u128 = 0;
 
-        for j in 0..Self::WIDE_SZ {
+        for j in 0..Self::LIMB_SZ {
             t = c[j] as u128 + b[j] as u128 + k;
             c[j] = t as u64;
             k = t >> 64;
         }
+        k += b[Self::LIMB_SZ] as u128;
 
         let overflow = (c[Self::LIMB_SZ - 1] >> 32) as u128 | ((k as u128) << 32);
         let overflow = overflow * r as u128;
         let scaled = AddResult::<Self> {
-            x: [overflow as u64, (overflow >> 64) as u64, 0x0, 0x0],
+            x: [overflow as u64, (overflow >> 64) as u64, 0x0, 0x0, 0x0],
         };
         let b = scaled.x.as_ref();
         c[Self::LIMB_SZ - 1] &= 0xffffffff;
 
+        k = 0;
         for j in 0..Self::LIMB_SZ {
             t = c[j] as u128 + b[j] as u128 + k;
             c[j] = t as u64;

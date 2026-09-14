@@ -9,10 +9,6 @@ docs/_*/
 .venv/
 __pycache__/
 
-src/ecdsa
-src/Makefile
-src/test.c
-
 target/
 
 *.o
@@ -20,5 +16,6 @@ target/
 *.so
 *.egg-info
 MANIFEST
-binaryField.*
 .coverage
+
+debug.py
