@@ -1,5 +1,4 @@
 from struct import pack, unpack
-from typing import Tuple
 
 from ..curve import Curve
 from ..point import Point
@@ -80,7 +79,7 @@ def asn1_public_key(Q: Point) -> bytes:
     return asn1_structure(BIT_STRING, key_bytes)
 
 
-def parse_asn1_length(data: bytes) -> Tuple[int, bytes, bytes]:
+def parse_asn1_length(data: bytes) -> tuple[int, bytes, bytes]:
     """
     Parse an ASN.1 encoded structure.
 
@@ -113,7 +112,7 @@ def parse_asn1_length(data: bytes) -> Tuple[int, bytes, bytes]:
     return length, data[:length], data[length:]
 
 
-def parse_asn1_int(data: bytes) -> Tuple[int, bytes, bytes]:
+def parse_asn1_int(data: bytes) -> tuple[int, bytes, bytes]:
     """
     Parse an ASN.1 encoded integer.
 

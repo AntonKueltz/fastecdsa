@@ -48,6 +48,17 @@ addopts = "--cov=fastecdsa --cov-report=term-missing --cov-fail-under=95"
 [tool.setuptools.packages.find]
 include = ['fastecdsa*']
 
+[tool.ruff.lint]
+ignore = [
+    "BLE001",  # Do not catch blind exception: `Exception`
+    "B015",    # Pointless comparison
+    "B023",    # Function definition does not bind loop variable
+    "DTZ005",  # datetime.datetime.now()` called without a `tz` argument
+    "I001",    # Import block is un-sorted or un-formatted
+    "TRY004",  # Prefer `TypeError` exception for invalid type
+    "RUF012",  # Mutable default value for class attribute
+]
+
 [dependency-groups]
 dev = [
     "pre-commit>=4.0.1",
