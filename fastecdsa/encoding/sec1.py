@@ -1,8 +1,8 @@
-from . import KeyEncoder
-from .util import bytes_to_int, int_bytelen, int_to_bytes
 from ..curve import Curve
 from ..point import Point
 from ..util import mod_sqrt
+from . import KeyEncoder
+from .util import bytes_to_int, int_bytelen, int_to_bytes
 
 
 class InvalidSEC1PublicKey(Exception):
@@ -24,7 +24,7 @@ class SEC1Encoder(KeyEncoder):
         Returns:
             bytes: The SEC1 encoded public key
         """
-        bytelen = int_bytelen(Q.curve.q)
+        bytelen = int_bytelen(Q.curve.p)
         if compressed:
             if Q.y & 1:  # odd root
                 return b"\x03" + int_to_bytes(Q.x, bytelen)
@@ -49,18 +49,17 @@ class SEC1Encoder(KeyEncoder):
         Raises:
             InvalidSEC1PublicKey
         """
-        bytelen = int_bytelen(curve.q)
+        bytelen = int_bytelen(curve.p)
         if key.startswith(b"\x04"):  # uncompressed key
             if len(key) != bytelen * 2 + 1:
                 raise InvalidSEC1PublicKey(
-                    "An uncompressed public key must be %d bytes long"
-                    % (bytelen * 2 + 1)
+                    f"An uncompressed public key must be {bytelen * 2 + 1} bytes long"
                 )
             x, y = bytes_to_int(key[1 : bytelen + 1]), bytes_to_int(key[bytelen + 1 :])
         else:  # compressed key
             if len(key) != bytelen + 1:
                 raise InvalidSEC1PublicKey(
-                    "A compressed public key must be %d bytes long" % (bytelen + 1)
+                    f"A compressed public key must be {bytelen + 1} bytes long"
                 )
             x = bytes_to_int(key[1:])
             root = mod_sqrt(curve.evaluate(x), curve.p)[0]

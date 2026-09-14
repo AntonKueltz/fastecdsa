@@ -16,6 +16,9 @@
 - Support for python3.14
 - Support for python3.15
 
+### Fixed
+- Bug where SEC1 encoding used the size of `q` rather than the size of `p` to determine byte size of the encoding of a point's coordinates
+
 ### Changed
 - Named curves now use bespoke field arithmetic for their implementation rather than generic multiprecision arithmetic
 - Point addition and doubling formulas for named curves are based on the curve's `a` parameter
