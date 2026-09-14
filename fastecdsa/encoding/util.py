@@ -1,6 +1,3 @@
-from typing import Optional
-
-
 def int_bytelen(x: int) -> int:
     length = 0
 
@@ -11,7 +8,7 @@ def int_bytelen(x: int) -> int:
     return length
 
 
-def int_to_bytes(x: int, length: Optional[int] = None) -> bytes:
+def int_to_bytes(x: int, length: int | None = None) -> bytes:
     if length is None:
         length = int_bytelen(x)
 

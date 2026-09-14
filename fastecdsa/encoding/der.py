@@ -1,10 +1,8 @@
-from typing import Tuple
-
 from . import SigEncoder
 from .asn1 import (
-    ASN1EncodingError,
     INTEGER,
     SEQUENCE,
+    ASN1EncodingError,
     asn1_structure,
     parse_asn1_int,
     parse_asn1_length,
@@ -42,7 +40,7 @@ class DEREncoder(SigEncoder):
         return asn1_structure(SEQUENCE, r_asn1 + s_asn1)
 
     @staticmethod
-    def decode_signature(binary_data: bytes) -> Tuple[int, int]:
+    def decode_signature(binary_data: bytes) -> tuple[int, int]:
         """Decode an EC signature from serialized DER format as described in
         https://tools.ietf.org/html/rfc2459 (section 7.2.2) and as detailed by
         bip-0066
@@ -78,8 +76,8 @@ class DEREncoder(SigEncoder):
             )
 
         try:
-            rlen, r, sdata = parse_asn1_int(sequence)
-            slen, s, _ = parse_asn1_int(sdata)
+            _rlen, r, sdata = parse_asn1_int(sequence)
+            _slen, s, _ = parse_asn1_int(sdata)
         except ASN1EncodingError as asn1_error:
             raise InvalidDerSignature(asn1_error)
 
