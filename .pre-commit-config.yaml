@@ -17,17 +17,14 @@ repos:
       args: [ --fix ]
     - id: ruff-format
 
+- repo: https://github.com/astral-sh/ty-pre-commit
+  rev: v0.0.80
+  hooks:
+    - id: ty
+
 - repo: https://github.com/doublify/pre-commit-rust
   rev: v1.0
   hooks:
     - id: fmt
       name: cargo fmt
     - id: cargo-check
-
-- repo: local
-  hooks:
-    - id: ty-check
-      name: type check
-      entry: uv run ty check --project fastecdsa
-      language: system
-      files: ^fastecdsa/
