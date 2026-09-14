@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 
 
 def int_bytelen(x: int) -> int:
@@ -11,7 +11,7 @@ def int_bytelen(x: int) -> int:
     return length
 
 
-def int_to_bytes(x: int, length: Optional[int] = None) -> bytes:
+def int_to_bytes(x: int, length: int | None = None) -> bytes:
     if length is None:
         length = int_bytelen(x)
 

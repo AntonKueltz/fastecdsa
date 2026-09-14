@@ -48,15 +48,26 @@ addopts = "--cov=fastecdsa --cov-report=term-missing --cov-fail-under=95"
 [tool.setuptools.packages.find]
 include = ['fastecdsa*']
 
+[tool.ruff.lint]
+ignore = [
+    "BLE001",  # Do not catch blind exception: `Exception`
+    "B015",    # Pointless comparison
+    "B023",    # Function definition does not bind loop variable
+    "DTZ005",  # datetime.datetime.now()` called without a `tz` argument
+    "I001",    # Import block is un-sorted or un-formatted
+    "TRY004",  # Prefer `TypeError` exception for invalid type
+    "RUF012",  # Mutable default value for class attribute
+]
+
+[tool.ty.src]
+include = ["fastecdsa"]
+
 [dependency-groups]
 dev = [
     "pre-commit>=4.0.1",
     "pytest>=8.3.4",
-    "ruff>=0.8.4",
-    "setuptools>=77.0.3",
     "sphinx-rtd-theme>=3.0.2",
     "sphinx>=7.4.7",
     "pytest-cov>=6.0.0",
     "gcovr>=8.3",
-    "ty>=0.0.2",
 ]

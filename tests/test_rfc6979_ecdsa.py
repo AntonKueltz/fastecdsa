@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from hashlib import sha1, sha224, sha256, sha384, sha512
 from json import load
-from typing import List
 from unittest import TestCase
 
 from fastecdsa.curve import P192, P224, P256, P384, P521
@@ -32,7 +31,7 @@ class Vector:
 class Data:
     q: int
     x: int
-    vectors: List[Vector]
+    vectors: list[Vector]
 
     def __init__(self, data: dict):
         self.q = data["q"]
