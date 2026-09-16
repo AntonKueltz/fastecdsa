@@ -15,6 +15,7 @@ use crate::brainpoolp384r1::{Brainpool384P, Brainpool384Q, Brainpoolp384r1};
 use crate::brainpoolp512r1::{Brainpool512P, Brainpool512Q, Brainpoolp512r1};
 use crate::curve::{BrainpoolCurve, BrainpoolPoint, Curve, Field, Point};
 use crate::ecdsa::{sign, verify};
+use crate::edwards25519::G;
 use crate::generic::{CurveError, GenericCurve, GenericPoint};
 use crate::p192::P192;
 use crate::p224::P224;
@@ -36,6 +37,7 @@ pub mod brainpoolp512r1;
 pub mod comb;
 pub mod curve;
 pub mod ecdsa;
+pub mod edwards25519;
 pub mod generic;
 pub mod p192;
 pub mod p224;
@@ -1077,9 +1079,15 @@ impl PyPoint {
     }
 }
 
+#[pyfunction]
+pub fn edwards25519_mul(x: &[u8]) -> [u8; 32] {
+    (G * x).normalize().into()
+}
+
 #[pymodule]
 fn rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyCurve>()?;
     m.add_class::<PyPoint>()?;
+    m.add_function(wrap_pyfunction!(edwards25519_mul, m)?)?;
     return Ok(());
 }

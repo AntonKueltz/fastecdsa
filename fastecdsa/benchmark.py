@@ -1,3 +1,4 @@
+from os import urandom
 from timeit import timeit
 
 from fastecdsa.curve import (
@@ -18,9 +19,9 @@ from fastecdsa.curve import (
     secp224k1,
     secp256k1,
 )
+from fastecdsa.ecdsa import sign, verify
+from fastecdsa.eddsa import sign_ed25519
 from fastecdsa.point import Point
-
-from .ecdsa import sign, verify
 
 msg = bytes(32)
 
@@ -59,6 +60,12 @@ def run() -> None:
         print(
             f"{iterations} signatures and verifications with curve {curve} took {time:.2f} seconds"
         )
+
+    sk = urandom(32)
+    time = timeit(stmt=lambda: sign_ed25519(sk, msg), number=iterations)
+    print(
+        f"{iterations} signatures with ed25519 took {time:.2f} seconds"
+    )
 
 
 if __name__ == "__main__":
