@@ -14,7 +14,7 @@ use crate::brainpool_curve::brainpoolp320r1::{Brainpool320P, Brainpool320Q, Brai
 use crate::brainpool_curve::brainpoolp384r1::{Brainpool384P, Brainpool384Q, Brainpoolp384r1};
 use crate::brainpool_curve::brainpoolp512r1::{Brainpool512P, Brainpool512Q, Brainpoolp512r1};
 use crate::brainpool_curve::{BrainpoolCurve, BrainpoolPoint};
-use crate::edwards25519::{G as Ed25519G, Point25519, edwards25519_comb};
+use crate::edwards25519::{G as Ed25519G, P as Ed25519P, Point25519, edwards25519_comb};
 use crate::generic_curve::{CurveError, GenericCurve, GenericPoint};
 use crate::scalar::ScalarField;
 use crate::sec2_curve::p192::P192;
@@ -1120,6 +1120,25 @@ impl PyEd25519Point {
 
     fn __rmul__(&self, scalar: BigUint) -> Self {
         self.__mul__(scalar)
+    }
+
+    fn __neg__(&self) -> Self {
+        let neg_x = (Ed25519P - self.point.x).reduce();
+        let neg_t = (Ed25519P - self.point.t).reduce();
+
+        Self {
+            point: Point25519 {
+                x: neg_x,
+                y: self.point.y,
+                z: self.point.z,
+                t: neg_t,
+            },
+            projective: self.projective,
+        }
+    }
+
+    fn __sub__(&self, other: &Self) -> PyResult<Self> {
+        Ok(self.__add__(&other.__neg__()))
     }
 
     fn __repr__(&self) -> String {

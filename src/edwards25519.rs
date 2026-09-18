@@ -57,7 +57,7 @@ const ONE: Field25519 = Field25519 {
 const TWO: Field25519 = Field25519 {
     x: [0x2, 0x0, 0x0, 0x0, 0x0],
 };
-const P: Field25519 = Field25519 {
+pub const P: Field25519 = Field25519 {
     x: [
         2u64.pow(RADIX_POW) - 19,
         2u64.pow(RADIX_POW) - 1,
