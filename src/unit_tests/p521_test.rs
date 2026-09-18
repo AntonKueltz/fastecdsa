@@ -1,4 +1,4 @@
-use crate::p521::*;
+use crate::sec2_curve::p521::*;
 
 #[test]
 fn test_p521_mul_reduce() {

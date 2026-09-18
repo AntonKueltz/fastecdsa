@@ -3,7 +3,7 @@ use std::sync::OnceLock;
 use crypto_bigint::{U192, const_monty_params, modular::ConstMontyForm};
 
 use crate::comb::Comb;
-use crate::curve::{AddResult, Curve, Field, MulResult, Point};
+use crate::sec2_curve::{AddResult, Field, MulResult, Point, Sec2Curve};
 
 #[derive(Debug)]
 pub struct Secp192k1;
@@ -14,9 +14,9 @@ const_monty_params!(
     "fffffffffffffffffffffffe26f2fc170f69466a74defd8d"
 );
 
-static SECP192K1_COMB: OnceLock<Comb<Secp192k1>> = OnceLock::new();
+static SECP192K1_COMB: OnceLock<Comb<Point<Secp192k1>>> = OnceLock::new();
 
-impl Curve for Secp192k1 {
+impl Sec2Curve for Secp192k1 {
     type Limbs = [u64; 3];
     type Wide = [u64; 4];
     type Double = [u64; 6];
@@ -143,11 +143,11 @@ impl Curve for Secp192k1 {
         }
     }
 
-    fn comb() -> Option<&'static Comb<Self>> {
-        Some(SECP192K1_COMB.get_or_init(|| Comb::new(Self::G, 4)))
+    fn comb() -> Option<&'static Comb<Point<Self>>> {
+        Some(SECP192K1_COMB.get_or_init(|| Comb::<Point<Self>>::new(Self::G, 4)))
     }
 }
 
 #[cfg(test)]
-#[path = "unit_tests/secp192k1_test.rs"]
+#[path = "../unit_tests/secp192k1_test.rs"]
 mod secp192k1_test;

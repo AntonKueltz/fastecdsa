@@ -1,4 +1,4 @@
-use crate::p256::*;
+use crate::sec2_curve::p256::*;
 
 #[test]
 fn test_p256_mul_reduce() {

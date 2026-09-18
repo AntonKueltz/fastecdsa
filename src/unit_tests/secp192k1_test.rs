@@ -1,4 +1,4 @@
-use crate::secp192k1::*;
+use crate::sec2_curve::secp192k1::*;
 
 #[test]
 fn test_secp192k1_reduce_mul() {

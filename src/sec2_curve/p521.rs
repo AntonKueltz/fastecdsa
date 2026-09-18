@@ -3,7 +3,7 @@ use std::sync::OnceLock;
 use crypto_bigint::{U576, const_monty_params, modular::ConstMontyForm};
 
 use crate::comb::Comb;
-use crate::curve::{AddResult, Curve, Field, MulResult, Point};
+use crate::sec2_curve::{AddResult, Field, MulResult, Point, Sec2Curve};
 
 #[derive(Debug)]
 pub struct P521;
@@ -14,9 +14,9 @@ const_monty_params!(
     "00000000000001fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa51868783bf2f966b7fcc0148f709a5d03bb5c9b8899c47aebb6fb71e91386409"
 );
 
-static P521_COMB: OnceLock<Comb<P521>> = OnceLock::new();
+static P521_COMB: OnceLock<Comb<Point<P521>>> = OnceLock::new();
 
-impl Curve for P521 {
+impl Sec2Curve for P521 {
     type Limbs = [u64; 9];
     type Wide = [u64; 9];
     type Double = [u64; 18];
@@ -193,11 +193,11 @@ impl Curve for P521 {
         }
     }
 
-    fn comb() -> Option<&'static Comb<Self>> {
-        Some(P521_COMB.get_or_init(|| Comb::new(Self::G, 5)))
+    fn comb() -> Option<&'static Comb<Point<Self>>> {
+        Some(P521_COMB.get_or_init(|| Comb::<Point<Self>>::new(Self::G, 5)))
     }
 }
 
 #[cfg(test)]
-#[path = "unit_tests/p521_test.rs"]
+#[path = "../unit_tests/p521_test.rs"]
 mod p521_test;

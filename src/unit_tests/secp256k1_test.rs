@@ -1,4 +1,4 @@
-use crate::secp256k1::*;
+use crate::sec2_curve::secp256k1::*;
 
 #[test]
 fn test_secp256k1_mul_reduce() {

@@ -6,48 +6,34 @@ use num_bigint::BigUint;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
-use crate::brainpoolp160r1::{Brainpool160P, Brainpool160Q, Brainpoolp160r1};
-use crate::brainpoolp192r1::{Brainpool192P, Brainpool192Q, Brainpoolp192r1};
-use crate::brainpoolp224r1::{Brainpool224P, Brainpool224Q, Brainpoolp224r1};
-use crate::brainpoolp256r1::{Brainpool256P, Brainpool256Q, Brainpoolp256r1};
-use crate::brainpoolp320r1::{Brainpool320P, Brainpool320Q, Brainpoolp320r1};
-use crate::brainpoolp384r1::{Brainpool384P, Brainpool384Q, Brainpoolp384r1};
-use crate::brainpoolp512r1::{Brainpool512P, Brainpool512Q, Brainpoolp512r1};
-use crate::curve::{BrainpoolCurve, BrainpoolPoint, Curve, Field, Point};
-use crate::ecdsa::{sign, verify};
+use crate::brainpool_curve::brainpoolp160r1::{Brainpool160P, Brainpool160Q, Brainpoolp160r1};
+use crate::brainpool_curve::brainpoolp192r1::{Brainpool192P, Brainpool192Q, Brainpoolp192r1};
+use crate::brainpool_curve::brainpoolp224r1::{Brainpool224P, Brainpool224Q, Brainpoolp224r1};
+use crate::brainpool_curve::brainpoolp256r1::{Brainpool256P, Brainpool256Q, Brainpoolp256r1};
+use crate::brainpool_curve::brainpoolp320r1::{Brainpool320P, Brainpool320Q, Brainpoolp320r1};
+use crate::brainpool_curve::brainpoolp384r1::{Brainpool384P, Brainpool384Q, Brainpoolp384r1};
+use crate::brainpool_curve::brainpoolp512r1::{Brainpool512P, Brainpool512Q, Brainpoolp512r1};
+use crate::brainpool_curve::{BrainpoolCurve, BrainpoolPoint};
 use crate::edwards25519::{G as Ed25519G, Point25519, edwards25519_comb};
-use crate::generic::{CurveError, GenericCurve, GenericPoint};
-use crate::p192::P192;
-use crate::p224::P224;
-use crate::p256::P256;
-use crate::p384::P384;
-use crate::p521::P521;
+use crate::generic_curve::{CurveError, GenericCurve, GenericPoint};
 use crate::scalar::ScalarField;
-use crate::secp192k1::Secp192k1;
-use crate::secp224k1::Secp224k1;
-use crate::secp256k1::Secp256k1;
+use crate::sec2_curve::p192::P192;
+use crate::sec2_curve::p224::P224;
+use crate::sec2_curve::p256::P256;
+use crate::sec2_curve::p384::P384;
+use crate::sec2_curve::p521::P521;
+use crate::sec2_curve::secp192k1::Secp192k1;
+use crate::sec2_curve::secp224k1::Secp224k1;
+use crate::sec2_curve::secp256k1::Secp256k1;
+use crate::sec2_curve::{Field, Point, Sec2Curve};
 
-pub mod brainpoolp160r1;
-pub mod brainpoolp192r1;
-pub mod brainpoolp224r1;
-pub mod brainpoolp256r1;
-pub mod brainpoolp320r1;
-pub mod brainpoolp384r1;
-pub mod brainpoolp512r1;
+pub mod brainpool_curve;
 pub mod comb;
-pub mod curve;
-pub mod ecdsa;
 pub mod edwards25519;
-pub mod generic;
-pub mod p192;
-pub mod p224;
-pub mod p256;
-pub mod p384;
-pub mod p521;
+pub mod generic_curve;
 pub mod scalar;
-pub mod secp192k1;
-pub mod secp224k1;
-pub mod secp256k1;
+pub mod sec2_curve;
+pub mod util;
 
 #[derive(Clone, PartialEq, Debug)]
 enum CurveKind {
@@ -99,14 +85,14 @@ impl CurveKind {
             CurveKind::Brainpoolp320r1 => Brainpoolp320r1::sign(msg, d, k),
             CurveKind::Brainpoolp384r1 => Brainpoolp384r1::sign(msg, d, k),
             CurveKind::Brainpoolp512r1 => Brainpoolp512r1::sign(msg, d, k),
-            CurveKind::P192 => sign::<P192>(msg, d, k),
-            CurveKind::P224 => sign::<P224>(msg, d, k),
-            CurveKind::P256 => sign::<P256>(msg, d, k),
-            CurveKind::P384 => sign::<P384>(msg, d, k),
-            CurveKind::P521 => sign::<P521>(msg, d, k),
-            CurveKind::Secp192k1 => sign::<Secp192k1>(msg, d, k),
-            CurveKind::Secp224k1 => sign::<Secp224k1>(msg, d, k),
-            CurveKind::Secp256k1 => sign::<Secp256k1>(msg, d, k),
+            CurveKind::P192 => P192::sign(msg, d, k),
+            CurveKind::P224 => P224::sign(msg, d, k),
+            CurveKind::P256 => P256::sign(msg, d, k),
+            CurveKind::P384 => P384::sign(msg, d, k),
+            CurveKind::P521 => P521::sign(msg, d, k),
+            CurveKind::Secp192k1 => Secp192k1::sign(msg, d, k),
+            CurveKind::Secp224k1 => Secp224k1::sign(msg, d, k),
+            CurveKind::Secp256k1 => Secp256k1::sign(msg, d, k),
             CurveKind::Generic(c) => c.sign(msg, d, k),
         }
     }
@@ -120,14 +106,14 @@ impl CurveKind {
             CurveKind::Brainpoolp320r1 => Brainpoolp320r1::verify(r, s, msg, qx, qy),
             CurveKind::Brainpoolp384r1 => Brainpoolp384r1::verify(r, s, msg, qx, qy),
             CurveKind::Brainpoolp512r1 => Brainpoolp512r1::verify(r, s, msg, qx, qy),
-            CurveKind::P192 => verify::<P192>(r, s, msg, qx, qy),
-            CurveKind::P224 => verify::<P224>(r, s, msg, qx, qy),
-            CurveKind::P256 => verify::<P256>(r, s, msg, qx, qy),
-            CurveKind::P384 => verify::<P384>(r, s, msg, qx, qy),
-            CurveKind::P521 => verify::<P521>(r, s, msg, qx, qy),
-            CurveKind::Secp192k1 => verify::<Secp192k1>(r, s, msg, qx, qy),
-            CurveKind::Secp224k1 => verify::<Secp224k1>(r, s, msg, qx, qy),
-            CurveKind::Secp256k1 => verify::<Secp256k1>(r, s, msg, qx, qy),
+            CurveKind::P192 => P192::verify(r, s, msg, qx, qy),
+            CurveKind::P224 => P224::verify(r, s, msg, qx, qy),
+            CurveKind::P256 => P256::verify(r, s, msg, qx, qy),
+            CurveKind::P384 => P384::verify(r, s, msg, qx, qy),
+            CurveKind::P521 => P521::verify(r, s, msg, qx, qy),
+            CurveKind::Secp192k1 => Secp192k1::verify(r, s, msg, qx, qy),
+            CurveKind::Secp224k1 => Secp224k1::verify(r, s, msg, qx, qy),
+            CurveKind::Secp256k1 => Secp256k1::verify(r, s, msg, qx, qy),
             CurveKind::Generic(c) => c.verify(r, s, msg, qx, qy),
         }
     }

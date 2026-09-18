@@ -1,4 +1,4 @@
-use crate::p224::*;
+use crate::sec2_curve::p224::*;
 
 #[test]
 fn test_p224_mul_reduce() {

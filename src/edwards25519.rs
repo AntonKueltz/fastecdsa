@@ -4,7 +4,7 @@ use std::sync::OnceLock;
 
 use num_bigint::BigUint;
 
-use crate::comb::Ed25519Comb;
+use crate::comb::Comb;
 
 const BYTES: usize = 32;
 const FIELD_BITS: usize = 255;
@@ -116,7 +116,7 @@ pub const INFINITY: Point25519 = Point25519 {
     t: ZERO,
 };
 
-static ED25519_COMB: OnceLock<Ed25519Comb> = OnceLock::new();
+static ED25519_COMB: OnceLock<Comb<Point25519>> = OnceLock::new();
 
 impl PartialEq for Field25519 {
     fn eq(&self, other: &Self) -> bool {
@@ -625,8 +625,8 @@ impl Point25519 {
     }
 }
 
-pub fn edwards25519_comb() -> &'static Ed25519Comb {
-    ED25519_COMB.get_or_init(|| Ed25519Comb::new(4))
+pub fn edwards25519_comb() -> &'static Comb<Point25519> {
+    ED25519_COMB.get_or_init(|| Comb::<Point25519>::new(G, 4))
 }
 
 #[cfg(test)]

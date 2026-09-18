@@ -3,7 +3,7 @@ use std::sync::OnceLock;
 use crypto_bigint::{U256, const_monty_params, modular::ConstMontyForm};
 
 use crate::comb::Comb;
-use crate::curve::{AddResult, Curve, Field, MulResult, Point};
+use crate::sec2_curve::{AddResult, Field, MulResult, Point, Sec2Curve};
 
 #[derive(Debug)]
 pub struct P224;
@@ -14,9 +14,9 @@ const_monty_params!(
     "00000000ffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d"
 );
 
-static P224_COMB: OnceLock<Comb<P224>> = OnceLock::new();
+static P224_COMB: OnceLock<Comb<Point<P224>>> = OnceLock::new();
 
-impl Curve for P224 {
+impl Sec2Curve for P224 {
     type Limbs = [u64; 4];
     type Wide = [u64; 4];
     type Double = [u64; 8];
@@ -182,11 +182,11 @@ impl Curve for P224 {
         }
     }
 
-    fn comb() -> Option<&'static Comb<Self>> {
-        Some(P224_COMB.get_or_init(|| Comb::new(Self::G, 4)))
+    fn comb() -> Option<&'static Comb<Point<Self>>> {
+        Some(P224_COMB.get_or_init(|| Comb::<Point<Self>>::new(Self::G, 4)))
     }
 }
 
 #[cfg(test)]
-#[path = "unit_tests/p224_test.rs"]
+#[path = "../unit_tests/p224_test.rs"]
 mod p224_test;

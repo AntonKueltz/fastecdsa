@@ -1,7 +1,7 @@
 use crypto_bigint::{U256, const_monty_params, modular::ConstMontyForm};
 
-use crate::comb::BrainpoolComb;
-use crate::curve::{BrainpoolCurve, BrainpoolPoint};
+use crate::brainpool_curve::{BrainpoolCurve, BrainpoolPoint};
+use crate::comb::Comb;
 
 pub struct Brainpoolp256r1;
 
@@ -16,7 +16,8 @@ const_monty_params!(
     "A9FB57DBA1EEA9BC3E660A909D838D718C397AA3B561A6F7901E0E82974856A7"
 );
 
-static COMB: std::sync::OnceLock<BrainpoolComb<Brainpoolp256r1>> = std::sync::OnceLock::new();
+static COMB: std::sync::OnceLock<Comb<BrainpoolPoint<Brainpoolp256r1>>> =
+    std::sync::OnceLock::new();
 
 impl BrainpoolCurve for Brainpoolp256r1 {
     type CurveField = ConstMontyForm<Brainpool256P, { U256::LIMBS }>;
@@ -75,7 +76,11 @@ impl BrainpoolCurve for Brainpoolp256r1 {
         z: ConstMontyForm::new(&U256::from_u8(0x0)),
     };
 
-    fn comb() -> Option<&'static BrainpoolComb<Brainpoolp256r1>> {
-        Some(COMB.get_or_init(|| BrainpoolComb::new(Brainpoolp256r1::G_T, 4)))
+    fn comb() -> Option<&'static Comb<BrainpoolPoint<Brainpoolp256r1>>> {
+        Some(
+            COMB.get_or_init(|| {
+                Comb::<BrainpoolPoint<Brainpoolp256r1>>::new(Brainpoolp256r1::G_T, 4)
+            }),
+        )
     }
 }

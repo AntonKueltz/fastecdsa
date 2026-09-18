@@ -1,4 +1,4 @@
-use crate::p384::*;
+use crate::sec2_curve::p384::*;
 
 #[test]
 fn test_p384_mul_reduce() {
