@@ -15,7 +15,7 @@ use crate::brainpoolp384r1::{Brainpool384P, Brainpool384Q, Brainpoolp384r1};
 use crate::brainpoolp512r1::{Brainpool512P, Brainpool512Q, Brainpoolp512r1};
 use crate::curve::{BrainpoolCurve, BrainpoolPoint, Curve, Field, Point};
 use crate::ecdsa::{sign, verify};
-use crate::edwards25519::G;
+use crate::edwards25519::{G as Ed25519G, Point25519, edwards25519_comb};
 use crate::generic::{CurveError, GenericCurve, GenericPoint};
 use crate::p192::P192;
 use crate::p224::P224;
@@ -1079,15 +1079,169 @@ impl PyPoint {
     }
 }
 
-#[pyfunction]
-pub fn edwards25519_mul(x: &[u8]) -> [u8; 32] {
-    (G * x).normalize().into()
+#[pyclass(name = "Ed25519Point")]
+struct PyEd25519Point {
+    point: Point25519,
+    projective: bool,
+}
+
+#[pymethods]
+impl PyEd25519Point {
+    #[new]
+    #[pyo3(signature = (x, y, projective = false))]
+    fn new(x: BigUint, y: BigUint, projective: bool) -> PyResult<Self> {
+        match Point25519::try_from((x, y)) {
+            Ok(point) => Ok(Self { point, projective }),
+            Err(s) => Err(PyValueError::new_err(s)),
+        }
+    }
+
+    fn __eq__(&self, other: &Self) -> bool {
+        if self.projective || other.projective {
+            self.point.x * other.point.z == other.point.x * self.point.z
+                && self.point.y * other.point.z == other.point.y * self.point.z
+        } else {
+            self.point.x == other.point.x && self.point.y == other.point.y
+        }
+    }
+
+    fn __add__(&self, other: &Self) -> Self {
+        let projective = self.projective || other.projective;
+        let result = self.point + other.point;
+
+        Self {
+            point: if projective {
+                result
+            } else {
+                result.normalize()
+            },
+            projective,
+        }
+    }
+
+    fn __mul__(&self, scalar: BigUint) -> Self {
+        let result = self.point * &scalar.to_bytes_le();
+
+        Self {
+            point: if self.projective {
+                result
+            } else {
+                result.normalize()
+            },
+            projective: self.projective,
+        }
+    }
+
+    fn __rmul__(&self, scalar: BigUint) -> Self {
+        self.__mul__(scalar)
+    }
+
+    fn __repr__(&self) -> String {
+        if self.point.is_infinity() {
+            String::from("<Point at Infinity>")
+        } else if self.projective {
+            let xbytes: [u8; 32] = self.point.x.into();
+            let x = BigUint::from_bytes_le(&xbytes);
+            let ybytes: [u8; 32] = self.point.y.into();
+            let y = BigUint::from_bytes_le(&ybytes);
+            let zbytes: [u8; 32] = self.point.z.into();
+            let z = BigUint::from_bytes_le(&zbytes);
+            let tbytes: [u8; 32] = self.point.t.into();
+            let t = BigUint::from_bytes_le(&tbytes);
+
+            format!(
+                "X: 0x{x:x}\nY: 0x{y:x}\nZ: 0x{z:x}\nT: 0x{t:x}\n(Extended projective point on curve Edwards25519)",
+            )
+        } else {
+            let xbytes: [u8; 32] = self.point.x.into();
+            let x = BigUint::from_bytes_le(&xbytes);
+            let ybytes: [u8; 32] = self.point.y.into();
+            let y = BigUint::from_bytes_le(&ybytes);
+
+            format!("X: 0x{x:x}\nY: 0x{y:x}\n(Affine point on curve Edwards25519)")
+        }
+    }
+
+    #[getter]
+    fn x(&self) -> BigUint {
+        let bytes: [u8; 32] = self.point.x.into();
+
+        BigUint::from_bytes_le(&bytes.to_vec())
+    }
+
+    #[getter]
+    fn y(&self) -> BigUint {
+        let bytes: [u8; 32] = self.point.y.into();
+
+        BigUint::from_bytes_le(&bytes.to_vec())
+    }
+
+    #[getter]
+    fn z(&self) -> BigUint {
+        let bytes: [u8; 32] = self.point.z.into();
+
+        BigUint::from_bytes_le(&bytes.to_vec())
+    }
+
+    #[getter]
+    fn t(&self) -> BigUint {
+        let bytes: [u8; 32] = self.point.t.into();
+
+        BigUint::from_bytes_le(&bytes.to_vec())
+    }
+
+    #[staticmethod]
+    fn g() -> Self {
+        Self {
+            point: Ed25519G,
+            projective: false,
+        }
+    }
+
+    #[staticmethod]
+    fn decode(x: Vec<u8>) -> PyResult<Self> {
+        match Point25519::try_from(x) {
+            Ok(point) => Ok(Self {
+                point,
+                projective: false,
+            }),
+            Err(s) => Err(PyValueError::new_err(s)),
+        }
+    }
+
+    fn encode(&self) -> Vec<u8> {
+        let bytes: [u8; 32] = self.point.into();
+
+        bytes.to_vec()
+    }
+
+    fn normalize(&self) -> Self {
+        if self.projective {
+            Self {
+                point: self.point.normalize(),
+                projective: false,
+            }
+        } else {
+            Self {
+                point: self.point.clone(),
+                projective: false,
+            }
+        }
+    }
+
+    #[staticmethod]
+    fn scale_base(x: BigUint) -> Self {
+        Self {
+            point: edwards25519_comb().mul(&x.to_bytes_le()),
+            projective: true,
+        }
+    }
 }
 
 #[pymodule]
 fn rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyCurve>()?;
     m.add_class::<PyPoint>()?;
-    m.add_function(wrap_pyfunction!(edwards25519_mul, m)?)?;
+    m.add_class::<PyEd25519Point>()?;
     return Ok(());
 }

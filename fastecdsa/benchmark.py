@@ -1,4 +1,5 @@
-from os import urandom
+from hashlib import sha512
+from random import randint
 from timeit import timeit
 
 from fastecdsa.curve import (
@@ -20,7 +21,7 @@ from fastecdsa.curve import (
     secp256k1,
 )
 from fastecdsa.ecdsa import sign, verify
-from fastecdsa.eddsa import sign_ed25519
+from fastecdsa.eddsa import gen_ed25519_keypair, sign_ed25519, verify_ed25519
 from fastecdsa.point import Point
 
 msg = bytes(32)
@@ -31,6 +32,11 @@ def sign_and_verify(d: int, Q: Point, curve: Curve) -> None:
     assert verify(sig, msg, Q, curve=curve)
 
 
+def sign_and_verify_ed25519(sk: bytes, pk: bytes, msg: bytes) -> None:
+    sig = sign_ed25519(sk, msg)
+    assert verify_ed25519(sig, msg, pk)
+
+
 def run() -> None:
     iterations = 1000
     curves = (
@@ -39,8 +45,6 @@ def run() -> None:
         P256,
         P384,
         P521,
-        # W25519,
-        # W448,
         secp192k1,
         secp224k1,
         secp256k1,
@@ -61,10 +65,10 @@ def run() -> None:
             f"{iterations} signatures and verifications with curve {curve} took {time:.2f} seconds"
         )
 
-    sk = urandom(32)
-    time = timeit(stmt=lambda: sign_ed25519(sk, msg), number=iterations)
+    sk, pk = gen_ed25519_keypair()
+    time = timeit(stmt=lambda: sign_and_verify_ed25519(sk, pk, msg), number=iterations)
     print(
-        f"{iterations} signatures with ed25519 took {time:.2f} seconds"
+        f"{iterations} signatures and verifications with ed25519 took {time:.2f} seconds"
     )
 
 

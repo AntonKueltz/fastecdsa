@@ -41,8 +41,8 @@ like multiplication in their instruction set.
 
 Supported Primitives
 --------------------
-Curves over Prime Fields
-~~~~~~~~~~~~~~~~~~~~~~~~
+ECDSA
+~~~~~
 
 +---------------------------+-----------------------------------------+-------------+
 | Name                      | Class                                   | Proposed By |
@@ -78,8 +78,16 @@ Curves over Prime Fields
 | brainpoolP512r1           | :code:`fastecdsa.curve.brainpoolP512r1` | BSI         |
 +---------------------------+-----------------------------------------+-------------+
 
-Arbitrary Curves
-~~~~~~~~~~~~~~~~
+EdDSA
+~~~~~
++---------------------------+-----------------------------------------+-------------+
+| Name                      | Module                                  | Proposed By |
++===========================+=========================================+=============+
+| ed25519                   | :code:`fastecdsa.eddsa`                 | DJB et al.  |
++---------------------------+-----------------------------------------+-------------+
+
+Arbitrary Weierstrass Curves
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 As of version 1.5.1 construction of arbitrary curves in Weierstrass form
 (:code:`y^2 = x^3 + ax + b (mod p)`) is supported. I advise against using custom curves for any
 security sensitive applications. In versions before release 4.0.0 no checks on the curve parameters
@@ -117,11 +125,11 @@ that :code:`sha3_224, sha3_256, sha3_384, sha3_512` are all in :code:`hashlib` a
 
 Performance
 -----------
-Curves over Prime Fields
-~~~~~~~~~~~~~~~~~~~~~~~~
 You can see the times for 1,000 signature and verification operations over
 various curves below. These were run on a machine with a 3.6 GHz Intel Core i9-9900K.
 
+ECDSA
+~~~~~
 +-----------------+------------------------+-------------------------------+-------------------------+
 | Curve           | :code:`fastecdsa` v4   | :code:`ecdsa` (gmpy2 backend) | :code:`fastecdsa` v3    |
 +-----------------+------------------------+-------------------------------+-------------------------+
@@ -154,6 +162,14 @@ various curves below. These were run on a machine with a 3.6 GHz Intel Core i9-9
 | Brainpoolp384r1 | 1.03s                  | 2.27s                         | 4.08s                   |
 +-----------------+------------------------+-------------------------------+-------------------------+
 | Brainpoolp512r1 | 2.07s                  | 3.33s                         | 7.06s                   |
++-----------------+------------------------+-------------------------------+-------------------------+
+
+EdDSA
+~~~~~
++-----------------+------------------------+-------------------------------+-------------------------+
+| Curve           | :code:`fastecdsa` v4   | :code:`ecdsa` (gmpy2 backend) | :code:`fastecdsa` v3    |
++-----------------+------------------------+-------------------------------+-------------------------+
+| Edwards25519    | 0.25s                  | 1.29s                         | N/A                     |
 +-----------------+------------------------+-------------------------------+-------------------------+
 
 If you'd like to benchmark performance on your machine you can do so using the command:
@@ -231,12 +247,6 @@ Then build a source distribution, followed by wheels for each supported python v
 
     $ uv run maturin sdist
     $ uv run maturin build -r -i python3.x
-
-Then publish the source and wheels distributions to the test PyPI account.
-
-.. code:: bash
-
-    $ uv publish --token {token} --url https://test.pypi.org/simple/
 
 
 Usage
