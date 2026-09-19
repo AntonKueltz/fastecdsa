@@ -1,6 +1,7 @@
 use std::ops::Add;
 
 use crate::brainpool_curve::{BrainpoolCurve, BrainpoolPoint};
+use crate::edwards448::{INFINITY as ED448_INFINITY, Point448};
 use crate::edwards25519::{INFINITY as ED25519_INFINITY, Point25519};
 use crate::scalar::ScalarField;
 use crate::sec2_curve::{Point as Sec2Point, Sec2Curve};
@@ -167,6 +168,32 @@ impl CombPoint for Point25519 {
         result.y = self.y.select(&other.y, mask);
         result.z = self.z.select(&other.z, mask);
         result.t = self.t.select(&other.t, mask);
+
+        result
+    }
+}
+
+impl CombPoint for Point448 {
+    const BITS: usize = 446;
+
+    fn double(&self) -> Self {
+        Point448::double(*self)
+    }
+
+    fn infinity() -> Self {
+        ED448_INFINITY
+    }
+
+    fn normalize(&self) -> Self {
+        Point448::normalize(*self)
+    }
+
+    fn select(&self, other: &Self, mask: u64) -> Self {
+        let mut result = *self;
+
+        result.x = self.x.select(&other.x, mask);
+        result.y = self.y.select(&other.y, mask);
+        result.z = self.z.select(&other.z, mask);
 
         result
     }

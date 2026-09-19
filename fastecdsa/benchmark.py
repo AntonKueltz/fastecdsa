@@ -1,5 +1,4 @@
 from hashlib import sha512
-from random import randint
 from timeit import timeit
 
 from fastecdsa.curve import (
@@ -21,7 +20,14 @@ from fastecdsa.curve import (
     secp256k1,
 )
 from fastecdsa.ecdsa import sign, verify
-from fastecdsa.eddsa import gen_ed25519_keypair, sign_ed25519, verify_ed25519
+from fastecdsa.eddsa import (
+    gen_ed25519_keypair,
+    gen_ed448_keypair,
+    sign_ed25519,
+    sign_ed448,
+    verify_ed25519,
+    verify_ed448,
+)
 from fastecdsa.point import Point
 
 msg = bytes(32)
@@ -35,6 +41,10 @@ def sign_and_verify(d: int, Q: Point, curve: Curve) -> None:
 def sign_and_verify_ed25519(sk: bytes, pk: bytes, msg: bytes) -> None:
     sig = sign_ed25519(sk, msg)
     assert verify_ed25519(sig, msg, pk)
+
+def sign_and_verify_ed448(sk: bytes, pk: bytes, msg: bytes) -> None:
+    sig = sign_ed448(sk, msg)
+    assert verify_ed448(sig, msg, pk)
 
 
 def run() -> None:
@@ -69,6 +79,12 @@ def run() -> None:
     time = timeit(stmt=lambda: sign_and_verify_ed25519(sk, pk, msg), number=iterations)
     print(
         f"{iterations} signatures and verifications with ed25519 took {time:.2f} seconds"
+    )
+
+    sk, pk = gen_ed448_keypair()
+    time = timeit(stmt=lambda: sign_and_verify_ed448(sk, pk, msg), number=iterations)
+    print(
+        f"{iterations} signatures and verifications with ed448 took {time:.2f} seconds"
     )
 
 

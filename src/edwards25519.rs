@@ -5,6 +5,7 @@ use std::sync::OnceLock;
 use num_bigint::BigUint;
 
 use crate::comb::Comb;
+use crate::util::test_bit;
 
 const BYTES: usize = 32;
 const FIELD_BITS: usize = 255;
@@ -457,14 +458,6 @@ impl Mul<&[u8]> for Point25519 {
     }
 }
 
-#[inline]
-fn test_bit(n: &[u8], j: usize) -> bool {
-    let byte = j >> 3;
-    let bit = j & 0b111;
-
-    ((n[byte] >> bit) & 1) == 1
-}
-
 impl From<Point25519> for [u8; BYTES] {
     fn from(value: Point25519) -> Self {
         let mut bytes: [u8; BYTES] = value.y.into();
@@ -512,8 +505,9 @@ impl TryFrom<Vec<u8>> for Point25519 {
             return Err("y coordinate not a value mod p - invalid encoding");
         }
 
-        let u = (y.sqr() - ONE).reduce();
-        let v = D * y.sqr() + ONE;
+        let y2 = y.sqr();
+        let u = (y2 - ONE).reduce();
+        let v = D * y2 + ONE;
 
         let v2 = v.sqr();
         let v3 = v2 * v;
