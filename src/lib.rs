@@ -594,14 +594,14 @@ impl PyEd448Point {
             let zbytes: [u8; 57] = self.point.z.into();
             let z = BigUint::from_bytes_le(&zbytes);
 
-            format!("X: 0x{x:x}\nY: 0x{y:x}\nZ: 0x{z:x}\n(Projective point on curve Edwards25519)",)
+            format!("X: 0x{x:x}\nY: 0x{y:x}\nZ: 0x{z:x}\n(Projective point on curve Edwards448)",)
         } else {
             let xbytes: [u8; 57] = self.point.x.into();
             let x = BigUint::from_bytes_le(&xbytes);
             let ybytes: [u8; 57] = self.point.y.into();
             let y = BigUint::from_bytes_le(&ybytes);
 
-            format!("X: 0x{x:x}\nY: 0x{y:x}\n(Affine point on curve Edwards25519)")
+            format!("X: 0x{x:x}\nY: 0x{y:x}\n(Affine point on curve Edwards448)")
         }
     }
 

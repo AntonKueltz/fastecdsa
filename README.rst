@@ -356,6 +356,53 @@ standard python operators (:code:`+` and :code:`*` respectively):
     # Joint Scalar Multiplication
     R = d * S + e * T
 
+Points on Edwards Curves
+________________________
+The edwards curves that underpin Ed25519 and Ed448 have their own dedicated point classes
+as they use different point arithmetic and representations than the Weierstrass points. See
+below for some example usage.
+
+.. code:: python
+
+    In [1]: from fastecdsa.eddsa import Ed25519Point as e25519
+
+    In [2]: G = e25519.g()
+
+    In [3]: G
+    Out[3]:
+    X: 0x216936d3cd6e53fec0a4e231fdd6dc5c692cc7609525a7b2c9562d608f25d51a
+    Y: 0x6666666666666666666666666666666666666666666666666666666666666658
+    (Affine point on curve Edwards25519)
+
+    In [4]: G * 2
+    Out[4]:
+    X: 0x36ab384c9f5a046c3d043b7d1833e7ac080d8e4515d7a45f83c5a14e2843ce0e
+    Y: 0x2260cdf3092329c21da25ee8c9a21f5697390f51643851560e5f46ae6af8a3c9
+    (Affine point on curve Edwards25519)
+
+    In [5]: G + G
+    Out[5]:
+    X: 0x36ab384c9f5a046c3d043b7d1833e7ac080d8e4515d7a45f83c5a14e2843ce0e
+    Y: 0x2260cdf3092329c21da25ee8c9a21f5697390f51643851560e5f46ae6af8a3c9
+    (Affine point on curve Edwards25519)
+
+    In [6]: e25519.scale_base(2)
+    Out[6]:
+    X: 0x5881d418cc897a3a0eb49cdb9e6859fe2c55894bcdf7f8095714be2d5cf2e79a
+    Y: 0x27e006a46c706615d5ef0e2ff33fb48a6fbc113c77c0bd916574e8d0e2c42106
+    Z: 0x1f7616052c96e0810d7ff513e392dfbad03e66e0a95c8d2796a29516b07725f4
+    T: 0x5dec8aec83e2c5266dd025b8da706eed6a2729713b3f035372c8624d35caa7b
+    (Extended projective point on curve Edwards25519)
+
+    In [7]: _.normalize()
+    Out[7]:
+    X: 0x36ab384c9f5a046c3d043b7d1833e7ac080d8e4515d7a45f83c5a14e2843ce0e
+    Y: 0x2260cdf3092329c21da25ee8c9a21f5697390f51643851560e5f46ae6af8a3c9
+    (Affine point on curve Edwards25519
+
+Note that :code:`fastecdsa.eddsa.Ed448Point` has the same interface, but it uses standard
+projective coordinates that omit "T".
+
 Projective Points
 ~~~~~~~~~~~~~~~~~
 As of release 4.0.0 you can also use the projective representation of points. This
