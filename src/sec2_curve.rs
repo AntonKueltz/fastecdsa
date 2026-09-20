@@ -1,4 +1,7 @@
-use std::cmp::min;
+use std::cmp::{
+    Ordering::{Equal, Greater, Less},
+    min,
+};
 use std::ops::{Add, Mul, Sub};
 
 use crate::comb::Comb;
@@ -81,12 +84,17 @@ pub trait Sec2Curve: Sized + 'static {
         let u1 = z * sinv;
         let u2 = r * sinv;
 
-        let p =
-            Point::<Self>::shamir(&Self::G, &q, &u1.to_le_bytes(), &u2.to_le_bytes()).normalize();
-        let x_bytes: Vec<u8> = Field::<Self>::into(p.x);
-        let xq = Self::Order::from_le_bytes(&x_bytes);
+        let p = Point::<Self>::shamir(&Self::G, &q, &u1.to_le_bytes(), &u2.to_le_bytes());
+        let rp = Field::<Self>::from(r_bytes);
+        let n = Field::<Self>::from(Self::Order::mod_bytes().as_slice());
 
-        xq.eq(&r)
+        if p.x == rp * p.z {
+            true
+        } else if rp + n < Self::P {
+            p.x == (rp + n) * p.z
+        } else {
+            false
+        }
     }
 
     fn reduce_mul_result(_unreduced: &MulResult<Self>) -> Field<Self> {
@@ -326,6 +334,23 @@ impl<C: Sec2Curve> Copy for Field<C> {}
 impl<C: Sec2Curve> PartialEq for Field<C> {
     fn eq(&self, other: &Self) -> bool {
         self.x == other.x
+    }
+}
+
+impl<C: Sec2Curve> PartialOrd for Field<C> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        let a = self.x.as_ref();
+        let b = other.x.as_ref();
+
+        for j in (0..C::LIMB_SZ).rev() {
+            if a[j] < b[j] {
+                return Some(Less);
+            } else if a[j] > b[j] {
+                return Some(Greater);
+            }
+        }
+
+        Some(Equal)
     }
 }
 

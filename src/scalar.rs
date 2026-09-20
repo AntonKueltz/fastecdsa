@@ -27,6 +27,8 @@ pub trait ScalarField:
     fn sqr(&self) -> Self;
 
     fn select(&self, other: &Self, mask: u64) -> Self;
+
+    fn mod_bytes() -> Vec<u8>;
 }
 
 impl<MOD, const LIMBS: usize> ScalarField for ConstMontyForm<MOD, LIMBS>
@@ -84,5 +86,9 @@ where
         let selected = Uint::ct_select(self.as_montgomery(), other.as_montgomery(), choice);
 
         Self::from_montgomery(selected)
+    }
+
+    fn mod_bytes() -> Vec<u8> {
+        MOD::PARAMS.modulus().to_le_bytes().to_vec()
     }
 }
