@@ -3,6 +3,7 @@
 ## [4.0.0]
 
 ### Added
+- EdDSA sign and verify for Ed25519 and Ed448
 - Projective representation of `Point`
   - Coordinates are still affine by default, same representation as `Point`s before this release
   - `z` field can now be accessed (`z=1` for affine coordinates)
@@ -21,7 +22,7 @@
 
 ### Changed
 - Named curves now use bespoke field arithmetic for their implementation rather than generic multiprecision arithmetic
-- Point addition and doubling formulas for named curves are based on the curve's `a` parameter
+- Point addition and doubling formulas for named curves are optimized for the curve's `a` parameter
 - Point multiplication in sign algorithm for named curves uses Lim-Lee comb to improve performance
 - `msg` parameter to `sign` and `verify` _must_ now be of type `bytes`
 - The `Curve` constructor for user-defined curves no longer accepts negative values (normalize them via e.g. `% p` before passing them to the constructor)
@@ -30,7 +31,7 @@
 - C + GMP requirement
 - `oid` field from custom `Curve` constructor
 - Custom types: `EcdsaSignature` -> `tuple[int, int]` | `SignableMessage` -> `bytes` | `HashFunction` -> `Callable[[], HASH]`
-- Pre-baked weierstrass forms of Curve25519 and Curve448. They can still be constructed manually via the `Curve` constructor if needed
+- Pre-baked weierstrass forms of Curve25519 and Curve448. They can still be constructed manually via the `Curve` constructor if needed and are now available out of the box in their Edwards forms
 - Setuptools as build system
 - Support for python3.9
 - Support for python3.10
