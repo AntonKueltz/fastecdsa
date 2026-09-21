@@ -309,6 +309,10 @@ impl From<Vec<u8>> for Field25519 {
             }
         }
 
+        if i < LIMB_SZ {
+            result.x[i] = element;
+        }
+
         result
     }
 }
@@ -477,7 +481,7 @@ impl TryFrom<(BigUint, BigUint)> for Point25519 {
         let x2 = xf.sqr();
         let y2 = yf.sqr();
 
-        let left = (x2 + y2).reduce();
+        let left = (y2 - x2).reduce();
         let right = (ONE + D * x2 * y2).reduce();
 
         if left != right {
@@ -611,6 +615,15 @@ impl Point25519 {
             y: y3,
             z: ONE,
             t: t3,
+        }
+    }
+
+    pub fn neg(&self) -> Self {
+        Self {
+            x: (P - self.x).reduce(),
+            y: self.y,
+            z: self.z,
+            t: (P - self.t).reduce(),
         }
     }
 

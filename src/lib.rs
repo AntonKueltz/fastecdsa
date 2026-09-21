@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crypto_bigint::{BoxedUint, Encoding, Resize};
-use num_bigint::BigUint;
+use num_bigint::{BigInt, BigUint};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
@@ -10,6 +10,7 @@ use crate::edwards448::{G as Ed448G, P as Ed448P, Point448, edwards448_comb};
 use crate::edwards25519::{G as Ed25519G, P as Ed25519P, Point25519, edwards25519_comb};
 use crate::generic_curve::{CurveError, GenericCurve};
 use crate::point_kind::PointKind;
+use crate::wnaf::edwards25519_faster_verify_trick;
 
 pub mod brainpool_curve;
 pub mod comb;
@@ -21,6 +22,7 @@ pub mod point_kind;
 pub mod scalar;
 pub mod sec2_curve;
 pub mod util;
+pub mod wnaf;
 
 #[pyclass(name = "Curve")]
 struct PyCurve(Arc<CurveKind>);
@@ -674,11 +676,34 @@ impl PyEd448Point {
     }
 }
 
+#[pyfunction]
+pub fn ed25519_fast_verify(
+    s: BigInt,
+    k: BigInt,
+    rx: BigUint,
+    ry: BigUint,
+    ax: BigUint,
+    ay: BigUint,
+) -> bool {
+    let r = match Point25519::try_from((rx, ry)) {
+        Ok(point) => point,
+        Err(_) => return false,
+    };
+
+    let a = match Point25519::try_from((ax, ay)) {
+        Ok(point) => point,
+        Err(_) => return false,
+    };
+
+    edwards25519_faster_verify_trick(&s, &k, &r, &a)
+}
+
 #[pymodule]
 fn rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyCurve>()?;
     m.add_class::<PyPoint>()?;
     m.add_class::<PyEd25519Point>()?;
     m.add_class::<PyEd448Point>()?;
+    m.add_function(wrap_pyfunction!(ed25519_fast_verify, m)?)?;
     return Ok(());
 }
