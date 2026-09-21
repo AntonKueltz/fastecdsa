@@ -99,7 +99,6 @@ pub trait Sec2Curve: Sized + 'static {
         let q_table = lookup_table(&q, 5);
         let p = interleaved(&[(&u1_naf, g_table), (&u2_naf, &q_table)]);
 
-        // let p = Point::<Self>::shamir(&Self::G, &q, &u1.to_le_bytes(), &u2.to_le_bytes());
         let rp = Field::<Self>::from(r_bytes);
         let n = Field::<Self>::from(Self::Order::mod_bytes().as_slice());
 

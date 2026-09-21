@@ -1,7 +1,10 @@
+use std::sync::OnceLock;
+
 use crypto_bigint::{U384, const_monty_params, modular::ConstMontyForm};
 
 use crate::brainpool_curve::{BrainpoolCurve, BrainpoolPoint};
 use crate::comb::Comb;
+use crate::wnaf::lookup_table;
 
 pub struct Brainpoolp384r1;
 
@@ -16,8 +19,8 @@ const_monty_params!(
     "8CB91E82A3386D280F5D6F7E50E641DF152F7109ED5456B31F166E6CAC0425A7CF3AB6AF6B7FC3103B883202E9046565"
 );
 
-static COMB: std::sync::OnceLock<Comb<BrainpoolPoint<Brainpoolp384r1>>> =
-    std::sync::OnceLock::new();
+static COMB: OnceLock<Comb<BrainpoolPoint<Brainpoolp384r1>>> = OnceLock::new();
+static G_TABLE: OnceLock<Vec<BrainpoolPoint<Brainpoolp384r1>>> = OnceLock::new();
 
 impl BrainpoolCurve for Brainpoolp384r1 {
     type CurveField = ConstMontyForm<Brainpool384P, { U384::LIMBS }>;
@@ -82,5 +85,9 @@ impl BrainpoolCurve for Brainpoolp384r1 {
                 Comb::<BrainpoolPoint<Brainpoolp384r1>>::new(Brainpoolp384r1::G_T, 4)
             }),
         )
+    }
+
+    fn g_table() -> &'static Vec<BrainpoolPoint<Self>> {
+        G_TABLE.get_or_init(|| lookup_table(&Self::G_T, 8))
     }
 }

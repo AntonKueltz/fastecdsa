@@ -1,7 +1,7 @@
 use std::ops::{Add, Mul, Sub};
 
 use crypto_bigint::{
-    Choice, CtSelect, Uint,
+    Choice, CtLt, CtSelect, Uint,
     modular::{ConstMontyForm, ConstMontyParams},
 };
 
@@ -29,6 +29,10 @@ pub trait ScalarField:
     fn select(&self, other: &Self, mask: u64) -> Self;
 
     fn mod_bytes() -> Vec<u8>;
+
+    fn lt(&self, rhs: &Self) -> bool;
+
+    fn neg(&self) -> Self;
 }
 
 impl<MOD, const LIMBS: usize> ScalarField for ConstMontyForm<MOD, LIMBS>
@@ -90,5 +94,13 @@ where
 
     fn mod_bytes() -> Vec<u8> {
         MOD::PARAMS.modulus().to_le_bytes().to_vec()
+    }
+
+    fn lt(&self, rhs: &Self) -> bool {
+        self.ct_lt(rhs).into()
+    }
+
+    fn neg(&self) -> Self {
+        ConstMontyForm::neg(&self)
     }
 }

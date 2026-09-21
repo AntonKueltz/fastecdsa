@@ -1,9 +1,10 @@
 use std::ops::{Add, Mul};
 
-use num_bigint::BigUint;
+use num_bigint::{BigInt, BigUint};
 
 use crate::comb::Comb;
 use crate::scalar::ScalarField;
+use crate::wnaf::{WnafVerifyPoint, interleaved, lookup_table, naf};
 
 pub mod brainpoolp160r1;
 pub mod brainpoolp192r1;
@@ -80,12 +81,28 @@ pub trait BrainpoolCurve: Sized + 'static {
         let u1 = sinv * z;
         let u2 = sinv * r;
 
-        let p = BrainpoolPoint::<Self>::shamir(&Self::G_T, &q, u1, u2)
-            .from_twist()
-            .normalize();
-        let xq = Self::GroupField::from_le_bytes(&p.x.to_le_bytes());
+        let u1_naf = naf(
+            &BigInt::from_bytes_le(num_bigint::Sign::Plus, &u1.to_le_bytes()),
+            8,
+        );
+        let u2_naf = naf(
+            &BigInt::from_bytes_le(num_bigint::Sign::Plus, &u2.to_le_bytes()),
+            5,
+        );
+        let g_table = Self::g_table();
+        let q_table = lookup_table(&q, 5);
+        let p = interleaved(&[(&u1_naf, &g_table), (&u2_naf, &q_table)]).from_twist();
 
-        xq.eq(&r)
+        let rp = Self::CurveField::from_le_bytes(r_bytes);
+        let n = Self::CurveField::from_le_bytes(Self::GroupField::mod_bytes().as_slice());
+
+        if p.x == rp * p.z {
+            true
+        } else if rp.lt(&(rp + n)) && n.lt(&(rp + n)) {
+            p.x == (rp + n) * p.z
+        } else {
+            false
+        }
     }
 
     fn evaluate(x_bytes: &[u8]) -> BigUint {
@@ -112,6 +129,10 @@ pub trait BrainpoolCurve: Sized + 'static {
 
     fn comb() -> Option<&'static Comb<BrainpoolPoint<Self>>> {
         None
+    }
+
+    fn g_table() -> &'static Vec<BrainpoolPoint<Self>> {
+        todo!()
     }
 }
 
@@ -326,5 +347,24 @@ impl<C: BrainpoolCurve> BrainpoolPoint<C> {
         }
 
         r
+    }
+}
+
+impl<C: BrainpoolCurve> WnafVerifyPoint for BrainpoolPoint<C> {
+    fn identity() -> Self {
+        C::INFINITY
+    }
+    fn double(&self) -> Self {
+        BrainpoolPoint::<C>::double(self)
+    }
+    fn negate(&self) -> Self {
+        Self {
+            x: self.x,
+            y: self.y.neg(),
+            z: self.z,
+        }
+    }
+    fn is_identity(&self) -> bool {
+        self.is_point_at_infinity()
     }
 }
