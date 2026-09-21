@@ -171,9 +171,9 @@ EdDSA
 +-----------------+------------------------+-------------------------------+-------------------------+
 | Curve           | :code:`fastecdsa` v4   | :code:`ecdsa` (gmpy2 backend) | :code:`fastecdsa` v3    |
 +-----------------+------------------------+-------------------------------+-------------------------+
-| Edwards25519    | 0.27s                  | 1.28s                         | N/A                     |
+| Edwards25519    | 0.20s                  | 1.28s                         | N/A                     |
 +-----------------+------------------------+-------------------------------+-------------------------+
-| Edwards448      | 0.99s                  | 2.53s                         | N/A                     |
+| Edwards448      | 0.64s                  | 2.53s                         | N/A                     |
 +-----------------+------------------------+-------------------------------+-------------------------+
 
 If you'd like to benchmark performance on your machine you can do so using the command:
@@ -537,6 +537,7 @@ Much of this work is based upon the following research and standards:
 - `Michael McLoughlin's add chains for fast inversions in various fields <https://github.com/mmcloughlin/addchain>`_
 - `More Flexible Exponentiation with Precomputation <https://link.springer.com/content/pdf/10.1007/3-540-48658-5_11.pdf>`_
 - `Optimized Lattice Basis Reduction In Dimension 2, and Fast Schnorr and EdDSA Signature Verification <https://eprint.iacr.org/2020/454.pdf>`_
+- `Accelerating EdDSA Signature Verification with Faster Scalar Size Halving <https://tches.iacr.org/index.php/TCHES/article/view/12225/12032>`_
 - Hankerson, Menezes, Vanstone - Guide to Elliptic Curve Cryptography
 - `RFC 6979: Deterministic Usage of the Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA) <https://www.rfc-editor.org/info/rfc6979/>`_
 - `RFC 8032: Edwards-Curve Digital Signature Algorithm (EdDSA) <https://www.rfc-editor.org/info/rfc8032/>`_

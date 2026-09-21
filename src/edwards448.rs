@@ -371,11 +371,13 @@ impl From<Vec<i128>> for Field448 {
 
 impl From<Vec<u8>> for Field448 {
     fn from(value: Vec<u8>) -> Self {
+        let mut b = value;
+        b.resize(BYTES, 0);
         let mut result = Self { x: [0; LIMB_SZ] };
 
         for i in 0..LIMB_SZ {
             for j in 0..7 {
-                result.x[i] |= (value[i * 7 + j] as u64) << (j * 8);
+                result.x[i] |= (b[i * 7 + j] as u64) << (j * 8);
             }
         }
 
@@ -589,6 +591,14 @@ impl Point448 {
             x: self.x * zinv,
             y: self.y * zinv,
             z: ONE,
+        }
+    }
+
+    pub fn neg(&self) -> Self {
+        Self {
+            x: (P - self.x).reduce(),
+            y: self.y,
+            z: self.z,
         }
     }
 

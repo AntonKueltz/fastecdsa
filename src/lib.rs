@@ -6,23 +6,23 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
 use crate::curve_kind::CurveKind;
+use crate::edwards_wnaf::{ED448_INTERLEAVED_WNAF_VERIFY, ED25519_INTERLEAVED_WNAF_VERIFY};
 use crate::edwards448::{G as Ed448G, P as Ed448P, Point448, edwards448_comb};
 use crate::edwards25519::{G as Ed25519G, P as Ed25519P, Point25519, edwards25519_comb};
 use crate::generic_curve::{CurveError, GenericCurve};
 use crate::point_kind::PointKind;
-use crate::wnaf::edwards25519_faster_verify_trick;
 
 pub mod brainpool_curve;
 pub mod comb;
 pub mod curve_kind;
 pub mod edwards25519;
 pub mod edwards448;
+pub mod edwards_wnaf;
 pub mod generic_curve;
 pub mod point_kind;
 pub mod scalar;
 pub mod sec2_curve;
 pub mod util;
-pub mod wnaf;
 
 #[pyclass(name = "Curve")]
 struct PyCurve(Arc<CurveKind>);
@@ -695,7 +695,29 @@ pub fn ed25519_fast_verify(
         Err(_) => return false,
     };
 
-    edwards25519_faster_verify_trick(&s, &k, &r, &a)
+    ED25519_INTERLEAVED_WNAF_VERIFY.verify(&s, &k, &r, &a)
+}
+
+#[pyfunction]
+pub fn ed448_fast_verify(
+    s: BigInt,
+    k: BigInt,
+    rx: BigUint,
+    ry: BigUint,
+    ax: BigUint,
+    ay: BigUint,
+) -> bool {
+    let r = match Point448::try_from((rx, ry)) {
+        Ok(point) => point,
+        Err(_) => return false,
+    };
+
+    let a = match Point448::try_from((ax, ay)) {
+        Ok(point) => point,
+        Err(_) => return false,
+    };
+
+    ED448_INTERLEAVED_WNAF_VERIFY.verify(&s, &k, &r, &a)
 }
 
 #[pymodule]
@@ -705,5 +727,6 @@ fn rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyEd25519Point>()?;
     m.add_class::<PyEd448Point>()?;
     m.add_function(wrap_pyfunction!(ed25519_fast_verify, m)?)?;
+    m.add_function(wrap_pyfunction!(ed448_fast_verify, m)?)?;
     return Ok(());
 }

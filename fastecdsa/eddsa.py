@@ -1,13 +1,15 @@
 from hashlib import sha512, shake_256
 from os import urandom
 
-from fastecdsa.rust import Ed448Point, Ed25519Point, ed25519_fast_verify
+from fastecdsa.rust import (
+    Ed448Point,
+    Ed25519Point,
+    ed448_fast_verify,
+    ed25519_fast_verify,
+)
 
 Q25519 = 0x1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED
 Q448 = 0x3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7CCA23E9C44EDB49AED63690216CC2728DC58F552378C292AB5844F3
-
-H25519 = 126
-B_H25519 = Ed25519Point.scale_base(1 << H25519)
 
 
 def gen_ed25519_keypair() -> tuple[bytes, bytes]:
@@ -66,7 +68,6 @@ def verify_ed25519(sig: bytes, msg: bytes, a: bytes) -> bool:
 
     k = int.from_bytes(sha512(r_bytes + a + msg).digest(), "little") % Q25519
 
-    #  return Ed25519Point.scale_base(s) == r + k * a_
     return ed25519_fast_verify(s, k, r.x, r.y, a_.x, a_.y)
 
 
@@ -136,4 +137,4 @@ def verify_ed448(sig: bytes, msg: bytes, a: bytes, ctx: bytes = b"") -> bool:
     dom4 = _dom4_ed448(ctx)
     k = int.from_bytes(shake_256(dom4 + r_bytes + a + msg).digest(114), "little") % Q448
 
-    return Ed448Point.scale_base(s) == r + k * a_
+    return ed448_fast_verify(s, k, r.x, r.y, a_.x, a_.y)
