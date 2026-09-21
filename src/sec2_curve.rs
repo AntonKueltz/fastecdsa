@@ -4,9 +4,12 @@ use std::cmp::{
 };
 use std::ops::{Add, Mul, Sub};
 
+use num_bigint::BigInt;
+
 use crate::comb::Comb;
 use crate::scalar::ScalarField;
 use crate::util::test_bit;
+use crate::wnaf::{WnafVerifyPoint, interleaved, lookup_table, naf};
 
 pub mod p192;
 pub mod p224;
@@ -84,7 +87,19 @@ pub trait Sec2Curve: Sized + 'static {
         let u1 = z * sinv;
         let u2 = r * sinv;
 
-        let p = Point::<Self>::shamir(&Self::G, &q, &u1.to_le_bytes(), &u2.to_le_bytes());
+        let u1_naf = naf(
+            &BigInt::from_bytes_le(num_bigint::Sign::Plus, &u1.to_le_bytes()),
+            8,
+        );
+        let u2_naf = naf(
+            &BigInt::from_bytes_le(num_bigint::Sign::Plus, &u2.to_le_bytes()),
+            5,
+        );
+        let g_table = Self::g_table();
+        let q_table = lookup_table(&q, 5);
+        let p = interleaved(&[(&u1_naf, g_table), (&u2_naf, &q_table)]);
+
+        // let p = Point::<Self>::shamir(&Self::G, &q, &u1.to_le_bytes(), &u2.to_le_bytes());
         let rp = Field::<Self>::from(r_bytes);
         let n = Field::<Self>::from(Self::Order::mod_bytes().as_slice());
 
@@ -207,6 +222,10 @@ pub trait Sec2Curve: Sized + 'static {
 
     fn comb() -> Option<&'static Comb<Point<Self>>> {
         None
+    }
+
+    fn g_table() -> &'static Vec<Point<Self>> {
+        todo!()
     }
 }
 
@@ -865,5 +884,24 @@ impl<C: Sec2Curve> Point<C> {
         }
 
         r
+    }
+}
+
+impl<C: Sec2Curve> WnafVerifyPoint for Point<C> {
+    fn identity() -> Self {
+        C::INFINITY
+    }
+    fn double(&self) -> Self {
+        Point::<C>::double(self)
+    }
+    fn negate(&self) -> Self {
+        Self {
+            x: self.x,
+            y: C::P - self.y,
+            z: self.z,
+        }
+    }
+    fn is_identity(&self) -> bool {
+        self.is_point_at_infinity()
     }
 }

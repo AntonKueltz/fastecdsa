@@ -4,6 +4,7 @@ use crypto_bigint::{U384, const_monty_params, modular::ConstMontyForm};
 
 use crate::comb::Comb;
 use crate::sec2_curve::{AddResult, Field, MulResult, Point, Sec2Curve};
+use crate::wnaf::lookup_table;
 
 #[derive(Debug)]
 pub struct P384;
@@ -15,6 +16,7 @@ const_monty_params!(
 );
 
 static P384_COMB: OnceLock<Comb<Point<P384>>> = OnceLock::new();
+static P384_G_TABLE: OnceLock<Vec<Point<P384>>> = OnceLock::new();
 
 impl Sec2Curve for P384 {
     type Limbs = [u64; 6];
@@ -270,6 +272,10 @@ impl Sec2Curve for P384 {
 
     fn comb() -> Option<&'static Comb<Point<Self>>> {
         Some(P384_COMB.get_or_init(|| Comb::<Point<Self>>::new(Self::G, 4)))
+    }
+
+    fn g_table() -> &'static Vec<Point<Self>> {
+        P384_G_TABLE.get_or_init(|| lookup_table(&Self::G, 8))
     }
 }
 

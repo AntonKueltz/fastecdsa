@@ -184,7 +184,7 @@ fn lagrange(n: &BigInt, n2: &BigInt, k: &BigInt) -> (BigInt, BigInt) {
     }
 }
 
-fn naf(x: &BigInt, w: usize) -> Vec<i16> {
+pub fn naf(x: &BigInt, w: usize) -> Vec<i16> {
     let mut result: Vec<i16> = Vec::<i16>::with_capacity(x.bits() as usize);
     let mut k = x.clone();
 
@@ -222,7 +222,7 @@ fn signed_naf(x: &BigInt, w: usize) -> Vec<i16> {
     }
 }
 
-fn lookup_table<P: WnafVerifyPoint>(p: &P, w: usize) -> Vec<P> {
+pub fn lookup_table<P: WnafVerifyPoint>(p: &P, w: usize) -> Vec<P> {
     let mut cur = *p;
     let two_p = p.double();
     let limit = 1usize << (w - 2);
@@ -240,5 +240,5 @@ fn lookup_table<P: WnafVerifyPoint>(p: &P, w: usize) -> Vec<P> {
 }
 
 #[cfg(test)]
-#[path = "unit_tests/edwards_wnaf_test.rs"]
-mod edwards_wnaf_test;
+#[path = "unit_tests/wnaf_test.rs"]
+mod wnaf_test;

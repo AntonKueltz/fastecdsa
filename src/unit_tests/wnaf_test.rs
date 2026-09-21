@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use num_bigint::BigInt;
 
-use crate::edwards_wnaf::*;
+use crate::wnaf::*;
 
 #[test]
 fn test_lagrange() {

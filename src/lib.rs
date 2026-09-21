@@ -6,23 +6,23 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
 use crate::curve_kind::CurveKind;
-use crate::edwards_wnaf::{ED448_INTERLEAVED_WNAF_VERIFY, ED25519_INTERLEAVED_WNAF_VERIFY};
 use crate::edwards448::{G as Ed448G, P as Ed448P, Point448, edwards448_comb};
 use crate::edwards25519::{G as Ed25519G, P as Ed25519P, Point25519, edwards25519_comb};
 use crate::generic_curve::{CurveError, GenericCurve};
 use crate::point_kind::PointKind;
+use crate::wnaf::{ED448_INTERLEAVED_WNAF_VERIFY, ED25519_INTERLEAVED_WNAF_VERIFY};
 
 pub mod brainpool_curve;
 pub mod comb;
 pub mod curve_kind;
 pub mod edwards25519;
 pub mod edwards448;
-pub mod edwards_wnaf;
 pub mod generic_curve;
 pub mod point_kind;
 pub mod scalar;
 pub mod sec2_curve;
 pub mod util;
+pub mod wnaf;
 
 #[pyclass(name = "Curve")]
 struct PyCurve(Arc<CurveKind>);
