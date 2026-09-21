@@ -1,10 +1,13 @@
+from collections.abc import Callable
+from hashlib import sha512, shake_256
 from os import urandom
-from typing import Any, Callable
+from typing import Any
 
 from .curve import Curve
 from .ecdsa import verify
 from .encoding import KeyEncoder
 from .point import Point
+from .rust import Ed448Point, Ed25519Point
 from .util import mod_sqrt
 
 
@@ -62,6 +65,53 @@ def gen_private_key(curve: Curve, randfunc: Callable[[Any], bytes] = urandom) ->
         rand >>= extra_bits
 
     return rand
+
+
+def gen_ed25519_keypair() -> tuple[bytes, bytes]:
+    """Generate a keypair for Ed25519.
+
+    Note that the private key has certain properties that always hold, such
+    as the three least significant bits being set to 0. The public key is
+    encoded with the the full y coordinate and the sign of the x coordinate.
+    See https://www.rfc-editor.org/info/rfc8032/#section-5.1.5 for details.
+
+    Returns:
+        tuple[bytes, bytes]: the private key and public key
+    """
+    sk = urandom(32)
+    h = sha512(sk).digest()
+
+    x = bytearray(h[:32])
+    x[0] &= 0b1111_1000
+    x[31] &= 0b0111_1111
+    x[31] |= 0b0100_0000
+
+    pk = Ed25519Point.scale_base(int.from_bytes(x, "little")).normalize().encode()
+    return sk, pk
+
+
+def gen_ed448_keypair() -> tuple[bytes, bytes]:
+    """Generate a keypair for Ed448.
+
+    Note that the private key has certain properties that always hold, such
+    as the two least significant bits being set to 0. The public key is
+    encoded with the the full y coordinate and the sign of the x coordinate.
+    See https://www.rfc-editor.org/info/rfc8032/#section-5.2.5 for details.
+
+    Returns:
+        tuple[bytes, bytes]: the private key and public key
+    """
+    sk = urandom(57)
+    h = shake_256(sk).digest(114)
+
+    x = bytearray(h[:57])
+    x[0] &= 0b1111_1100
+    x[56] = 0b0000_0000
+    x[55] |= 0b1000_0000
+
+    s = int.from_bytes(bytes(x), "little")
+    pk = Ed448Point.scale_base(s).normalize().encode()
+    return sk, pk
 
 
 def get_public_key(d: int, curve: Curve) -> Point:

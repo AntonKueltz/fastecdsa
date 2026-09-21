@@ -155,15 +155,15 @@ ECDSA
 +-----------------+------------------------+-------------------------------+-------------------------+
 | Brainpoolp192r1 | 0.16s                  | 1.01s                         | 1.18s                   |
 +-----------------+------------------------+-------------------------------+-------------------------+
-| Brainpoolp224r1 | 0.31s                  | 1.21s                         | 1.55s                   |
+| Brainpoolp224r1 | 0.26s                  | 1.21s                         | 1.55s                   |
 +-----------------+------------------------+-------------------------------+-------------------------+
-| Brainpoolp256r1 | 0.36s                  | 1.35                          | 1.88s                   |
+| Brainpoolp256r1 | 0.30s                  | 1.35                          | 1.88s                   |
 +-----------------+------------------------+-------------------------------+-------------------------+
-| Brainpoolp320r1 | 0.67s                  | 1.80s                         | 2.91s                   |
+| Brainpoolp320r1 | 0.52s                  | 1.80s                         | 2.91s                   |
 +-----------------+------------------------+-------------------------------+-------------------------+
-| Brainpoolp384r1 | 1.03s                  | 2.27s                         | 4.08s                   |
+| Brainpoolp384r1 | 0.82s                  | 2.27s                         | 4.08s                   |
 +-----------------+------------------------+-------------------------------+-------------------------+
-| Brainpoolp512r1 | 2.07s                  | 3.33s                         | 7.06s                   |
+| Brainpoolp512r1 | 1.59s                  | 3.33s                         | 7.06s                   |
 +-----------------+------------------------+-------------------------------+-------------------------+
 
 EdDSA
@@ -529,6 +529,7 @@ Thanks to those below for contributing improvements:
 
 Much of this work is based upon the following research and standards:
 
+- `FIPS 186-5: Digital Signature Standard (DSS) <https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf>`_
 - `SEC 2: Recommended Elliptic Curve Domain Parameters <https://www.secg.org/sec2-v2.pdf>`_
 - `RFC 5639: Elliptic Curve Cryptography (ECC) Brainpool Standard Curves and Curve Generation <https://www.rfc-editor.org/info/rfc5639/>`_
 - `Curve25519: new Diffie-Hellman speed records <https://cr.yp.to/ecdh/curve25519-20060209.pdf>`_
@@ -541,7 +542,7 @@ Much of this work is based upon the following research and standards:
 - Hankerson, Menezes, Vanstone - Guide to Elliptic Curve Cryptography
 - `RFC 6979: Deterministic Usage of the Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA) <https://www.rfc-editor.org/info/rfc6979/>`_
 - `RFC 8032: Edwards-Curve Digital Signature Algorithm (EdDSA) <https://www.rfc-editor.org/info/rfc8032/>`_
-
+- `Taming the many EdDSAs <https://eprint.iacr.org/2020/1244.pdf>`_
 
 .. _RFC2459: https://tools.ietf.org/html/rfc2459
 .. _RFC5480: https://tools.ietf.org/html/rfc5480

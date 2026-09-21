@@ -1,14 +1,6 @@
 fastecdsa
 =========
 
-fastecdsa.curve
----------------
-
-.. automodule:: fastecdsa.curve
-    :members:
-    :show-inheritance:
-    :special-members:
-
 fastecdsa.ecdsa
 ---------------
 
@@ -16,10 +8,10 @@ fastecdsa.ecdsa
     :members:
     :show-inheritance:
 
-fastecdsa.encoding
-------------------
+fastecdsa.eddsa
+---------------
 
-.. automodule:: fastecdsa.encoding
+.. automodule:: fastecdsa.eddsa
     :members:
     :show-inheritance:
 
@@ -50,14 +42,6 @@ fastecdsa.keys
 .. automodule:: fastecdsa.keys
     :members:
     :show-inheritance:
-
-fastecdsa.point
----------------
-
-.. automodule:: fastecdsa.point
-    :members:
-    :show-inheritance:
-    :special-members:
 
 fastecdsa.util
 --------------

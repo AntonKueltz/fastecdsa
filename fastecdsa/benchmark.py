@@ -21,13 +21,12 @@ from fastecdsa.curve import (
 )
 from fastecdsa.ecdsa import sign, verify
 from fastecdsa.eddsa import (
-    gen_ed25519_keypair,
-    gen_ed448_keypair,
     sign_ed25519,
     sign_ed448,
     verify_ed25519,
     verify_ed448,
 )
+from fastecdsa.keys import gen_ed25519_keypair, gen_ed448_keypair
 from fastecdsa.point import Point
 
 msg = bytes(32)

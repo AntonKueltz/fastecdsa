@@ -2,7 +2,8 @@ from unittest import TestCase
 
 from parameterized import parameterized
 
-from fastecdsa.eddsa import gen_ed448_keypair, sign_ed448, verify_ed448
+from fastecdsa.eddsa import sign_ed448, verify_ed448
+from fastecdsa.keys import gen_ed448_keypair
 
 
 class TestEd448(TestCase):

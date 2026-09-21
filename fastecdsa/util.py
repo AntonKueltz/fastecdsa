@@ -1,6 +1,7 @@
 import hmac
+from _hashlib import HASH
+from collections.abc import Callable
 from struct import pack
-from typing import Callable, Tuple
 
 
 class RFC6979:
@@ -15,7 +16,7 @@ class RFC6979:
         |  msg (bytes): A message being signed.
         |  x (int): An ECDSA private key.
         |  q (int): The order of the generator point of the curve being used to sign the message.
-        |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
+        |  hashfunc Callable[..., HASH]: The hash function used to compress the message.
         |  prehashed (bool): Whether the signature is on a pre-hashed message.
     """
 
@@ -24,7 +25,7 @@ class RFC6979:
         msg: bytes,
         x: int,
         q: int,
-        hashfunc: Callable,
+        hashfunc: Callable[..., HASH],
         prehashed: bool = False,
     ) -> None:
         self.x = x
@@ -94,7 +95,7 @@ class RFC6979:
             v = hmac.new(k, v, self.hashfunc).digest()
 
 
-def _tonelli_shanks(n: int, p: int) -> Tuple[int, int]:
+def _tonelli_shanks(n: int, p: int) -> tuple[int, int]:
     """A generic algorithm for computing modular square roots."""
     Q, S = p - 1, 0
     while Q % 2 == 0:
@@ -116,7 +117,7 @@ def _tonelli_shanks(n: int, p: int) -> Tuple[int, int]:
     return R, -R % p
 
 
-def mod_sqrt(a: int, p: int) -> Tuple[int, int]:
+def mod_sqrt(a: int, p: int) -> tuple[int, int]:
     r"""Compute the square root of :math:`a \pmod{p}`
 
     In other words, find a value :math:`x` such that :math:`x^2 \equiv a \pmod{p}`.

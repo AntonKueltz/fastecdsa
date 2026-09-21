@@ -2,7 +2,7 @@ from _hashlib import HASH
 from collections.abc import Callable
 from hashlib import sha256
 
-from .curve import Curve, P256
+from .curve import P256, Curve
 from .point import Point
 from .util import RFC6979
 
@@ -21,14 +21,14 @@ def sign(
 ) -> tuple[int, int]:
     """Sign a message using the elliptic curve digital signature algorithm.
 
-    The elliptic curve signature algorithm is described in full in FIPS 186-4 Section 6. Please
-    refer to http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf for more information.
+    The elliptic curve signature algorithm is described in full in FIPS 186-5 Section 6. Please
+    refer to https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf for more information.
 
     Args:
-        |  msg (str|bytes|bytearray): A message to be signed.
+        |  msg (bytes): A message to be signed.
         |  d (int): The ECDSA private key of the signer.
         |  curve (fastecdsa.curve.Curve): The curve to be used to sign the message.
-        |  hashfunc (Callable): The hash function used to compress the message.
+        |  hashfunc (Callable[[], HASH]): The hash function used to compress the message.
         |  prehashed (bool): The message being passed has already been hashed by :code:`hashfunc`.
 
     Returns:
@@ -60,15 +60,15 @@ def verify(
 ) -> bool:
     """Verify a message signature using the elliptic curve digital signature algorithm.
 
-    The elliptic curve signature algorithm is described in full in FIPS 186-4 Section 6. Please
-    refer to http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf for more information.
+    The elliptic curve signature algorithm is described in full in FIPS 186-5 Section 6. Please
+    refer to https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf for more information.
 
     Args:
         |  sig (int, int): The signature for the message.
-        |  msg (str|bytes|bytearray): A message to be signed.
+        |  msg (bytes): The message to verify the signature for.
         |  Q (fastecdsa.point.Point): The ECDSA public key of the signer.
-        |  curve (fastecdsa.curve.Curve): The curve to be used to sign the message.
-        |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
+        |  curve (fastecdsa.curve.Curve): The curve used to sign the message.
+        |  hashfunc (Callable[[], HASH]): The hash function used to compress the message.
         |  prehashed (bool): The message being passed has already been hashed by :code:`hashfunc`.
 
     Returns:
