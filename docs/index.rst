@@ -12,3 +12,7 @@ Welcome to fastecdsa's documentation!
 
    installation
    fastecdsa
+   performance
+   user-defined-curves
+   point-arithmetic
+   refs-acks
