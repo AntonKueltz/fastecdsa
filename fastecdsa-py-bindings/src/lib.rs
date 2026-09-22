@@ -1,28 +1,21 @@
 use std::sync::Arc;
 
 use crypto_bigint::{BoxedUint, Encoding, Resize};
+use fastecdsa_rs_core::edwards448::{G as Ed448G, P as Ed448P, Point448, edwards448_comb};
+use fastecdsa_rs_core::edwards25519::{
+    G as Ed25519G, P as Ed25519P, Point25519, edwards25519_comb,
+};
+use fastecdsa_rs_core::generic_curve::{CurveError, GenericCurve};
+use fastecdsa_rs_core::wnaf::{ED448_INTERLEAVED_WNAF_VERIFY, ED25519_INTERLEAVED_WNAF_VERIFY};
 use num_bigint::{BigInt, BigUint, Sign};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
 use crate::curve_kind::CurveKind;
-use crate::edwards448::{G as Ed448G, P as Ed448P, Point448, edwards448_comb};
-use crate::edwards25519::{G as Ed25519G, P as Ed25519P, Point25519, edwards25519_comb};
-use crate::generic_curve::{CurveError, GenericCurve};
 use crate::point_kind::PointKind;
-use crate::wnaf::{ED448_INTERLEAVED_WNAF_VERIFY, ED25519_INTERLEAVED_WNAF_VERIFY};
 
-pub mod brainpool_curve;
-pub mod comb;
 pub mod curve_kind;
-pub mod edwards25519;
-pub mod edwards448;
-pub mod generic_curve;
 pub mod point_kind;
-pub mod scalar;
-pub mod sec2_curve;
-pub mod util;
-pub mod wnaf;
 
 fn normalize_scalar(scalar: BigInt, q: BigInt) -> BigInt {
     let reduced = if scalar >= q || scalar < BigInt::ZERO {

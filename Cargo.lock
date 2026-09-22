@@ -59,13 +59,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "fastecdsa"
+name = "fastecdsa-py-bindings"
+version = "0.1.0"
+dependencies = [
+ "crypto-bigint",
+ "fastecdsa-rs-core",
+ "num-bigint",
+ "pyo3",
+]
+
+[[package]]
+name = "fastecdsa-rs-core"
 version = "0.1.0"
 dependencies = [
  "crypto-bigint",
  "crypto-primes",
  "num-bigint",
- "pyo3",
 ]
 
 [[package]]

@@ -1,21 +1,9 @@
-[package]
-name = "fastecdsa"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+resolver = "2"
+members = ["fastecdsa-rs-core", "fastecdsa-py-bindings"]
+default-members = ["fastecdsa-rs-core", "fastecdsa-py-bindings"]
 
-description = "Fast elliptic curve digital signatures"
-documentation = "https://fastecdsa.readthedocs.io"
-homepage = "https://pypi.org/project/fastecdsa/"
-license = "CC0-1.0"
-repository = "https://github.com/AntonKueltz/fastecdsa"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-[lib]
-name = "fastecdsa"
-crate-type = ["cdylib"]
-
-[dependencies]
+[workspace.dependencies]
 crypto-bigint = { version = "0.7.5", features = ["alloc"] }
 crypto-primes = "0.7.2"
 num-bigint = "0.4"
-pyo3 = { version = "0.29.0", features = ["extension-module", "num-bigint"] }

@@ -1,27 +1,27 @@
+use fastecdsa_rs_core::brainpool_curve::brainpoolp160r1::Brainpoolp160r1;
+use fastecdsa_rs_core::brainpool_curve::brainpoolp192r1::Brainpoolp192r1;
+use fastecdsa_rs_core::brainpool_curve::brainpoolp224r1::Brainpoolp224r1;
+use fastecdsa_rs_core::brainpool_curve::brainpoolp256r1::Brainpoolp256r1;
+use fastecdsa_rs_core::brainpool_curve::brainpoolp320r1::Brainpoolp320r1;
+use fastecdsa_rs_core::brainpool_curve::brainpoolp384r1::Brainpoolp384r1;
+use fastecdsa_rs_core::brainpool_curve::brainpoolp512r1::Brainpoolp512r1;
+use fastecdsa_rs_core::brainpool_curve::{BrainpoolCurve, BrainpoolPoint};
+use fastecdsa_rs_core::generic_curve::GenericPoint;
+use fastecdsa_rs_core::scalar::ScalarField;
+use fastecdsa_rs_core::sec2_curve::p192::P192;
+use fastecdsa_rs_core::sec2_curve::p224::P224;
+use fastecdsa_rs_core::sec2_curve::p256::P256;
+use fastecdsa_rs_core::sec2_curve::p384::P384;
+use fastecdsa_rs_core::sec2_curve::p521::P521;
+use fastecdsa_rs_core::sec2_curve::secp192k1::Secp192k1;
+use fastecdsa_rs_core::sec2_curve::secp224k1::Secp224k1;
+use fastecdsa_rs_core::sec2_curve::secp256k1::Secp256k1;
+use fastecdsa_rs_core::sec2_curve::{Point, Sec2Curve};
 use num_bigint::BigUint;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
-use crate::brainpool_curve::brainpoolp160r1::Brainpoolp160r1;
-use crate::brainpool_curve::brainpoolp192r1::Brainpoolp192r1;
-use crate::brainpool_curve::brainpoolp224r1::Brainpoolp224r1;
-use crate::brainpool_curve::brainpoolp256r1::Brainpoolp256r1;
-use crate::brainpool_curve::brainpoolp320r1::Brainpoolp320r1;
-use crate::brainpool_curve::brainpoolp384r1::Brainpoolp384r1;
-use crate::brainpool_curve::brainpoolp512r1::Brainpoolp512r1;
-use crate::brainpool_curve::{BrainpoolCurve, BrainpoolPoint};
 use crate::curve_kind::CurveKind;
-use crate::generic_curve::GenericPoint;
-use crate::scalar::ScalarField;
-use crate::sec2_curve::p192::P192;
-use crate::sec2_curve::p224::P224;
-use crate::sec2_curve::p256::P256;
-use crate::sec2_curve::p384::P384;
-use crate::sec2_curve::p521::P521;
-use crate::sec2_curve::secp192k1::Secp192k1;
-use crate::sec2_curve::secp224k1::Secp224k1;
-use crate::sec2_curve::secp256k1::Secp256k1;
-use crate::sec2_curve::{Point, Sec2Curve};
 
 #[derive(Clone)]
 pub enum PointKind {

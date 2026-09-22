@@ -62,6 +62,7 @@ omit = [
 
 [tool.maturin]
 module-name = "fastecdsa.rust"
+manifest-path = "fastecdsa-py-bindings/Cargo.toml"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

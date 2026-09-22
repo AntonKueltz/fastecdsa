@@ -1,30 +1,44 @@
 use std::sync::Arc;
 
 use crypto_bigint::modular::ConstMontyParams;
+use fastecdsa_rs_core::brainpool_curve::BrainpoolCurve;
+use fastecdsa_rs_core::brainpool_curve::brainpoolp160r1::{
+    Brainpool160P, Brainpool160Q, Brainpoolp160r1,
+};
+use fastecdsa_rs_core::brainpool_curve::brainpoolp192r1::{
+    Brainpool192P, Brainpool192Q, Brainpoolp192r1,
+};
+use fastecdsa_rs_core::brainpool_curve::brainpoolp224r1::{
+    Brainpool224P, Brainpool224Q, Brainpoolp224r1,
+};
+use fastecdsa_rs_core::brainpool_curve::brainpoolp256r1::{
+    Brainpool256P, Brainpool256Q, Brainpoolp256r1,
+};
+use fastecdsa_rs_core::brainpool_curve::brainpoolp320r1::{
+    Brainpool320P, Brainpool320Q, Brainpoolp320r1,
+};
+use fastecdsa_rs_core::brainpool_curve::brainpoolp384r1::{
+    Brainpool384P, Brainpool384Q, Brainpoolp384r1,
+};
+use fastecdsa_rs_core::brainpool_curve::brainpoolp512r1::{
+    Brainpool512P, Brainpool512Q, Brainpoolp512r1,
+};
+use fastecdsa_rs_core::generic_curve::GenericCurve;
+use fastecdsa_rs_core::scalar::ScalarField;
+use fastecdsa_rs_core::sec2_curve::p192::P192;
+use fastecdsa_rs_core::sec2_curve::p224::P224;
+use fastecdsa_rs_core::sec2_curve::p256::P256;
+use fastecdsa_rs_core::sec2_curve::p384::P384;
+use fastecdsa_rs_core::sec2_curve::p521::P521;
+use fastecdsa_rs_core::sec2_curve::secp192k1::Secp192k1;
+use fastecdsa_rs_core::sec2_curve::secp224k1::Secp224k1;
+use fastecdsa_rs_core::sec2_curve::secp256k1::Secp256k1;
+use fastecdsa_rs_core::sec2_curve::{Field, Point, Sec2Curve};
 use num_bigint::BigUint;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
-use crate::brainpool_curve::BrainpoolCurve;
-use crate::brainpool_curve::brainpoolp160r1::{Brainpool160P, Brainpool160Q, Brainpoolp160r1};
-use crate::brainpool_curve::brainpoolp192r1::{Brainpool192P, Brainpool192Q, Brainpoolp192r1};
-use crate::brainpool_curve::brainpoolp224r1::{Brainpool224P, Brainpool224Q, Brainpoolp224r1};
-use crate::brainpool_curve::brainpoolp256r1::{Brainpool256P, Brainpool256Q, Brainpoolp256r1};
-use crate::brainpool_curve::brainpoolp320r1::{Brainpool320P, Brainpool320Q, Brainpoolp320r1};
-use crate::brainpool_curve::brainpoolp384r1::{Brainpool384P, Brainpool384Q, Brainpoolp384r1};
-use crate::brainpool_curve::brainpoolp512r1::{Brainpool512P, Brainpool512Q, Brainpoolp512r1};
-use crate::generic_curve::GenericCurve;
 use crate::point_kind::PointKind;
-use crate::scalar::ScalarField;
-use crate::sec2_curve::p192::P192;
-use crate::sec2_curve::p224::P224;
-use crate::sec2_curve::p256::P256;
-use crate::sec2_curve::p384::P384;
-use crate::sec2_curve::p521::P521;
-use crate::sec2_curve::secp192k1::Secp192k1;
-use crate::sec2_curve::secp224k1::Secp224k1;
-use crate::sec2_curve::secp256k1::Secp256k1;
-use crate::sec2_curve::{Field, Point, Sec2Curve};
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum CurveKind {

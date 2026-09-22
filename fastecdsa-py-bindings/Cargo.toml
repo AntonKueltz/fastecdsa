@@ -1,0 +1,19 @@
+[package]
+name = "fastecdsa-py-bindings"
+version = "0.1.0"
+edition = "2024"
+description = "Fast elliptic curve digital signatures"
+documentation = "https://fastecdsa.readthedocs.io"
+homepage = "https://pypi.org/project/fastecdsa/"
+license = "CC0-1.0"
+repository = "https://github.com/AntonKueltz/fastecdsa"
+
+[lib]
+name = "fastecdsa"
+crate-type = ["cdylib"]
+
+[dependencies]
+fastecdsa-rs-core = { path = "../fastecdsa-rs-core" }
+crypto-bigint = { workspace = true }
+num-bigint = { workspace = true }
+pyo3 = { version = "0.29.0", features = ["extension-module", "num-bigint"] }
