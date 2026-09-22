@@ -67,7 +67,7 @@ def gen_private_key(curve: Curve, randfunc: Callable[[Any], bytes] = urandom) ->
     return rand
 
 
-def gen_ed25519_keypair() -> tuple[bytes, bytes]:
+def gen_ed25519_keypair(sk: bytes | None = None) -> tuple[bytes, bytes]:
     """Generate a keypair for Ed25519.
 
     Note that the private key has certain properties that always hold, such
@@ -78,9 +78,12 @@ def gen_ed25519_keypair() -> tuple[bytes, bytes]:
     Returns:
         tuple[bytes, bytes]: the private key and public key
     """
-    sk = urandom(32)
-    h = sha512(sk).digest()
+    if sk is None:
+        sk = urandom(32)
+    if len(sk) != 32:
+        raise ValueError("Ed25519 private key must be exactly 32 bytes")
 
+    h = sha512(sk).digest()
     x = bytearray(h[:32])
     x[0] &= 0b1111_1000
     x[31] &= 0b0111_1111
@@ -90,7 +93,7 @@ def gen_ed25519_keypair() -> tuple[bytes, bytes]:
     return sk, pk
 
 
-def gen_ed448_keypair() -> tuple[bytes, bytes]:
+def gen_ed448_keypair(sk: bytes | None = None) -> tuple[bytes, bytes]:
     """Generate a keypair for Ed448.
 
     Note that the private key has certain properties that always hold, such
@@ -101,9 +104,12 @@ def gen_ed448_keypair() -> tuple[bytes, bytes]:
     Returns:
         tuple[bytes, bytes]: the private key and public key
     """
-    sk = urandom(57)
-    h = shake_256(sk).digest(114)
+    if sk is None:
+        sk = urandom(57)
+    if len(sk) != 57:
+        raise ValueError("Ed448 private key must be exactly 57 bytes")
 
+    h = shake_256(sk).digest(114)
     x = bytearray(h[:57])
     x[0] &= 0b1111_1100
     x[56] = 0b0000_0000
