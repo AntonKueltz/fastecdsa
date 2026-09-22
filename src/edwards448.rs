@@ -403,6 +403,7 @@ impl Add for Point448 {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self {
+        // https://www.hyperelliptic.org/EFD/g1p/auto-edwards-projective.html#addition-add-2007-bl
         let x1 = self.x;
         let y1 = self.y;
         let z1 = self.z;
@@ -549,6 +550,7 @@ impl TryFrom<Vec<u8>> for Point448 {
 
 impl Point448 {
     pub fn double(self) -> Self {
+        // https://www.hyperelliptic.org/EFD/g1p/auto-edwards-projective.html#doubling-dbl-2007-bl
         let x1 = self.x;
         let y1 = self.y;
         let z1 = self.z;

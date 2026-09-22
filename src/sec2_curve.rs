@@ -668,6 +668,7 @@ impl<C: Sec2Curve> Point<C> {
     }
 
     pub fn add_a_is_neg3(&self, other: &Self) -> Self {
+        // https://hyperelliptic.org/EFD/g1p/auto-shortw-projective-3.html#addition-add-2015-rcb-3
         let x1 = self.x;
         let x2 = other.x;
         let y1 = self.y;
@@ -727,6 +728,7 @@ impl<C: Sec2Curve> Point<C> {
     }
 
     pub fn add_a_is_0(&self, other: &Self) -> Self {
+        // https://hyperelliptic.org/EFD/g1p/auto-shortw-projective.html#addition-add-2015-rcb
         let x1 = self.x;
         let x2 = other.x;
         let y1 = self.y;
@@ -777,6 +779,7 @@ impl<C: Sec2Curve> Point<C> {
     }
 
     pub fn double_a_is_neg3(&self) -> Point<C> {
+        // https://hyperelliptic.org/EFD/g1p/auto-shortw-projective-3.html#doubling-dbl-2015-rcb-3
         let x1 = self.x;
         let y1 = self.y;
         let z1 = self.z;
@@ -824,6 +827,7 @@ impl<C: Sec2Curve> Point<C> {
     }
 
     pub fn double_a_is_0(&self) -> Point<C> {
+        // https://hyperelliptic.org/EFD/g1p/auto-shortw-projective.html#doubling-dbl-2015-rcb
         let x1 = self.x;
         let y1 = self.y;
         let z1 = self.z;

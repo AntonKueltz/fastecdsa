@@ -160,6 +160,7 @@ impl<C: BrainpoolCurve> Add for BrainpoolPoint<C> {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
+        // https://hyperelliptic.org/EFD/g1p/auto-shortw-projective-3.html#addition-add-2015-rcb-3
         let x1 = self.x;
         let x2 = rhs.x;
         let y1 = self.y;
@@ -284,6 +285,7 @@ impl<C: BrainpoolCurve> BrainpoolPoint<C> {
     }
 
     pub fn double(&self) -> Self {
+        // https://hyperelliptic.org/EFD/g1p/auto-shortw-projective-3.html#doubling-dbl-2015-rcb-3
         let x1 = self.x;
         let y1 = self.y;
         let z1 = self.z;

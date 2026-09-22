@@ -55,9 +55,6 @@ const ZERO: Field25519 = Field25519 {
 const ONE: Field25519 = Field25519 {
     x: [0x1, 0x0, 0x0, 0x0, 0x0],
 };
-const TWO: Field25519 = Field25519 {
-    x: [0x2, 0x0, 0x0, 0x0, 0x0],
-};
 pub const P: Field25519 = Field25519 {
     x: [
         2u64.pow(RADIX_POW) - 19,
@@ -411,6 +408,7 @@ impl Add for Point25519 {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self {
+        // https://www.hyperelliptic.org/EFD/g1p/auto-twisted-extended-1.html#addition-add-2008-hwcd-3
         let x1 = self.x;
         let y1 = self.y;
         let z1 = self.z;
@@ -423,7 +421,7 @@ impl Add for Point25519 {
         let a = (y1 - x1) * (y2 - x2);
         let b = (y1 + x1) * (y2 + x2);
         let c = t1 * K * t2;
-        let d = z1 * TWO * z2;
+        let d = (z1 + z1) * z2;
         let e = b - a;
         let f = d - c;
         let g = d + c;
@@ -566,6 +564,7 @@ impl TryFrom<Vec<u8>> for Point25519 {
 
 impl Point25519 {
     pub fn double(self) -> Self {
+        // https://www.rfc-editor.org/info/rfc8032/#section-5.1.4
         let x1 = self.x;
         let y1 = self.y;
         let z1 = self.z;
