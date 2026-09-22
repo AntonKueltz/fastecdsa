@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crypto_bigint::{BoxedUint, Encoding, Resize};
-use num_bigint::{BigInt, BigUint};
+use num_bigint::{BigInt, BigUint, Sign};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
@@ -23,6 +23,20 @@ pub mod scalar;
 pub mod sec2_curve;
 pub mod util;
 pub mod wnaf;
+
+fn normalize_scalar(scalar: BigInt, q: BigInt) -> BigInt {
+    let reduced = if scalar >= q || scalar < BigInt::ZERO {
+        scalar % &q
+    } else {
+        scalar
+    };
+
+    if reduced < BigInt::ZERO {
+        reduced + &q
+    } else {
+        reduced
+    }
+}
 
 #[pyclass(name = "Curve")]
 struct PyCurve(Arc<CurveKind>);
@@ -252,8 +266,13 @@ impl PyPoint {
         })
     }
 
-    fn __mul__(&self, scalar: BigUint) -> PyPoint {
-        let k_bytes = scalar.to_bytes_le();
+    fn __mul__(&self, scalar: BigInt) -> PyPoint {
+        let k = normalize_scalar(
+            scalar,
+            BigInt::from_bytes_le(Sign::Plus, &self.curve.point_order()),
+        );
+        let (_, k_bytes) = k.to_bytes_le();
+
         PyPoint {
             curve: self.curve.clone(),
             point: self.point.mul(&k_bytes, !self.projective),
@@ -261,7 +280,7 @@ impl PyPoint {
         }
     }
 
-    fn __rmul__(&self, scalar: BigUint) -> PyPoint {
+    fn __rmul__(&self, scalar: BigInt) -> PyPoint {
         self.__mul__(scalar)
     }
 
@@ -373,8 +392,19 @@ impl PyEd25519Point {
         }
     }
 
-    fn __mul__(&self, scalar: BigUint) -> Self {
-        let result = self.point * &scalar.to_bytes_le();
+    fn __mul__(&self, scalar: BigInt) -> Self {
+        let q = BigInt::from_bytes_le(
+            Sign::Plus,
+            &[
+                0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9,
+                0xde, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x10,
+            ],
+        );
+        let k = normalize_scalar(scalar, q);
+        let (_, k_bytes) = k.to_bytes_le();
+
+        let result = self.point * &k_bytes;
 
         Self {
             point: if self.projective {
@@ -386,7 +416,7 @@ impl PyEd25519Point {
         }
     }
 
-    fn __rmul__(&self, scalar: BigUint) -> Self {
+    fn __rmul__(&self, scalar: BigInt) -> Self {
         self.__mul__(scalar)
     }
 
@@ -551,8 +581,20 @@ impl PyEd448Point {
         }
     }
 
-    fn __mul__(&self, scalar: BigUint) -> Self {
-        let result = self.point * &scalar.to_bytes_le();
+    fn __mul__(&self, scalar: BigInt) -> Self {
+        let q = BigInt::from_bytes_le(
+            Sign::Plus,
+            &[
+                0xf3, 0x44, 0x58, 0xab, 0x92, 0xc2, 0x78, 0x23, 0x55, 0x8f, 0xc5, 0x8d, 0x72, 0xc2,
+                0x6c, 0x21, 0x90, 0x36, 0xd6, 0xae, 0x49, 0xdb, 0x4e, 0xc4, 0xe9, 0x23, 0xca, 0x7c,
+                0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+                0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x3f,
+            ],
+        );
+        let k = normalize_scalar(scalar, q);
+        let (_, k_bytes) = k.to_bytes_le();
+
+        let result = self.point * &k_bytes;
 
         Self {
             point: if self.projective {
@@ -564,7 +606,7 @@ impl PyEd448Point {
         }
     }
 
-    fn __rmul__(&self, scalar: BigUint) -> Self {
+    fn __rmul__(&self, scalar: BigInt) -> Self {
         self.__mul__(scalar)
     }
 
