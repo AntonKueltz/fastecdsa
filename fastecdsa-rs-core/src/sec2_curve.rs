@@ -633,15 +633,12 @@ impl<C: Sec2Curve> Mul<&[u8]> for Point<C> {
     type Output = Self;
 
     fn mul(self, n: &[u8]) -> Self::Output {
-        let mut padded = vec![0u8; C::FIELD_BYTES];
-        padded[..n.len()].copy_from_slice(n);
-
         let j = C::FIELD_BYTES * 8 - 1;
         let mut r0: Self = C::INFINITY;
         let mut r1: Self = self.clone();
 
         for i in (0..j + 1).rev() {
-            if test_bit(&padded, i) {
+            if test_bit(n, i) {
                 r0 = r0 + r1;
                 r1 = r1.double();
             } else {

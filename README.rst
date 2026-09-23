@@ -546,6 +546,7 @@ Much of this work is based upon the following articles, research and standards:
 - `Taming the many EdDSAs <https://eprint.iacr.org/2020/1244.pdf>`_
 - `point-at-infinity's NIST test vectors <http://point-at-infinity.org/ecc/nisttv>`_
 - `Automated Cryptographic Validation Test System - Gen/Vals <https://github.com/usnistgov/ACVP-Server>`_
+- `ECTester: Reverse-engineering side-channel countermeasures of ECC implementations <https://eprint.iacr.org/2025/1293.pdf>`_
 
 .. _RFC2459: https://tools.ietf.org/html/rfc2459
 .. _RFC5480: https://tools.ietf.org/html/rfc5480

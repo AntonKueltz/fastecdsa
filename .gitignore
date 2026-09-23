@@ -3,6 +3,7 @@ dist/
 wheelhouse/
 *venv*/
 docs/_*/
+.ipynb_checkpoints/
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/

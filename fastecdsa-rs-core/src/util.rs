@@ -11,5 +11,5 @@ pub fn test_bit(n: &[u8], j: usize) -> bool {
     let byte = j >> 3;
     let bit = j & 0b111;
 
-    ((n[byte] >> bit) & 1) == 1
+    ((n.get(byte).unwrap_or(&0u8) >> bit) & 1) == 1
 }
