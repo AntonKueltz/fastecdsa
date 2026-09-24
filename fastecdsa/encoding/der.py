@@ -48,7 +48,7 @@ class DEREncoder(SigEncoder):
         bip-0066
 
         Args:
-            binary_data (bytes): A sequence of bytes respresenting an ECDSA signature.
+            binary_data (bytes): A sequence of bytes representing an ECDSA signature.
 
         Returns (r,s)
         """

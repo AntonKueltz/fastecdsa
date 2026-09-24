@@ -1665,7 +1665,7 @@ class TestWhycheproofP224Sha3_256(TestCase):
                 False,
             ),
             (
-                "[237] Signature encoding contains incorrect types: r=0, s=empyt UTF-8 string",
+                "[237] Signature encoding contains incorrect types: r=0, s=empty UTF-8 string",
                 b"\x04\xea\xda\x93\xbe\x10\xb2D\x9e\x1e\x8b\xb5\x83\x05\xd5 \x08\x01<W\x10|\x1a \xa3\x17\xa6\xcb\xa7\xec\xa6r4\x0c\x03\xd1\xd2\xe0\x96c(f\x91\xdfU\x06\x9f\xa2T\x90\xc9\xdd\x9f\x9c\x0b\xb2\xb5",
                 b"123400",
                 b"0\x05\x02\x01\x00\x0c\x00",
@@ -1728,7 +1728,7 @@ class TestWhycheproofP224Sha3_256(TestCase):
                 False,
             ),
             (
-                "[246] Signature encoding contains incorrect types: r=1, s=empyt UTF-8 string",
+                "[246] Signature encoding contains incorrect types: r=1, s=empty UTF-8 string",
                 b"\x04\xea\xda\x93\xbe\x10\xb2D\x9e\x1e\x8b\xb5\x83\x05\xd5 \x08\x01<W\x10|\x1a \xa3\x17\xa6\xcb\xa7\xec\xa6r4\x0c\x03\xd1\xd2\xe0\x96c(f\x91\xdfU\x06\x9f\xa2T\x90\xc9\xdd\x9f\x9c\x0b\xb2\xb5",
                 b"123400",
                 b"0\x05\x02\x01\x01\x0c\x00",
@@ -1791,7 +1791,7 @@ class TestWhycheproofP224Sha3_256(TestCase):
                 False,
             ),
             (
-                "[255] Signature encoding contains incorrect types: r=-1, s=empyt UTF-8 string",
+                "[255] Signature encoding contains incorrect types: r=-1, s=empty UTF-8 string",
                 b"\x04\xea\xda\x93\xbe\x10\xb2D\x9e\x1e\x8b\xb5\x83\x05\xd5 \x08\x01<W\x10|\x1a \xa3\x17\xa6\xcb\xa7\xec\xa6r4\x0c\x03\xd1\xd2\xe0\x96c(f\x91\xdfU\x06\x9f\xa2T\x90\xc9\xdd\x9f\x9c\x0b\xb2\xb5",
                 b"123400",
                 b"0\x05\x02\x01\xff\x0c\x00",
@@ -1854,7 +1854,7 @@ class TestWhycheproofP224Sha3_256(TestCase):
                 False,
             ),
             (
-                "[264] Signature encoding contains incorrect types: r=n, s=empyt UTF-8 string",
+                "[264] Signature encoding contains incorrect types: r=n, s=empty UTF-8 string",
                 b"\x04\xea\xda\x93\xbe\x10\xb2D\x9e\x1e\x8b\xb5\x83\x05\xd5 \x08\x01<W\x10|\x1a \xa3\x17\xa6\xcb\xa7\xec\xa6r4\x0c\x03\xd1\xd2\xe0\x96c(f\x91\xdfU\x06\x9f\xa2T\x90\xc9\xdd\x9f\x9c\x0b\xb2\xb5",
                 b"123400",
                 b"0!\x02\x1d\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x16\xa2\xe0\xb8\xf0>\x13\xdd)E\\\\*=\x0c\x00",
@@ -1917,7 +1917,7 @@ class TestWhycheproofP224Sha3_256(TestCase):
                 False,
             ),
             (
-                "[273] Signature encoding contains incorrect types: r=p, s=empyt UTF-8 string",
+                "[273] Signature encoding contains incorrect types: r=p, s=empty UTF-8 string",
                 b"\x04\xea\xda\x93\xbe\x10\xb2D\x9e\x1e\x8b\xb5\x83\x05\xd5 \x08\x01<W\x10|\x1a \xa3\x17\xa6\xcb\xa7\xec\xa6r4\x0c\x03\xd1\xd2\xe0\x96c(f\x91\xdfU\x06\x9f\xa2T\x90\xc9\xdd\x9f\x9c\x0b\xb2\xb5",
                 b"123400",
                 b"0!\x02\x1d\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x0c\x00",
@@ -1980,7 +1980,7 @@ class TestWhycheproofP224Sha3_256(TestCase):
                 False,
             ),
             (
-                "[282] Signature encoding contains incorrect types: r=empyt UTF-8 string, s=empyt UTF-8 string",
+                "[282] Signature encoding contains incorrect types: r=empty UTF-8 string, s=empty UTF-8 string",
                 b"\x04\xea\xda\x93\xbe\x10\xb2D\x9e\x1e\x8b\xb5\x83\x05\xd5 \x08\x01<W\x10|\x1a \xa3\x17\xa6\xcb\xa7\xec\xa6r4\x0c\x03\xd1\xd2\xe0\x96c(f\x91\xdfU\x06\x9f\xa2T\x90\xc9\xdd\x9f\x9c\x0b\xb2\xb5",
                 b"123400",
                 b"0\x04\x0c\x00\x0c\x00",
@@ -2043,7 +2043,7 @@ class TestWhycheproofP224Sha3_256(TestCase):
                 False,
             ),
             (
-                "[291] Signature encoding contains incorrect types: r=empyt UTF-8 string, s=0",
+                "[291] Signature encoding contains incorrect types: r=empty UTF-8 string, s=0",
                 b"\x04\xea\xda\x93\xbe\x10\xb2D\x9e\x1e\x8b\xb5\x83\x05\xd5 \x08\x01<W\x10|\x1a \xa3\x17\xa6\xcb\xa7\xec\xa6r4\x0c\x03\xd1\xd2\xe0\x96c(f\x91\xdfU\x06\x9f\xa2T\x90\xc9\xdd\x9f\x9c\x0b\xb2\xb5",
                 b"123400",
                 b"0\x05\x0c\x00\x02\x01\x00",
