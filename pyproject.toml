@@ -46,8 +46,8 @@ dev = [
 ]
 
 [project.urls]
-repo = "https://github.com/AntonKueltz/fastecdsa"
-docs = "https://fastecdsa.readthedocs.io"
+source = "https://github.com/AntonKueltz/fastecdsa"
+documentation = "https://fastecdsa.readthedocs.io"
 pypi = "https://pypi.org/project/fastecdsa/"
 
 [project.scripts]
