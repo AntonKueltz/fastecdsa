@@ -69,7 +69,7 @@
 - `__self__` to `fastecdsa.curve.Curve`
 
 ### Changed
-- `fastecdsa.encodng.KeyEncoder` interface:
+- `fastecdsa.encoding.KeyEncoder` interface:
   - All methods changed from static methods to instance methods
   - Encoders always return `bytes`
   - Decoders always take `bytes` for key data

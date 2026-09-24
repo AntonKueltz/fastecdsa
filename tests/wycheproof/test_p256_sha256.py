@@ -1665,7 +1665,7 @@ class TestWhycheproofP256Sha256(TestCase):
                 False,
             ),
             (
-                "[237] Signature encoding contains incorrect types: r=0, s=empyt UTF-8 string",
+                "[237] Signature encoding contains incorrect types: r=0, s=empty UTF-8 string",
                 b"\x04)'\xb1\x05\x12\xba\xe3\xed\xdc\xfeFx(\x12\x8b\xad)\x03&\x99\x19\xf7\x08`i\xc8\xc4\xdfls(8\xc7xyd\xea\xac\x00\xe5\x92\x1f\xb1I\x8a`\xf4`gf\xb3\xd9hP\x01U\x8d\x1a\x97NsAQ>",
                 b"123400",
                 b"0\x05\x02\x01\x00\x0c\x00",
@@ -1728,7 +1728,7 @@ class TestWhycheproofP256Sha256(TestCase):
                 False,
             ),
             (
-                "[246] Signature encoding contains incorrect types: r=1, s=empyt UTF-8 string",
+                "[246] Signature encoding contains incorrect types: r=1, s=empty UTF-8 string",
                 b"\x04)'\xb1\x05\x12\xba\xe3\xed\xdc\xfeFx(\x12\x8b\xad)\x03&\x99\x19\xf7\x08`i\xc8\xc4\xdfls(8\xc7xyd\xea\xac\x00\xe5\x92\x1f\xb1I\x8a`\xf4`gf\xb3\xd9hP\x01U\x8d\x1a\x97NsAQ>",
                 b"123400",
                 b"0\x05\x02\x01\x01\x0c\x00",
@@ -1791,7 +1791,7 @@ class TestWhycheproofP256Sha256(TestCase):
                 False,
             ),
             (
-                "[255] Signature encoding contains incorrect types: r=-1, s=empyt UTF-8 string",
+                "[255] Signature encoding contains incorrect types: r=-1, s=empty UTF-8 string",
                 b"\x04)'\xb1\x05\x12\xba\xe3\xed\xdc\xfeFx(\x12\x8b\xad)\x03&\x99\x19\xf7\x08`i\xc8\xc4\xdfls(8\xc7xyd\xea\xac\x00\xe5\x92\x1f\xb1I\x8a`\xf4`gf\xb3\xd9hP\x01U\x8d\x1a\x97NsAQ>",
                 b"123400",
                 b"0\x05\x02\x01\xff\x0c\x00",
@@ -1854,7 +1854,7 @@ class TestWhycheproofP256Sha256(TestCase):
                 False,
             ),
             (
-                "[264] Signature encoding contains incorrect types: r=n, s=empyt UTF-8 string",
+                "[264] Signature encoding contains incorrect types: r=n, s=empty UTF-8 string",
                 b"\x04)'\xb1\x05\x12\xba\xe3\xed\xdc\xfeFx(\x12\x8b\xad)\x03&\x99\x19\xf7\x08`i\xc8\xc4\xdfls(8\xc7xyd\xea\xac\x00\xe5\x92\x1f\xb1I\x8a`\xf4`gf\xb3\xd9hP\x01U\x8d\x1a\x97NsAQ>",
                 b"123400",
                 b"0%\x02!\x00\xff\xff\xff\xff\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\xbc\xe6\xfa\xad\xa7\x17\x9e\x84\xf3\xb9\xca\xc2\xfcc%Q\x0c\x00",
@@ -1917,7 +1917,7 @@ class TestWhycheproofP256Sha256(TestCase):
                 False,
             ),
             (
-                "[273] Signature encoding contains incorrect types: r=p, s=empyt UTF-8 string",
+                "[273] Signature encoding contains incorrect types: r=p, s=empty UTF-8 string",
                 b"\x04)'\xb1\x05\x12\xba\xe3\xed\xdc\xfeFx(\x12\x8b\xad)\x03&\x99\x19\xf7\x08`i\xc8\xc4\xdfls(8\xc7xyd\xea\xac\x00\xe5\x92\x1f\xb1I\x8a`\xf4`gf\xb3\xd9hP\x01U\x8d\x1a\x97NsAQ>",
                 b"123400",
                 b"0%\x02!\x00\xff\xff\xff\xff\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x0c\x00",
@@ -1980,7 +1980,7 @@ class TestWhycheproofP256Sha256(TestCase):
                 False,
             ),
             (
-                "[282] Signature encoding contains incorrect types: r=empyt UTF-8 string, s=empyt UTF-8 string",
+                "[282] Signature encoding contains incorrect types: r=empty UTF-8 string, s=empty UTF-8 string",
                 b"\x04)'\xb1\x05\x12\xba\xe3\xed\xdc\xfeFx(\x12\x8b\xad)\x03&\x99\x19\xf7\x08`i\xc8\xc4\xdfls(8\xc7xyd\xea\xac\x00\xe5\x92\x1f\xb1I\x8a`\xf4`gf\xb3\xd9hP\x01U\x8d\x1a\x97NsAQ>",
                 b"123400",
                 b"0\x04\x0c\x00\x0c\x00",
@@ -2043,7 +2043,7 @@ class TestWhycheproofP256Sha256(TestCase):
                 False,
             ),
             (
-                "[291] Signature encoding contains incorrect types: r=empyt UTF-8 string, s=0",
+                "[291] Signature encoding contains incorrect types: r=empty UTF-8 string, s=0",
                 b"\x04)'\xb1\x05\x12\xba\xe3\xed\xdc\xfeFx(\x12\x8b\xad)\x03&\x99\x19\xf7\x08`i\xc8\xc4\xdfls(8\xc7xyd\xea\xac\x00\xe5\x92\x1f\xb1I\x8a`\xf4`gf\xb3\xd9hP\x01U\x8d\x1a\x97NsAQ>",
                 b"123400",
                 b"0\x05\x0c\x00\x02\x01\x00",
