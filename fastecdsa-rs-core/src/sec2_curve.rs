@@ -76,10 +76,9 @@ pub trait Sec2Curve: Sized + 'static {
             return false;
         };
 
-        let q = Point::<Self> {
-            x: Field::<Self>::from(qx_bytes),
-            y: Field::<Self>::from(qy_bytes),
-            z: Self::ONE,
+        let q = match Point::<Self>::new(qx_bytes, qy_bytes) {
+            Some(point) => point,
+            None => return false,
         };
         let z = Self::Order::from_le_bytes(msg);
 
@@ -652,6 +651,24 @@ impl<C: Sec2Curve> Mul<&[u8]> for Point<C> {
 }
 
 impl<C: Sec2Curve> Point<C> {
+    pub fn new(xbytes: &[u8], ybytes: &[u8]) -> Option<Self> {
+        let x = Field::<C>::from(xbytes);
+        let y = Field::<C>::from(ybytes);
+
+        let lhs = y * y;
+        let rhs = x * x * x + C::A * x + C::B;
+
+        if lhs == rhs {
+            Some(Self {
+                x: x,
+                y: y,
+                z: C::ONE,
+            })
+        } else {
+            None
+        }
+    }
+
     pub fn is_point_at_infinity(&self) -> bool {
         self.z == C::ZERO
     }

@@ -17,14 +17,23 @@ digital signatures.
 
 Security
 --------
-There is no nonce reuse, no branching on secret material,
-and all points are validated before any operations are performed on them. Timing side challenges
-are mitigated via Montgomery point multiplication. Nonces are generated per RFC6979_. The default
-curve used throughout the package is P256 which provides 128 bits of security. If you require a
-higher level of security you can specify the curve parameter in a method to use a curve over a
-bigger field e.g. P384. All that being said, crypto is tricky and I'm not beyond making mistakes.
-Please use a more established and reviewed library for security critical applications. Open an
-issue or email me if you see any security issue or risk with this library.
+There is no nonce reuse, no branching on secret material, and all points are validated before
+being operations are performed on them. Timing side challenges are mitigated via constant time
+arithmetic, complete point arithmetic formulas, constant time combs for base point scaling and
+constant time montgomery ladders for arbitrary point scaling. Nonces are generated per RFC6979_.
+
+The default curve used throughout the package is P256 which provides 128 bits of security. If
+you require a higher level of security you can specify the curve parameter in a method to use a
+curve over a bigger field e.g. P384. For more details on timing analysis see the jupyter notebook
+at :code:`side-channel-analysis.ipynb`.
+
+The above security discussion pertains to the operations that are exposed via the
+:code:`fastecdsa.ecdsa` and :code:`fastecdsa.eddsa` modules. Timing considerations do not apply
+to verify as verify does not operate on secret material. Primitive operations like point arithmetic,
+as well as user-defined curves, have no security guarantees.
+
+If you have any security concerns or disclosures please use the author's email found in the
+:code:`pyproject.toml` file.
 
 Python Versions Supported
 -------------------------
@@ -143,7 +152,7 @@ ECDSA
 +-----------------+------------------------+-------------------------------+-------------------------+
 | P384            | 0.75s                  | 2.25s                         | 4.08s                   |
 +-----------------+------------------------+-------------------------------+-------------------------+
-| P521            | 1.58s                  | 3.63s                         | 7.08s                   |
+| P521            | 1.60s                  | 3.63s                         | 7.08s                   |
 +-----------------+------------------------+-------------------------------+-------------------------+
 | Secp192k1       | 0.11s                  | N/A                           | 1.19s                   |
 +-----------------+------------------------+-------------------------------+-------------------------+
@@ -163,7 +172,7 @@ ECDSA
 +-----------------+------------------------+-------------------------------+-------------------------+
 | Brainpoolp384r1 | 0.82s                  | 2.27s                         | 4.08s                   |
 +-----------------+------------------------+-------------------------------+-------------------------+
-| Brainpoolp512r1 | 1.59s                  | 3.33s                         | 7.06s                   |
+| Brainpoolp512r1 | 1.60s                  | 3.33s                         | 7.06s                   |
 +-----------------+------------------------+-------------------------------+-------------------------+
 
 EdDSA

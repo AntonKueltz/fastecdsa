@@ -69,12 +69,10 @@ pub trait BrainpoolCurve: Sized + 'static {
             return false;
         };
 
-        let q = (BrainpoolPoint::<Self> {
-            x: Self::CurveField::from_le_bytes(qx_bytes),
-            y: Self::CurveField::from_le_bytes(qy_bytes),
-            z: Self::ONE,
-        })
-        .to_twist();
+        let q = match BrainpoolPoint::<Self>::new(qx_bytes, qy_bytes) {
+            Some(point) => point.to_twist(),
+            None => return false,
+        };
         let z = Self::GroupField::from_le_bytes(msg);
 
         let sinv = s.invert();
@@ -242,6 +240,24 @@ impl<C: BrainpoolCurve> Mul<C::GroupField> for BrainpoolPoint<C> {
 }
 
 impl<C: BrainpoolCurve> BrainpoolPoint<C> {
+    pub fn new(xbytes: &[u8], ybytes: &[u8]) -> Option<Self> {
+        let x = C::CurveField::from_le_bytes(xbytes);
+        let y = C::CurveField::from_le_bytes(ybytes);
+
+        let lhs = y * y;
+        let rhs = x * x * x + C::A * x + C::B;
+
+        if lhs == rhs {
+            Some(Self {
+                x: x,
+                y: y,
+                z: C::ONE,
+            })
+        } else {
+            None
+        }
+    }
+
     pub fn is_point_at_infinity(&self) -> bool {
         self.z.is_zero()
     }
