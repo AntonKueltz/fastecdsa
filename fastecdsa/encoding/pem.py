@@ -45,13 +45,10 @@ class PEMEncoder(KeyEncoder):
         next(lines).rstrip()  # header lines
 
         base64_data = b""
-        line = next(lines).rstrip()
-
         while (
-            line and (line != cls.EC_PRIVATE_FOOTER) and (line != cls.EC_PUBLIC_FOOTER)
+            line := next(lines).rstrip() and (line != cls.EC_PRIVATE_FOOTER) and (line != cls.EC_PUBLIC_FOOTER)
         ):
             base64_data += line
-            line = next(lines).rstrip()
 
         return a2b_base64(base64_data)
 

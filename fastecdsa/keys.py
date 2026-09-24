@@ -56,15 +56,12 @@ def gen_private_key(curve: Curve, randfunc: Callable[[Any], bytes] = urandom) ->
     order_bytes = (order_bits + 7) // 8  # randfunc only takes bytes
     extra_bits = order_bytes * 8 - order_bits  # bits to shave off after getting bytes
 
-    rand = int.from_bytes(randfunc(order_bytes), "big")
-    rand >>= extra_bits
-
     # no modding by group order or we'll introduce biases
-    while rand < 1 or rand >= curve.q:
+    while True:
         rand = int.from_bytes(randfunc(order_bytes), "big")
         rand >>= extra_bits
-
-    return rand
+        if 1 <= rand < curve.q:
+            return rand
 
 
 def gen_ed25519_keypair(sk: bytes | None = None) -> tuple[bytes, bytes]:
