@@ -1665,7 +1665,7 @@ class TestWhycheproofBrainpoolp256r1Sha256(TestCase):
                 False,
             ),
             (
-                "[237] Signature encoding contains incorrect types: r=0, s=empyt UTF-8 string",
+                "[237] Signature encoding contains incorrect types: r=0, s=empty UTF-8 string",
                 b'\x04\x01\x9a-\x967t:c\xdd\xae\xfd\xbc\xa0\xee"\x9a\x16;\x80\x9b\x9b\x14^S\x13\xbb\xeb\x8d\xef\xea\xb9\xd6T\x8c\xaf\x89\xbf[\xa4\x94\x99@AEe\x1243d\x01\xb9\xb2\x84:W\x9e\xd1R\xe0\x90\xf1\x1b\x9eY',
                 b"123400",
                 b"0\x05\x02\x01\x00\x0c\x00",
@@ -1728,7 +1728,7 @@ class TestWhycheproofBrainpoolp256r1Sha256(TestCase):
                 False,
             ),
             (
-                "[246] Signature encoding contains incorrect types: r=1, s=empyt UTF-8 string",
+                "[246] Signature encoding contains incorrect types: r=1, s=empty UTF-8 string",
                 b'\x04\x01\x9a-\x967t:c\xdd\xae\xfd\xbc\xa0\xee"\x9a\x16;\x80\x9b\x9b\x14^S\x13\xbb\xeb\x8d\xef\xea\xb9\xd6T\x8c\xaf\x89\xbf[\xa4\x94\x99@AEe\x1243d\x01\xb9\xb2\x84:W\x9e\xd1R\xe0\x90\xf1\x1b\x9eY',
                 b"123400",
                 b"0\x05\x02\x01\x01\x0c\x00",
@@ -1791,7 +1791,7 @@ class TestWhycheproofBrainpoolp256r1Sha256(TestCase):
                 False,
             ),
             (
-                "[255] Signature encoding contains incorrect types: r=-1, s=empyt UTF-8 string",
+                "[255] Signature encoding contains incorrect types: r=-1, s=empty UTF-8 string",
                 b'\x04\x01\x9a-\x967t:c\xdd\xae\xfd\xbc\xa0\xee"\x9a\x16;\x80\x9b\x9b\x14^S\x13\xbb\xeb\x8d\xef\xea\xb9\xd6T\x8c\xaf\x89\xbf[\xa4\x94\x99@AEe\x1243d\x01\xb9\xb2\x84:W\x9e\xd1R\xe0\x90\xf1\x1b\x9eY',
                 b"123400",
                 b"0\x05\x02\x01\xff\x0c\x00",
@@ -1854,7 +1854,7 @@ class TestWhycheproofBrainpoolp256r1Sha256(TestCase):
                 False,
             ),
             (
-                "[264] Signature encoding contains incorrect types: r=n, s=empyt UTF-8 string",
+                "[264] Signature encoding contains incorrect types: r=n, s=empty UTF-8 string",
                 b'\x04\x01\x9a-\x967t:c\xdd\xae\xfd\xbc\xa0\xee"\x9a\x16;\x80\x9b\x9b\x14^S\x13\xbb\xeb\x8d\xef\xea\xb9\xd6T\x8c\xaf\x89\xbf[\xa4\x94\x99@AEe\x1243d\x01\xb9\xb2\x84:W\x9e\xd1R\xe0\x90\xf1\x1b\x9eY',
                 b"123400",
                 b"0%\x02!\x00\xa9\xfbW\xdb\xa1\xee\xa9\xbc>f\n\x90\x9d\x83\x8dq\x8c9z\xa3\xb5a\xa6\xf7\x90\x1e\x0e\x82\x97HV\xa7\x0c\x00",
@@ -1917,7 +1917,7 @@ class TestWhycheproofBrainpoolp256r1Sha256(TestCase):
                 False,
             ),
             (
-                "[273] Signature encoding contains incorrect types: r=p, s=empyt UTF-8 string",
+                "[273] Signature encoding contains incorrect types: r=p, s=empty UTF-8 string",
                 b'\x04\x01\x9a-\x967t:c\xdd\xae\xfd\xbc\xa0\xee"\x9a\x16;\x80\x9b\x9b\x14^S\x13\xbb\xeb\x8d\xef\xea\xb9\xd6T\x8c\xaf\x89\xbf[\xa4\x94\x99@AEe\x1243d\x01\xb9\xb2\x84:W\x9e\xd1R\xe0\x90\xf1\x1b\x9eY',
                 b"123400",
                 b"0%\x02!\x00\xa9\xfbW\xdb\xa1\xee\xa9\xbc>f\n\x90\x9d\x83\x8drn;\xf6#\xd5& ( \x13H\x1d\x1fnSw\x0c\x00",
@@ -1980,7 +1980,7 @@ class TestWhycheproofBrainpoolp256r1Sha256(TestCase):
                 False,
             ),
             (
-                "[282] Signature encoding contains incorrect types: r=empyt UTF-8 string, s=empyt UTF-8 string",
+                "[282] Signature encoding contains incorrect types: r=empty UTF-8 string, s=empty UTF-8 string",
                 b'\x04\x01\x9a-\x967t:c\xdd\xae\xfd\xbc\xa0\xee"\x9a\x16;\x80\x9b\x9b\x14^S\x13\xbb\xeb\x8d\xef\xea\xb9\xd6T\x8c\xaf\x89\xbf[\xa4\x94\x99@AEe\x1243d\x01\xb9\xb2\x84:W\x9e\xd1R\xe0\x90\xf1\x1b\x9eY',
                 b"123400",
                 b"0\x04\x0c\x00\x0c\x00",
@@ -2043,7 +2043,7 @@ class TestWhycheproofBrainpoolp256r1Sha256(TestCase):
                 False,
             ),
             (
-                "[291] Signature encoding contains incorrect types: r=empyt UTF-8 string, s=0",
+                "[291] Signature encoding contains incorrect types: r=empty UTF-8 string, s=0",
                 b'\x04\x01\x9a-\x967t:c\xdd\xae\xfd\xbc\xa0\xee"\x9a\x16;\x80\x9b\x9b\x14^S\x13\xbb\xeb\x8d\xef\xea\xb9\xd6T\x8c\xaf\x89\xbf[\xa4\x94\x99@AEe\x1243d\x01\xb9\xb2\x84:W\x9e\xd1R\xe0\x90\xf1\x1b\x9eY',
                 b"123400",
                 b"0\x05\x0c\x00\x02\x01\x00",

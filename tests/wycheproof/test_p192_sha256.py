@@ -1665,7 +1665,7 @@ class TestWhycheproofP192Sha256(TestCase):
                 False,
             ),
             (
-                "[237] Signature encoding contains incorrect types: r=0, s=empyt UTF-8 string",
+                "[237] Signature encoding contains incorrect types: r=0, s=empty UTF-8 string",
                 b"\x04\xcd5\xa0\xb1\x8e\xeb\x8f\xcd\x87\xff\x01\x97\x80\x01((t_\x04nx]\xeb\xa2\x81P\xde\x1b\xe6\xcbCvR0\x06\xbe\xff0\xff\t\xb4\x04\x91%\xce\xd2\x97#",
                 b"123400",
                 b"0\x05\x02\x01\x00\x0c\x00",
@@ -1728,7 +1728,7 @@ class TestWhycheproofP192Sha256(TestCase):
                 False,
             ),
             (
-                "[246] Signature encoding contains incorrect types: r=1, s=empyt UTF-8 string",
+                "[246] Signature encoding contains incorrect types: r=1, s=empty UTF-8 string",
                 b"\x04\xcd5\xa0\xb1\x8e\xeb\x8f\xcd\x87\xff\x01\x97\x80\x01((t_\x04nx]\xeb\xa2\x81P\xde\x1b\xe6\xcbCvR0\x06\xbe\xff0\xff\t\xb4\x04\x91%\xce\xd2\x97#",
                 b"123400",
                 b"0\x05\x02\x01\x01\x0c\x00",
@@ -1791,7 +1791,7 @@ class TestWhycheproofP192Sha256(TestCase):
                 False,
             ),
             (
-                "[255] Signature encoding contains incorrect types: r=-1, s=empyt UTF-8 string",
+                "[255] Signature encoding contains incorrect types: r=-1, s=empty UTF-8 string",
                 b"\x04\xcd5\xa0\xb1\x8e\xeb\x8f\xcd\x87\xff\x01\x97\x80\x01((t_\x04nx]\xeb\xa2\x81P\xde\x1b\xe6\xcbCvR0\x06\xbe\xff0\xff\t\xb4\x04\x91%\xce\xd2\x97#",
                 b"123400",
                 b"0\x05\x02\x01\xff\x0c\x00",
@@ -1854,7 +1854,7 @@ class TestWhycheproofP192Sha256(TestCase):
                 False,
             ),
             (
-                "[264] Signature encoding contains incorrect types: r=n, s=empyt UTF-8 string",
+                "[264] Signature encoding contains incorrect types: r=n, s=empty UTF-8 string",
                 b"\x04\xcd5\xa0\xb1\x8e\xeb\x8f\xcd\x87\xff\x01\x97\x80\x01((t_\x04nx]\xeb\xa2\x81P\xde\x1b\xe6\xcbCvR0\x06\xbe\xff0\xff\t\xb4\x04\x91%\xce\xd2\x97#",
                 b"123400",
                 b"0\x1d\x02\x19\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x99\xde\xf86\x14k\xc9\xb1\xb4\xd2(1\x0c\x00",
@@ -1917,7 +1917,7 @@ class TestWhycheproofP192Sha256(TestCase):
                 False,
             ),
             (
-                "[273] Signature encoding contains incorrect types: r=p, s=empyt UTF-8 string",
+                "[273] Signature encoding contains incorrect types: r=p, s=empty UTF-8 string",
                 b"\x04\xcd5\xa0\xb1\x8e\xeb\x8f\xcd\x87\xff\x01\x97\x80\x01((t_\x04nx]\xeb\xa2\x81P\xde\x1b\xe6\xcbCvR0\x06\xbe\xff0\xff\t\xb4\x04\x91%\xce\xd2\x97#",
                 b"123400",
                 b"0\x1d\x02\x19\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff\xff\xff\xff\xff\xff\x0c\x00",
@@ -1980,7 +1980,7 @@ class TestWhycheproofP192Sha256(TestCase):
                 False,
             ),
             (
-                "[282] Signature encoding contains incorrect types: r=empyt UTF-8 string, s=empyt UTF-8 string",
+                "[282] Signature encoding contains incorrect types: r=empty UTF-8 string, s=empty UTF-8 string",
                 b"\x04\xcd5\xa0\xb1\x8e\xeb\x8f\xcd\x87\xff\x01\x97\x80\x01((t_\x04nx]\xeb\xa2\x81P\xde\x1b\xe6\xcbCvR0\x06\xbe\xff0\xff\t\xb4\x04\x91%\xce\xd2\x97#",
                 b"123400",
                 b"0\x04\x0c\x00\x0c\x00",
@@ -2043,7 +2043,7 @@ class TestWhycheproofP192Sha256(TestCase):
                 False,
             ),
             (
-                "[291] Signature encoding contains incorrect types: r=empyt UTF-8 string, s=0",
+                "[291] Signature encoding contains incorrect types: r=empty UTF-8 string, s=0",
                 b"\x04\xcd5\xa0\xb1\x8e\xeb\x8f\xcd\x87\xff\x01\x97\x80\x01((t_\x04nx]\xeb\xa2\x81P\xde\x1b\xe6\xcbCvR0\x06\xbe\xff0\xff\t\xb4\x04\x91%\xce\xd2\x97#",
                 b"123400",
                 b"0\x05\x0c\x00\x02\x01\x00",

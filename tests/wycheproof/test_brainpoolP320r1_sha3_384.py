@@ -1665,7 +1665,7 @@ class TestWhycheproofBrainpoolp320r1Sha3_384(TestCase):
                 False,
             ),
             (
-                "[237] Signature encoding contains incorrect types: r=0, s=empyt UTF-8 string",
+                "[237] Signature encoding contains incorrect types: r=0, s=empty UTF-8 string",
                 b"\x04\x0f\xcc\x88`\xcb&\xe2b\xca\x8bN\xcb\x9cR\xf7\x8d\x82\xa1\n\x1d0\xdd\x0c\x8e\xcdu\x84\xce\x80\xdb\xb7\\H\x8a\x06+d7U\x00\x1f'\xe6v\xc2l\xd3H\x8c\x1e\xf4\xec>\xdd\x88\xcf\x8a\xf7\x8d\xaf\x906rKW\xe6m\xa0,\xf7\xc6v\xa56d\xbe\xcd\xfe\xdc;",
                 b"123400",
                 b"0\x05\x02\x01\x00\x0c\x00",
@@ -1728,7 +1728,7 @@ class TestWhycheproofBrainpoolp320r1Sha3_384(TestCase):
                 False,
             ),
             (
-                "[246] Signature encoding contains incorrect types: r=1, s=empyt UTF-8 string",
+                "[246] Signature encoding contains incorrect types: r=1, s=empty UTF-8 string",
                 b"\x04\x0f\xcc\x88`\xcb&\xe2b\xca\x8bN\xcb\x9cR\xf7\x8d\x82\xa1\n\x1d0\xdd\x0c\x8e\xcdu\x84\xce\x80\xdb\xb7\\H\x8a\x06+d7U\x00\x1f'\xe6v\xc2l\xd3H\x8c\x1e\xf4\xec>\xdd\x88\xcf\x8a\xf7\x8d\xaf\x906rKW\xe6m\xa0,\xf7\xc6v\xa56d\xbe\xcd\xfe\xdc;",
                 b"123400",
                 b"0\x05\x02\x01\x01\x0c\x00",
@@ -1791,7 +1791,7 @@ class TestWhycheproofBrainpoolp320r1Sha3_384(TestCase):
                 False,
             ),
             (
-                "[255] Signature encoding contains incorrect types: r=-1, s=empyt UTF-8 string",
+                "[255] Signature encoding contains incorrect types: r=-1, s=empty UTF-8 string",
                 b"\x04\x0f\xcc\x88`\xcb&\xe2b\xca\x8bN\xcb\x9cR\xf7\x8d\x82\xa1\n\x1d0\xdd\x0c\x8e\xcdu\x84\xce\x80\xdb\xb7\\H\x8a\x06+d7U\x00\x1f'\xe6v\xc2l\xd3H\x8c\x1e\xf4\xec>\xdd\x88\xcf\x8a\xf7\x8d\xaf\x906rKW\xe6m\xa0,\xf7\xc6v\xa56d\xbe\xcd\xfe\xdc;",
                 b"123400",
                 b"0\x05\x02\x01\xff\x0c\x00",
@@ -1854,7 +1854,7 @@ class TestWhycheproofBrainpoolp320r1Sha3_384(TestCase):
                 False,
             ),
             (
-                "[264] Signature encoding contains incorrect types: r=n, s=empyt UTF-8 string",
+                "[264] Signature encoding contains incorrect types: r=n, s=empty UTF-8 string",
                 b"\x04\x0f\xcc\x88`\xcb&\xe2b\xca\x8bN\xcb\x9cR\xf7\x8d\x82\xa1\n\x1d0\xdd\x0c\x8e\xcdu\x84\xce\x80\xdb\xb7\\H\x8a\x06+d7U\x00\x1f'\xe6v\xc2l\xd3H\x8c\x1e\xf4\xec>\xdd\x88\xcf\x8a\xf7\x8d\xaf\x906rKW\xe6m\xa0,\xf7\xc6v\xa56d\xbe\xcd\xfe\xdc;",
                 b"123400",
                 b"0-\x02)\x00\xd3^G 6\xbcO\xb7\xe1<x^\xd2\x01\xe0e\xf9\x8f\xcf\xa5\xb6\x8f\x12\xa3-H.\xc7\xee\x86X\xe9\x86\x91U[D\xc5\x93\x11\x0c\x00",
@@ -1917,7 +1917,7 @@ class TestWhycheproofBrainpoolp320r1Sha3_384(TestCase):
                 False,
             ),
             (
-                "[273] Signature encoding contains incorrect types: r=p, s=empyt UTF-8 string",
+                "[273] Signature encoding contains incorrect types: r=p, s=empty UTF-8 string",
                 b"\x04\x0f\xcc\x88`\xcb&\xe2b\xca\x8bN\xcb\x9cR\xf7\x8d\x82\xa1\n\x1d0\xdd\x0c\x8e\xcdu\x84\xce\x80\xdb\xb7\\H\x8a\x06+d7U\x00\x1f'\xe6v\xc2l\xd3H\x8c\x1e\xf4\xec>\xdd\x88\xcf\x8a\xf7\x8d\xaf\x906rKW\xe6m\xa0,\xf7\xc6v\xa56d\xbe\xcd\xfe\xdc;",
                 b"123400",
                 b"0-\x02)\x00\xd3^G 6\xbcO\xb7\xe1<x^\xd2\x01\xe0e\xf9\x8f\xcf\xa6\xf6\xf4\r\xefO\x92\xb9\xecx\x93\xec(\xfc\xd4\x12\xb1\xf1\xb3.'\x0c\x00",
@@ -1980,7 +1980,7 @@ class TestWhycheproofBrainpoolp320r1Sha3_384(TestCase):
                 False,
             ),
             (
-                "[282] Signature encoding contains incorrect types: r=empyt UTF-8 string, s=empyt UTF-8 string",
+                "[282] Signature encoding contains incorrect types: r=empty UTF-8 string, s=empty UTF-8 string",
                 b"\x04\x0f\xcc\x88`\xcb&\xe2b\xca\x8bN\xcb\x9cR\xf7\x8d\x82\xa1\n\x1d0\xdd\x0c\x8e\xcdu\x84\xce\x80\xdb\xb7\\H\x8a\x06+d7U\x00\x1f'\xe6v\xc2l\xd3H\x8c\x1e\xf4\xec>\xdd\x88\xcf\x8a\xf7\x8d\xaf\x906rKW\xe6m\xa0,\xf7\xc6v\xa56d\xbe\xcd\xfe\xdc;",
                 b"123400",
                 b"0\x04\x0c\x00\x0c\x00",
@@ -2043,7 +2043,7 @@ class TestWhycheproofBrainpoolp320r1Sha3_384(TestCase):
                 False,
             ),
             (
-                "[291] Signature encoding contains incorrect types: r=empyt UTF-8 string, s=0",
+                "[291] Signature encoding contains incorrect types: r=empty UTF-8 string, s=0",
                 b"\x04\x0f\xcc\x88`\xcb&\xe2b\xca\x8bN\xcb\x9cR\xf7\x8d\x82\xa1\n\x1d0\xdd\x0c\x8e\xcdu\x84\xce\x80\xdb\xb7\\H\x8a\x06+d7U\x00\x1f'\xe6v\xc2l\xd3H\x8c\x1e\xf4\xec>\xdd\x88\xcf\x8a\xf7\x8d\xaf\x906rKW\xe6m\xa0,\xf7\xc6v\xa56d\xbe\xcd\xfe\xdc;",
                 b"123400",
                 b"0\x05\x0c\x00\x02\x01\x00",
